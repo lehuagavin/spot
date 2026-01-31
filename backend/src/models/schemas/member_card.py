@@ -89,7 +89,7 @@ class MemberCardResponse(BaseModel):
     duration: int = Field(..., description="有效天数")
     price: Decimal = Field(..., description="售价")
     original_price: Decimal = Field(..., description="原价")
-    benefits: Optional[dict] = Field(None, description="权益列表")
+    benefits: Optional[Union[dict, list]] = Field(None, description="权益列表")
     is_recommended: int = Field(..., description="是否推荐")
     sort_order: int = Field(..., description="排序")
     status: int = Field(..., description="状态 1启用 0禁用")
