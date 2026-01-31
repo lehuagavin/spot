@@ -1,0 +1,75 @@
+<!-- 个人中心页面 -->
+<view class="page-container">
+  <!-- 用户信息区 -->
+  <view class="user-section">
+    <!-- 未登录 -->
+    <view class="user-card" wx:if="{{!isLoggedIn}}" bindtap="onLogin">
+      <view class="avatar default">
+        <text>👤</text>
+      </view>
+      <view class="user-info">
+        <view class="login-text">立即登录</view>
+        <view class="login-hint">登录后享受更多服务</view>
+      </view>
+      <view class="arrow">›</view>
+    </view>
+    
+    <!-- 已登录 -->
+    <view class="user-card logged" wx:else>
+      <view class="avatar">
+        <image wx:if="{{userInfo.avatar}}" src="{{userInfo.avatar}}" mode="aspectFill"/>
+        <text wx:else>😊</text>
+      </view>
+      <view class="user-info">
+        <view class="username">{{userInfo.nickname || '用户'}}</view>
+        <view class="phone">{{userInfo.phone_masked || ''}}</view>
+      </view>
+      <button class="invite-btn" bindtap="onInvite">邀请好友</button>
+    </view>
+    
+    <!-- 资产 -->
+    <view class="assets-row">
+      <view class="asset-item">
+        <view class="asset-value">{{assets.health_beans || 0}}</view>
+        <view class="asset-label">健康豆</view>
+      </view>
+      <view class="asset-divider"></view>
+      <view class="asset-item">
+        <view class="asset-value">{{assets.coupons || 0}}</view>
+        <view class="asset-label">优惠券</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 菜单列表 -->
+  <view class="menu-section">
+    <view 
+      class="menu-item {{item.type === 'info' ? 'info' : ''}}"
+      wx:for="{{menuList}}"
+      wx:key="title"
+      bindtap="onMenuTap"
+      data-url="{{item.url}}"
+      data-type="{{item.type}}"
+    >
+      <view class="menu-icon">{{item.icon}}</view>
+      <view class="menu-content">
+        <view class="menu-title">{{item.title}}</view>
+        <view class="menu-desc" wx:if="{{item.desc}}">{{item.desc}}</view>
+      </view>
+      <view class="menu-arrow">›</view>
+    </view>
+  </view>
+  
+  <!-- 其他按钮 -->
+  <view class="other-section">
+    <button class="service-btn" open-type="contact">
+      <text class="btn-icon">💬</text>
+      <text>联系客服</text>
+    </button>
+  </view>
+  
+  <!-- 退出登录 -->
+  <view class="logout-section" wx:if="{{isLoggedIn}}">
+    <button class="logout-btn" bindtap="onLogout">退出登录</button>
+  </view>
+</view>

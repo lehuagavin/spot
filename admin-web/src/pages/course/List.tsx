@@ -99,10 +99,12 @@ export default function CourseList() {
         getAllCommunities(),
         getAllTeachers(),
       ]);
-      setCommunities(communitiesData);
-      setTeachers(teachersData);
+      setCommunities(communitiesData || []);
+      setTeachers(teachersData || []);
     } catch (error) {
       console.error('获取选项数据失败:', error);
+      setCommunities([]);
+      setTeachers([]);
     }
   };
 
@@ -379,7 +381,7 @@ export default function CourseList() {
             >
               <Select
                 placeholder="请选择小区"
-                options={communities.map((c) => ({ value: c.id, label: c.name }))}
+                options={(communities || []).map((c) => ({ value: c.id, label: c.name }))}
               />
             </Form.Item>
             <Form.Item
@@ -389,7 +391,7 @@ export default function CourseList() {
             >
               <Select
                 placeholder="请选择教练"
-                options={teachers.map((t) => ({ value: t.id, label: t.name }))}
+                options={(teachers || []).map((t) => ({ value: t.id, label: t.name }))}
               />
             </Form.Item>
           </div>

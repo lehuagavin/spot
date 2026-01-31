@@ -1,0 +1,42 @@
+<!-- 选择学员页面 -->
+<view class="page-container">
+  <view class="tip-bar">请优先选择学员</view>
+  
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+  </view>
+  
+  <view class="student-list" wx:elif="{{students.length > 0}}">
+    <view 
+      class="student-item {{selectedIds.includes(item.id) ? 'selected' : ''}}"
+      wx:for="{{students}}"
+      wx:key="id"
+      bindtap="onToggleSelect"
+      data-id="{{item.id}}"
+    >
+      <view class="student-avatar">
+        <text>{{item.gender === 1 ? '👦' : '👧'}}</text>
+      </view>
+      <view class="student-info">
+        <view class="student-name">{{item.name}}</view>
+        <view class="student-birthday">{{item.birthday}}</view>
+      </view>
+      <view class="new-tag" wx:if="{{item.is_new}}">新人价</view>
+      <view class="check-box {{selectedIds.includes(item.id) ? 'checked' : ''}}">
+        <text wx:if="{{selectedIds.includes(item.id)}}">✓</text>
+      </view>
+    </view>
+  </view>
+  
+  <view class="empty-state" wx:else>
+    <text class="empty-icon">👶</text>
+    <text class="empty-text">暂无学员</text>
+  </view>
+  
+  <view class="bottom-placeholder"></view>
+</view>
+
+<view class="bottom-bar">
+  <button class="add-btn" bindtap="onAddStudent">新增学员</button>
+  <button class="confirm-btn" bindtap="onConfirm">确认选择 ({{selectedIds.length}})</button>
+</view>

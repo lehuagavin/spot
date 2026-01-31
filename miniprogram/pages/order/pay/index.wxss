@@ -1,0 +1,33 @@
+/* 支付页面样式 */
+.page-container { min-height: 100vh; background-color: #f5f5f7; padding-bottom: 160rpx; }
+.loading-state { display: flex; justify-content: center; padding: 200rpx; }
+.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid #e8e8ed; border-top-color: #0071e3; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.status-section { display: flex; flex-direction: column; align-items: center; padding: 60rpx 0; background-color: #fff; }
+.status-icon { font-size: 80rpx; margin-bottom: 16rpx; }
+.status-text { font-size: 36rpx; font-weight: 600; color: #1d1d1f; margin-bottom: 12rpx; }
+.countdown { font-size: 28rpx; color: #6e6e73; }
+.countdown .time { color: #ff3b30; font-weight: 500; }
+
+.order-card { margin: 24rpx; padding: 28rpx; background-color: #fff; border-radius: 24rpx; }
+.order-title { font-size: 32rpx; font-weight: 600; color: #1d1d1f; margin-bottom: 16rpx; }
+.order-info { display: flex; justify-content: space-between; }
+.info-label { font-size: 26rpx; color: #6e6e73; }
+.info-value { font-size: 26rpx; color: #1d1d1f; }
+
+.amount-section { margin: 24rpx; padding: 40rpx; background-color: #fff; border-radius: 24rpx; text-align: center; }
+.amount-label { font-size: 28rpx; color: #6e6e73; }
+.amount-value { margin-top: 16rpx; }
+.amount-symbol { font-size: 32rpx; color: #ff3b30; }
+.amount-number { font-size: 64rpx; font-weight: 600; color: #ff3b30; }
+
+.notice-section { margin: 24rpx; padding: 24rpx; background-color: #fff; border-radius: 24rpx; }
+.notice-item { font-size: 24rpx; color: #6e6e73; line-height: 1.8; padding-left: 24rpx; position: relative; }
+.notice-item::before { content: '•'; position: absolute; left: 0; color: #86868b; }
+
+.bottom-bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 16rpx; padding: 16rpx 24rpx; padding-bottom: calc(16rpx + env(safe-area-inset-bottom)); background-color: #fff; box-shadow: 0 -2rpx 16rpx rgba(0,0,0,0.06); }
+.cancel-btn { flex: 1; height: 88rpx; line-height: 88rpx; font-size: 28rpx; color: #1d1d1f; background-color: #f5f5f7; border-radius: 44rpx; border: none; }
+.cancel-btn::after { border: none; }
+.pay-btn { flex: 2; height: 88rpx; line-height: 88rpx; font-size: 28rpx; font-weight: 500; color: #fff; background-color: #0071e3; border-radius: 44rpx; border: none; }
+.pay-btn::after { border: none; }

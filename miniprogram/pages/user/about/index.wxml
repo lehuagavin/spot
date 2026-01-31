@@ -1,0 +1,62 @@
+<!-- 关于我们页面 -->
+<view class="page-container">
+  <view class="logo-section">
+    <view class="logo">🏃</view>
+    <view class="brand-name">义城上门教育</view>
+    <view class="brand-sub">YICHENG HOME EDUCATION</view>
+    <view class="version">版本 {{version}}</view>
+  </view>
+  
+  <view class="info-section">
+    <view class="info-card">
+      <view class="card-title">关于我们</view>
+      <view class="card-content">
+        义城上门教育是一款专注于儿童体育培训的服务平台。我们采用"拼班"模式，由专业教练上门授课，让孩子在家门口就能享受专业的体育培训服务。
+      </view>
+    </view>
+    
+    <view class="info-card">
+      <view class="card-title">核心优势</view>
+      <view class="advantage-list">
+        <view class="advantage-item">
+          <text class="advantage-icon">🏅</text>
+          <text>国家体育总局指定考核点</text>
+        </view>
+        <view class="advantage-item">
+          <text class="advantage-icon">🏟️</text>
+          <text>专业场地，政府扶持</text>
+        </view>
+        <view class="advantage-item">
+          <text class="advantage-icon">👨‍🏫</text>
+          <text>专业教练上门授课</text>
+        </view>
+        <view class="advantage-item">
+          <text class="advantage-icon">🌳</text>
+          <text>户外教学，快乐运动</text>
+        </view>
+        <view class="advantage-item">
+          <text class="advantage-icon">🛡️</text>
+          <text>保险护航，安全保障</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="info-card">
+      <view class="card-title">联系我们</view>
+      <view class="contact-list">
+        <view class="contact-item">
+          <text class="contact-label">客服电话</text>
+          <text class="contact-value">400-xxx-xxxx</text>
+        </view>
+        <view class="contact-item">
+          <text class="contact-label">工作时间</text>
+          <text class="contact-value">9:00 - 18:00</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <view class="copyright">
+    <text>© 2026 义城上门教育 版权所有</text>
+  </view>
+</view>

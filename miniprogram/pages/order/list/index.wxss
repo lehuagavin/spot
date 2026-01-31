@@ -1,0 +1,35 @@
+/* 拼班记录页面样式 */
+.page-container { min-height: 100vh; background-color: #f5f5f7; }
+
+.tab-section { background-color: #fff; padding: 0 24rpx; }
+.tab-scroll { white-space: nowrap; }
+.tab-list { display: inline-flex; padding: 16rpx 0; }
+.tab-item { padding: 12rpx 28rpx; font-size: 28rpx; color: #6e6e73; border-radius: 28rpx; margin-right: 16rpx; }
+.tab-item.active { color: #fff; background-color: #0071e3; font-weight: 500; }
+
+.loading-state { display: flex; flex-direction: column; align-items: center; padding: 120rpx; }
+.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid #e8e8ed; border-top-color: #0071e3; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 28rpx; color: #86868b; margin-top: 20rpx; }
+
+.order-list { padding: 24rpx; }
+.order-card { background-color: #fff; border-radius: 24rpx; padding: 24rpx; margin-bottom: 24rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
+.order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; }
+.order-name { font-size: 32rpx; font-weight: 600; color: #1d1d1f; }
+.order-status { padding: 6rpx 16rpx; font-size: 24rpx; border-radius: 8rpx; }
+.order-status.pending { color: #ff9500; background-color: rgba(255,149,0,0.1); }
+.order-status.waiting { color: #0071e3; background-color: rgba(0,113,227,0.1); }
+.order-status.ongoing { color: #34c759; background-color: rgba(52,199,89,0.1); }
+.order-status.completed { color: #6e6e73; background-color: #f5f5f7; }
+.order-status.cancelled { color: #6e6e73; background-color: #f5f5f7; }
+.order-info { display: flex; align-items: center; font-size: 26rpx; color: #6e6e73; margin-bottom: 8rpx; }
+.info-icon { margin-right: 8rpx; }
+.order-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid rgba(0,0,0,0.06); }
+.order-time { font-size: 24rpx; color: #86868b; }
+.order-amount { font-size: 32rpx; font-weight: 600; color: #ff3b30; }
+
+.empty-state { display: flex; flex-direction: column; align-items: center; padding: 160rpx 0; }
+.empty-icon { font-size: 100rpx; margin-bottom: 24rpx; opacity: 0.6; }
+.empty-text { font-size: 32rpx; color: #1d1d1f; margin-bottom: 24rpx; }
+.empty-btn { padding: 20rpx 60rpx; font-size: 28rpx; color: #0071e3; background-color: rgba(0,113,227,0.1); border-radius: 40rpx; border: none; }
+.empty-btn::after { border: none; }

@@ -1,0 +1,65 @@
+<!-- 学员列表页面 -->
+<view class="page-container">
+  <!-- 加载中 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+  
+  <!-- 学员列表 -->
+  <view class="student-list" wx:elif="{{students.length > 0}}">
+    <view 
+      class="student-card"
+      wx:for="{{students}}"
+      wx:key="id"
+    >
+      <!-- 学员头像 -->
+      <view class="student-avatar" bindtap="onEditStudent" data-id="{{item.id}}">
+        <image wx:if="{{item.photo}}" src="{{item.photo}}" mode="aspectFill"/>
+        <text wx:else>{{item.gender === 1 ? '👦' : '👧'}}</text>
+      </view>
+      
+      <!-- 学员信息 -->
+      <view class="student-info" bindtap="onEditStudent" data-id="{{item.id}}">
+        <view class="info-header">
+          <text class="student-name">{{item.name}}</text>
+          <view class="member-tag {{item.member_type === 'vip' ? 'vip' : ''}}">
+            {{item.member_type === 'vip' ? 'VIP会员' : '普通会员'}}
+          </view>
+        </view>
+        <view class="info-row">
+          <text class="info-label">出生日期</text>
+          <text class="info-value">{{item.birthday}}</text>
+        </view>
+      </view>
+      
+      <!-- 删除按钮 -->
+      <view 
+        class="delete-btn"
+        catchtap="onDeleteStudent"
+        data-id="{{item.id}}"
+        data-name="{{item.name}}"
+      >
+        <text class="delete-icon">🗑️</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <view class="empty-icon">👶</view>
+    <text class="empty-text">暂无学员</text>
+    <text class="empty-hint">添加学员后即可报名课程</text>
+  </view>
+  
+  <!-- 底部占位 -->
+  <view class="bottom-placeholder"></view>
+</view>
+
+<!-- 底部按钮 -->
+<view class="bottom-bar">
+  <button class="add-btn" bindtap="onAddStudent">
+    <text class="add-icon">+</text>
+    <text class="add-text">新增学员</text>
+  </button>
+</view>

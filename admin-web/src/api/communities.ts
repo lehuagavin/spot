@@ -38,7 +38,7 @@ export function deleteCommunity(id: string): Promise<void> {
 // 获取所有小区（用于下拉选择）
 export async function getAllCommunities(): Promise<Community[]> {
   const res: PageResponse<Community> = await request.get('/api/v1/admin/communities', { 
-    params: { page: 1, page_size: 1000, status: 1 } 
+    params: { page: 1, page_size: 100, status: 1 } 
   });
   return res.list;
 }

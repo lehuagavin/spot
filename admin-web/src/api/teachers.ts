@@ -38,7 +38,7 @@ export function deleteTeacher(id: string): Promise<void> {
 // 获取所有教练（用于下拉选择）
 export async function getAllTeachers(): Promise<Teacher[]> {
   const res: PageResponse<Teacher> = await request.get('/api/v1/admin/teachers', { 
-    params: { page: 1, page_size: 1000, status: 1 } 
+    params: { page: 1, page_size: 100, status: 1 } 
   });
   return res.list;
 }

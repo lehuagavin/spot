@@ -1,0 +1,58 @@
+<!-- 拼班记录页面 -->
+<view class="page-container">
+  <!-- 标签栏 -->
+  <view class="tab-section">
+    <scroll-view class="tab-scroll" scroll-x>
+      <view class="tab-list">
+        <view 
+          class="tab-item {{currentTab === item.key ? 'active' : ''}}"
+          wx:for="{{tabs}}"
+          wx:key="key"
+          bindtap="onTabChange"
+          data-key="{{item.key}}"
+        >{{item.label}}</view>
+      </view>
+    </scroll-view>
+  </view>
+  
+  <!-- 加载中 -->
+  <view class="loading-state" wx:if="{{loading && orders.length === 0}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+  
+  <!-- 订单列表 -->
+  <view class="order-list" wx:elif="{{orders.length > 0}}">
+    <view 
+      class="order-card"
+      wx:for="{{orders}}"
+      wx:key="id"
+      bindtap="onOrderTap"
+      data-id="{{item.id}}"
+    >
+      <view class="order-header">
+        <text class="order-name">{{item.course_name}}</text>
+        <view class="order-status {{item.status}}">{{item.status_text}}</view>
+      </view>
+      <view class="order-info">
+        <text class="info-icon">🕐</text>
+        <text>{{item.schedule}}</text>
+      </view>
+      <view class="order-info">
+        <text class="info-icon">📍</text>
+        <text>{{item.community_name}}</text>
+      </view>
+      <view class="order-footer">
+        <text class="order-time">{{item.created_at}}</text>
+        <text class="order-amount">¥{{item.pay_amount}}</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <view class="empty-icon">📋</view>
+    <text class="empty-text">暂无拼班记录</text>
+    <button class="empty-btn" bindtap="goHome">去看看课程</button>
+  </view>
+</view>

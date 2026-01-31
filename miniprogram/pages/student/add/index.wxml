@@ -1,0 +1,122 @@
+<!-- 新增/编辑学员页面 -->
+<view class="page-container">
+  <!-- 表单 -->
+  <view class="form-section">
+    <!-- 证件类型 -->
+    <view class="form-item">
+      <view class="form-label">证件类型</view>
+      <picker 
+        class="form-picker"
+        mode="selector"
+        range="{{idTypes}}"
+        range-key="label"
+        value="{{idTypeIndex}}"
+        bindchange="onIdTypeChange"
+      >
+        <view class="picker-value">
+          {{idTypes[idTypeIndex].label}}
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 姓名 -->
+    <view class="form-item {{errors.name ? 'error' : ''}}">
+      <view class="form-label required">证件姓名</view>
+      <input 
+        class="form-input"
+        placeholder="请输入真实姓名"
+        value="{{form.name}}"
+        bindinput="onNameInput"
+      />
+      <view class="error-text" wx:if="{{errors.name}}">{{errors.name}}</view>
+    </view>
+    
+    <!-- 证件号码 -->
+    <view class="form-item {{errors.id_number ? 'error' : ''}}">
+      <view class="form-label required">证件号码</view>
+      <input 
+        class="form-input"
+        placeholder="请输入证件号码"
+        value="{{form.id_number}}"
+        bindinput="onIdNumberInput"
+      />
+      <view class="error-text" wx:if="{{errors.id_number}}">{{errors.id_number}}</view>
+    </view>
+    
+    <!-- 照片 -->
+    <view class="form-item photo-item">
+      <view class="form-label">照片</view>
+      <view class="photo-upload">
+        <view class="photo-preview" wx:if="{{form.photo}}">
+          <image src="{{form.photo}}" mode="aspectFill"/>
+          <view class="photo-delete" catchtap="onDeletePhoto">✕</view>
+        </view>
+        <view class="photo-add" wx:else bindtap="onChoosePhoto">
+          <text class="add-icon">📷</text>
+          <text class="add-text">添加照片</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 出生日期 -->
+    <view class="form-item {{errors.birthday ? 'error' : ''}}">
+      <view class="form-label required">出生日期</view>
+      <picker 
+        class="form-picker"
+        mode="date"
+        start="{{startDate}}"
+        end="{{endDate}}"
+        value="{{form.birthday}}"
+        bindchange="onBirthdayChange"
+      >
+        <view class="picker-value {{form.birthday ? '' : 'placeholder'}}">
+          {{form.birthday || '请选择出生日期'}}
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+      <view class="error-text" wx:if="{{errors.birthday}}">{{errors.birthday}}</view>
+    </view>
+    
+    <!-- 性别 -->
+    <view class="form-item">
+      <view class="form-label required">性别</view>
+      <picker 
+        class="form-picker"
+        mode="selector"
+        range="{{genders}}"
+        range-key="label"
+        value="{{genderIndex}}"
+        bindchange="onGenderChange"
+      >
+        <view class="picker-value">
+          {{genders[genderIndex].label}}
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+  
+  <!-- 提示 -->
+  <view class="notice-section">
+    <view class="notice-icon">⚠️</view>
+    <view class="notice-content">
+      <text class="notice-title">重要提示</text>
+      <text class="notice-text">个人信息仅用于购买保险使用，请填写真实身份信息。信息有误将影响保险生效，由此产生的损失自负全责。</text>
+    </view>
+  </view>
+  
+  <!-- 底部占位 -->
+  <view class="bottom-placeholder"></view>
+</view>
+
+<!-- 底部按钮 -->
+<view class="bottom-bar">
+  <button 
+    class="submit-btn {{submitting ? 'loading' : ''}}"
+    bindtap="onSubmit"
+    disabled="{{submitting}}"
+  >
+    {{submitting ? '提交中...' : '提交'}}
+  </button>
+</view>

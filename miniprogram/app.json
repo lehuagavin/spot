@@ -30,27 +30,19 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "assets/icons/home.png",
-        "selectedIconPath": "assets/icons/home-active.png"
+        "text": "首页"
       },
       {
         "pagePath": "pages/member/rights/index",
-        "text": "权益卡",
-        "iconPath": "assets/icons/card.png",
-        "selectedIconPath": "assets/icons/card-active.png"
+        "text": "权益卡"
       },
       {
         "pagePath": "pages/order/list/index",
-        "text": "拼班",
-        "iconPath": "assets/icons/order.png",
-        "selectedIconPath": "assets/icons/order-active.png"
+        "text": "拼班"
       },
       {
         "pagePath": "pages/user/index/index",
-        "text": "我的",
-        "iconPath": "assets/icons/user.png",
-        "selectedIconPath": "assets/icons/user-active.png"
+        "text": "我的"
       }
     ]
   },

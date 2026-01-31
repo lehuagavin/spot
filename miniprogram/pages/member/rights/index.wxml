@@ -1,0 +1,62 @@
+<!-- 权益卡页面 -->
+<view class="page-container">
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+  </view>
+  
+  <block wx:else>
+    <!-- 会员状态 -->
+    <view class="member-status {{memberStatus.is_member ? 'active' : ''}}">
+      <view class="status-icon">{{memberStatus.is_member ? '👑' : '🎫'}}</view>
+      <view class="status-content">
+        <view class="status-title">{{memberStatus.is_member ? '尊享会员' : '开通会员'}}</view>
+        <view class="status-desc" wx:if="{{memberStatus.is_member}}">有效期至 {{memberStatus.expire_date}}</view>
+        <view class="status-desc" wx:else>开通后享专属优惠价</view>
+      </view>
+    </view>
+    
+    <!-- 权益卡列表 -->
+    <view class="card-list">
+      <view 
+        class="card-item {{item.recommended ? 'recommended' : ''}}"
+        wx:for="{{cards}}"
+        wx:key="id"
+      >
+        <view class="recommend-tag" wx:if="{{item.recommended}}">推荐</view>
+        
+        <view class="card-header">
+          <text class="card-name">权益卡（{{item.name}}）</text>
+          <view class="card-price">
+            <text class="price-amount">{{item.price}}</text>
+            <text class="price-unit">元</text>
+            <text class="price-original">¥{{item.original_price}}</text>
+          </view>
+        </view>
+        
+        <view class="card-benefits">
+          <view class="benefit-item" wx:for="{{item.benefits}}" wx:key="*this" wx:for-item="benefit">
+            <text class="benefit-icon">✓</text>
+            <text class="benefit-text">{{benefit}}</text>
+          </view>
+        </view>
+        
+        <button 
+          class="purchase-btn"
+          bindtap="onPurchase"
+          data-id="{{item.id}}"
+        >
+          立即开通
+        </button>
+      </view>
+    </view>
+    
+    <!-- 权益说明 -->
+    <view class="rights-section">
+      <view class="section-title">权益说明</view>
+      <view class="rights-content">
+        <text>义城上门教育权益卡集合了多种优惠和特权，开通后可以在平台上享受超低的会员价和各种特权。</text>
+        <text class="mt">详情请联系您小区运动主理人咨询。</text>
+      </view>
+    </view>
+  </block>
+</view>
