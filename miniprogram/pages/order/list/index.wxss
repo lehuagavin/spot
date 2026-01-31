@@ -7,7 +7,6 @@
 /* ========== 标签栏 ========== */
 .tab-section {
   background-color: #ffffff;
-  padding: 24rpx 32rpx;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -15,22 +14,38 @@
 
 .tab-list {
   display: flex;
-  gap: 24rpx;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 隐藏滚动条 */
+.tab-list::-webkit-scrollbar {
+  display: none;
 }
 
 .tab-item {
-  padding: 12rpx 32rpx;
-  font-size: 28rpx;
+  flex-shrink: 0;
+  padding: 16rpx 28rpx;
+  margin-right: 16rpx;
+  font-size: 26rpx;
   color: #666666;
-  background-color: #f5f5f5;
-  border-radius: 28rpx;
-  transition: all 0.2s;
+  background-color: #f5f5f7;
+  border-radius: 32rpx;
+  transition: all 0.25s ease;
+}
+
+.tab-item:last-child {
+  margin-right: 24rpx;
 }
 
 .tab-item.active {
   color: #ffffff;
-  background-color: #07C160;
+  background: linear-gradient(135deg, #07C160 0%, #06AD56 100%);
   font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.3);
 }
 
 /* ========== 加载状态 ========== */
