@@ -84,7 +84,7 @@ export default function OrderList() {
   const handleRefund = (record: Order) => {
     Modal.confirm({
       title: '确认退款',
-      content: `确定要为订单 ${record.order_no} 处理退款吗？退款金额: ¥${record.pay_amount.toFixed(2)}`,
+      content: `确定要为订单 ${record.order_no} 处理退款吗？退款金额: ¥${Number(record.pay_amount).toFixed(2)}`,
       okText: '确认退款',
       cancelText: '取消',
       okType: 'danger',
@@ -146,10 +146,10 @@ export default function OrderList() {
       key: 'amount',
       render: (_, record) => (
         <div>
-          <div style={{ fontWeight: 500 }}>¥{record.pay_amount.toFixed(2)}</div>
-          {record.discount_amount > 0 && (
+          <div style={{ fontWeight: 500 }}>¥{Number(record.pay_amount).toFixed(2)}</div>
+          {Number(record.discount_amount) > 0 && (
             <div style={{ color: 'var(--color-text-secondary)', fontSize: 12 }}>
-              优惠: ¥{record.discount_amount.toFixed(2)}
+              优惠: ¥{Number(record.discount_amount).toFixed(2)}
             </div>
           )}
         </div>

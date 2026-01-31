@@ -46,6 +46,14 @@
       }
     ]
   },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于获取您附近的小区和课程信息"
+    }
+  },
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"
 }

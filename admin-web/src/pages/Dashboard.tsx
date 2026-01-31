@@ -155,7 +155,7 @@ export default function Dashboard() {
       title: '金额',
       dataIndex: 'pay_amount',
       key: 'pay_amount',
-      render: (amount: number) => `¥${amount.toFixed(2)}`,
+      render: (amount: number) => `¥${Number(amount).toFixed(2)}`,
     },
     {
       title: '状态',

@@ -50,7 +50,7 @@ export default function OrderDetail() {
     if (!order) return;
     Modal.confirm({
       title: '确认退款',
-      content: `确定要为订单 ${order.order_no} 处理退款吗？退款金额: ¥${order.pay_amount.toFixed(2)}`,
+      content: `确定要为订单 ${order.order_no} 处理退款吗？退款金额: ¥${Number(order.pay_amount).toFixed(2)}`,
       okText: '确认退款',
       cancelText: '取消',
       okType: 'danger',
@@ -121,14 +121,14 @@ export default function OrderDetail() {
               <Tag color={OrderStatusColor[order.status]}>{OrderStatusText[order.status]}</Tag>
             </Descriptions.Item>
             <Descriptions.Item label="订单金额">
-              ¥{order.total_amount.toFixed(2)}
+              ¥{Number(order.total_amount).toFixed(2)}
             </Descriptions.Item>
             <Descriptions.Item label="优惠金额">
-              ¥{order.discount_amount.toFixed(2)}
+              ¥{Number(order.discount_amount).toFixed(2)}
             </Descriptions.Item>
             <Descriptions.Item label="实付金额">
               <span style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: 18 }}>
-                ¥{order.pay_amount.toFixed(2)}
+                ¥{Number(order.pay_amount).toFixed(2)}
               </span>
             </Descriptions.Item>
             <Descriptions.Item label="创建时间">

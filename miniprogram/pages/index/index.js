@@ -201,10 +201,11 @@ Page({
       }
       
       const data = await api.course.getList(params);
-      const list = data.list || data || [];
+      const list = Array.isArray(data.list) ? data.list : (Array.isArray(data) ? data : []);
       const total = data.total || list.length;
       
-      const courses = refresh ? list : [...this.data.courses, ...list];
+      const currentCourses = Array.isArray(this.data.courses) ? this.data.courses : [];
+      const courses = refresh ? list : [...currentCourses, ...list];
       const hasMore = courses.length < total;
       
       this.setData({

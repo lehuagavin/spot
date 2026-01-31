@@ -47,8 +47,9 @@ Page({
       }
       
       const data = await api.order.getList(params);
-      const list = data.list || data || [];
-      const orders = refresh ? list : [...this.data.orders, ...list];
+      const list = Array.isArray(data.list) ? data.list : (Array.isArray(data) ? data : []);
+      const currentOrders = Array.isArray(this.data.orders) ? this.data.orders : [];
+      const orders = refresh ? list : [...currentOrders, ...list];
       
       this.setData({
         orders: orders.length > 0 ? orders : this.getMockOrders(),
