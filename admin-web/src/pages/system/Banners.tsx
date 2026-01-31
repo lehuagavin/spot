@@ -15,8 +15,10 @@ import {
   message,
   Popconfirm,
   Image,
+  Radio,
+  Spin,
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, RobotOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import {
   getBanners,
@@ -24,7 +26,7 @@ import {
   updateBanner,
   deleteBanner,
 } from '../../api/banners';
-import { getImageUrl } from '../../api/upload';
+import { getImageUrl, generateAIImage } from '../../api/upload';
 import type { Banner, BannerCreateRequest, PageParams } from '../../types';
 import ImageUpload from '../../components/ImageUpload';
 import EmptyState from '../../components/EmptyState';
@@ -42,6 +44,13 @@ export default function Banners() {
   const [editingRecord, setEditingRecord] = useState<Banner | null>(null);
   const [form] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
+
+  // AI 图片生成相关状态
+  const [imageMode, setImageMode] = useState<'upload' | 'ai'>('upload');
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiSize, setAiSize] = useState('2K');
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -71,13 +80,56 @@ export default function Banners() {
   const handleAdd = () => {
     setEditingRecord(null);
     form.resetFields();
+    // 重置 AI 生成相关状态
+    setImageMode('upload');
+    setAiPrompt('');
+    setGeneratedImageUrl(null);
     setModalVisible(true);
   };
 
   const handleEdit = (record: Banner) => {
     setEditingRecord(record);
     form.setFieldsValue(record);
+    // 编辑时默认使用上传模式
+    setImageMode('upload');
+    setGeneratedImageUrl(null);
     setModalVisible(true);
+  };
+
+  // AI 生成图片
+  const handleGenerateImage = async () => {
+    if (!aiPrompt.trim()) {
+      message.warning('请输入图片描述');
+      return;
+    }
+
+    setAiGenerating(true);
+    try {
+      const result = await generateAIImage({
+        prompt: aiPrompt,
+        size: aiSize,
+      });
+      setGeneratedImageUrl(result.url);
+      // 自动填充到表单
+      form.setFieldsValue({ image: result.url });
+      message.success('图片生成成功');
+    } catch (error) {
+      if (error instanceof Error) {
+        message.error(error.message);
+      } else {
+        message.error('生成图片失败');
+      }
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
+  // 使用生成的图片
+  const handleUseGeneratedImage = () => {
+    if (generatedImageUrl) {
+      form.setFieldsValue({ image: generatedImageUrl });
+      message.success('已应用生成的图片');
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -277,13 +329,140 @@ export default function Banners() {
           >
             <Input placeholder="请输入轮播图标题" />
           </Form.Item>
-          <Form.Item
-            name="image"
-            label="图片"
-            rules={[{ required: true, message: '请上传图片' }]}
-          >
-            <ImageUpload />
+          <Form.Item label="图片来源" required>
+            <Radio.Group
+              value={imageMode}
+              onChange={(e) => setImageMode(e.target.value)}
+              style={{ marginBottom: 16 }}
+            >
+              <Radio.Button value="upload">上传图片</Radio.Button>
+              <Radio.Button value="ai">
+                <RobotOutlined /> AI 生成
+              </Radio.Button>
+            </Radio.Group>
           </Form.Item>
+
+          {imageMode === 'upload' ? (
+            <Form.Item
+              name="image"
+              label="图片"
+              rules={[{ required: true, message: '请上传图片' }]}
+            >
+              <ImageUpload />
+            </Form.Item>
+          ) : (
+            <div
+              style={{
+                background: 'var(--color-bg-secondary)',
+                padding: 16,
+                borderRadius: 'var(--radius-md)',
+                marginBottom: 24,
+              }}
+            >
+              <Form.Item
+                label="图片描述"
+                required
+                style={{ marginBottom: 16 }}
+              >
+                <Input.TextArea
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  placeholder="请输入图片描述，例如：一个温馨的家庭运动场景，父母和孩子在户外草坪上一起做瑜伽"
+                  rows={3}
+                  maxLength={300}
+                  showCount
+                />
+              </Form.Item>
+              <Form.Item label="图片尺寸" style={{ marginBottom: 16 }}>
+                <Select
+                  value={aiSize}
+                  onChange={setAiSize}
+                  options={[
+                    { value: '2K', label: '2K（高清）' },
+                    { value: '1080P', label: '1080P（标清宽屏）' },
+                    { value: '720P', label: '720P（普清）' },
+                    { value: '480P', label: '480P（快速预览）' },
+                  ]}
+                  style={{ width: '100%' }}
+                />
+              </Form.Item>
+              <Button
+                type="primary"
+                icon={<RobotOutlined />}
+                onClick={handleGenerateImage}
+                loading={aiGenerating}
+                style={{ marginBottom: 16 }}
+              >
+                {aiGenerating ? '生成中...' : '生成图片'}
+              </Button>
+
+              {/* 生成结果预览 */}
+              {(generatedImageUrl || aiGenerating) && (
+                <div
+                  style={{
+                    marginTop: 16,
+                    padding: 16,
+                    background: 'var(--color-bg-primary)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--color-border)',
+                  }}
+                >
+                  <div
+                    style={{
+                      marginBottom: 8,
+                      fontWeight: 500,
+                      color: 'var(--color-text-primary)',
+                    }}
+                  >
+                    生成结果
+                  </div>
+                  {aiGenerating ? (
+                    <div
+                      style={{
+                        height: 160,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'var(--color-bg-secondary)',
+                        borderRadius: 'var(--radius-sm)',
+                      }}
+                    >
+                      <Spin tip="AI 正在生成图片，请稍候..." />
+                    </div>
+                  ) : generatedImageUrl ? (
+                    <div>
+                      <Image
+                        src={getImageUrl(generatedImageUrl)}
+                        width={200}
+                        style={{
+                          borderRadius: 'var(--radius-sm)',
+                          marginBottom: 12,
+                        }}
+                      />
+                      <div>
+                        <Button
+                          type="primary"
+                          size="small"
+                          onClick={handleUseGeneratedImage}
+                        >
+                          使用此图片
+                        </Button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+
+              {/* 隐藏的表单项，用于存储图片 URL */}
+              <Form.Item
+                name="image"
+                rules={[{ required: true, message: '请生成图片' }]}
+                style={{ display: 'none' }}
+              >
+                <Input />
+              </Form.Item>
+            </div>
+          )}
           <Form.Item
             name="link_type"
             label="链接类型"

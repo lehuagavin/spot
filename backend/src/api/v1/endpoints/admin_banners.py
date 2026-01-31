@@ -3,6 +3,7 @@
 """
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import BaseModel
 
 from src.api.deps import get_current_admin
 from src.core.database import get_db
@@ -18,15 +19,31 @@ from src.services import BannerService
 router = APIRouter(prefix="/admin/banners", tags=["管理端-轮播图管理"])
 
 
-@router.get("", response_model=ResponseSchema[list[BannerResponse]])
+class BannerListResponse(BaseModel):
+    """轮播图列表响应"""
+    items: list[BannerResponse]
+    total: int
+    page: int
+    page_size: int
+
+
+@router.get("", response_model=ResponseSchema[BannerListResponse])
 async def list_banners(
+    page: int = 1,
+    page_size: int = 10,
     current_admin: Admin = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
     """获取轮播图列表"""
     service = BannerService()
     banners = await service.list_banners(db, active_only=False)
-    return ResponseSchema(data=banners)
+    total = len(banners)
+    return ResponseSchema(data=BannerListResponse(
+        items=banners,
+        total=total,
+        page=page,
+        page_size=page_size,
+    ))
 
 
 @router.post("", response_model=ResponseSchema[BannerResponse])

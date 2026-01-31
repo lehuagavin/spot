@@ -22,3 +22,24 @@ export function getImageUrl(path: string | null | undefined): string {
   const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   return `${baseUrl}${path}`;
 }
+
+// AI 生成图片请求参数
+export interface AIGenerateImageRequest {
+  prompt: string;
+  size?: string;
+}
+
+// AI 生成图片响应
+export interface AIGenerateImageResponse {
+  url: string;
+  original_url: string;
+  model: string;
+  size: string;
+}
+
+// AI 生成图片（超时时间 2 分钟，因为 AI 生成较慢）
+export function generateAIImage(params: AIGenerateImageRequest): Promise<AIGenerateImageResponse> {
+  return request.post('/api/v1/ai/generate-image', params, {
+    timeout: 120000, // 120 秒
+  });
+}

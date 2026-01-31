@@ -144,10 +144,10 @@ Page({
   async loadBanners() {
     try {
       const data = await api.banner.getList();
-      const banners = data.list || data || [];
+      const rawBanners = data.list || data || [];
       
       // 如果没有数据，使用默认轮播图
-      if (banners.length === 0) {
+      if (rawBanners.length === 0) {
         this.setData({
           banners: [
             { id: '1', title: '国家体育总局指定考核点', color: '#667eea' },
@@ -156,6 +156,11 @@ Page({
           ],
         });
       } else {
+        // 处理图片 URL，拼接完整地址
+        const banners = rawBanners.map(item => ({
+          ...item,
+          image: app.getImageUrl(item.image),
+        }));
         this.setData({ banners });
       }
     } catch (err) {

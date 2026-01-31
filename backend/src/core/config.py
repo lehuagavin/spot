@@ -47,6 +47,17 @@ class Settings(BaseSettings):
         default=["http://localhost:5173", "http://127.0.0.1:5173"]
     )
 
+    # 火山引擎 AI 图片生成配置
+    volcano_api_key: str = Field(default="", alias="VOLCANO_API_KEY")
+    volcano_base_url: str = Field(
+        default="https://ark.cn-beijing.volces.com/api/v3",
+        alias="VOLCANO_BASE_URL"
+    )
+    volcano_model_id: str = Field(
+        default="doubao-seedream-4-5-251128",
+        alias="VOLCANO_MODEL_ID"
+    )
+
 
 @lru_cache
 def get_settings() -> Settings:

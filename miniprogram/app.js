@@ -221,9 +221,26 @@ App({
   },
 
   /**
+   * 获取图片完整 URL
+   * @param {string} path 图片路径（可能是相对路径或完整 URL）
+   * @returns {string} 完整的图片 URL
+   */
+  getImageUrl(path) {
+    if (!path) return '';
+    // 如果已经是完整 URL，直接返回
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    // 拼接服务器地址
+    return `${this.globalData.serverBase}${path}`;
+  },
+
+  /**
    * 全局数据
    */
   globalData: {
+    // 服务器基础地址（不含 /api/v1）
+    serverBase: 'http://localhost:8000',
     // API 基础地址
     apiBase: 'http://localhost:8000/api/v1',
     
