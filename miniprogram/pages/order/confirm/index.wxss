@@ -237,9 +237,9 @@
 }
 
 .price-current {
-  font-size: 30rpx;
-  color: #07C160;
-  font-weight: 500;
+  font-size: 32rpx;
+  color: #FF4D4F;
+  font-weight: 600;
 }
 
 .discount-row {
@@ -255,12 +255,17 @@
 }
 
 .discount-amount {
-  color: #07C160;
+  color: #FF4D4F;
 }
 
 .subtotal-text {
   font-size: 26rpx;
   color: #333;
+}
+
+.subtotal-amount {
+  color: #FF4D4F;
+  font-weight: 500;
 }
 
 /* 总计区域 */
@@ -278,9 +283,9 @@
 }
 
 .total-amount {
-  font-size: 36rpx;
+  font-size: 40rpx;
   font-weight: 600;
-  color: #333;
+  color: #FF4D4F;
 }
 
 /* 温馨提示 */
@@ -297,12 +302,13 @@
 
 /* 协议区域 */
 .agreement-section {
-  padding: 16rpx 0;
+  padding: 24rpx 0;
 }
 
 .agreement-row {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .agreement-checkbox {
@@ -334,7 +340,7 @@
 
 .agreement-link {
   font-size: 28rpx;
-  color: #07C160;
+  color: #1989FA;
 }
 
 /* 底部占位 */

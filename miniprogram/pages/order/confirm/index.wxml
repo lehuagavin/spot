@@ -65,7 +65,7 @@
         </view>
         <view class="discount-row">
           <text class="discount-text">已优惠 <text class="discount-amount">¥{{item.discountAmount}}</text></text>
-          <text class="subtotal-text">小计 ¥{{item.actualPrice}}</text>
+          <text class="subtotal-text">小计 <text class="subtotal-amount">¥{{item.actualPrice}}</text></text>
         </view>
       </view>
     </view>

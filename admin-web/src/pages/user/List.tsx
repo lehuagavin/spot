@@ -150,12 +150,42 @@ export default function UserList() {
 
   return (
     <div className="fade-in">
-      {/* 页面标题 */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 600, marginBottom: 4 }}>
-          用户管理
-        </h1>
-        <p style={{ color: 'var(--color-text-secondary)' }}>管理平台用户信息</p>
+      {/* 页面标题与装饰区域 */}
+      <div
+        style={{
+          marginBottom: 24,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'linear-gradient(135deg, rgba(0, 188, 212, 0.08) 0%, rgba(0, 150, 136, 0.08) 100%)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px 32px',
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontSize: 'var(--font-size-2xl)',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+              marginBottom: 4,
+            }}
+          >
+            用户管理
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)' }}>
+            管理平台用户信息
+          </p>
+        </div>
+        <img
+          src="/images/user-people.png"
+          alt="Users"
+          style={{
+            height: 100,
+            objectFit: 'contain',
+            opacity: 0.9,
+          }}
+        />
       </div>
 
       {/* 工具栏 */}

@@ -90,8 +90,7 @@ Page({
     const userInfo = app.globalData.userInfo;
     const isMember = userInfo?.is_member;
     const coursePrice = parseFloat(course.price) || 120;
-    const memberPrice = parseFloat(course.member_price) || 80;
-    const newUserPrice = 29.9; // 新人价固定29.9
+    const memberPrice = parseFloat(course.member_price) || coursePrice;
     
     const processedStudents = students.map(student => {
       let actualPrice, discountAmount;
@@ -100,9 +99,9 @@ Page({
       const isNewUser = student.is_new || student.is_new_user || !student.order_count;
       
       if (isNewUser) {
-        // 新人价
-        actualPrice = newUserPrice;
-        discountAmount = (coursePrice - newUserPrice).toFixed(1);
+        // 新人价 = 会员价
+        actualPrice = memberPrice;
+        discountAmount = (coursePrice - memberPrice).toFixed(1);
       } else if (isMember) {
         // 会员价
         actualPrice = memberPrice;

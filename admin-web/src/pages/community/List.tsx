@@ -313,12 +313,42 @@ export default function CommunityList() {
 
   return (
     <div className="fade-in">
-      {/* 页面标题 */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 600, marginBottom: 4 }}>
-          小区管理
-        </h1>
-        <p style={{ color: 'var(--color-text-secondary)' }}>管理可服务的小区信息</p>
+      {/* 页面标题与装饰区域 */}
+      <div
+        style={{
+          marginBottom: 24,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.08) 0%, rgba(3, 169, 244, 0.08) 100%)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px 32px',
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontSize: 'var(--font-size-2xl)',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+              marginBottom: 4,
+            }}
+          >
+            小区管理
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)' }}>
+            管理可服务的小区信息
+          </p>
+        </div>
+        <img
+          src="/images/community-home.png"
+          alt="Community"
+          style={{
+            height: 100,
+            objectFit: 'contain',
+            opacity: 0.9,
+          }}
+        />
       </div>
 
       {/* 工具栏 */}

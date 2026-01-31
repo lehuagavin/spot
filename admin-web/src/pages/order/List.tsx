@@ -202,12 +202,42 @@ export default function OrderList() {
 
   return (
     <div className="fade-in">
-      {/* 页面标题 */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 600, marginBottom: 4 }}>
-          订单管理
-        </h1>
-        <p style={{ color: 'var(--color-text-secondary)' }}>管理用户订单信息</p>
+      {/* 页面标题与装饰区域 */}
+      <div
+        style={{
+          marginBottom: 24,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.08) 0%, rgba(255, 87, 34, 0.08) 100%)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px 32px',
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontSize: 'var(--font-size-2xl)',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+              marginBottom: 4,
+            }}
+          >
+            订单管理
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)' }}>
+            管理用户订单信息
+          </p>
+        </div>
+        <img
+          src="/images/order-shopping.png"
+          alt="Order"
+          style={{
+            height: 100,
+            objectFit: 'contain',
+            opacity: 0.9,
+          }}
+        />
       </div>
 
       {/* 工具栏 */}
