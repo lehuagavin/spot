@@ -1,0 +1,323 @@
+# =========================================================================
+# 义城上门教育 - .gitignore
+# =========================================================================
+
+# =========================================================================
+# Python / Backend
+# =========================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# uv
+.uv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# =========================================================================
+# Node.js / Frontend
+# =========================================================================
+
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Production builds
+dist/
+dist-ssr/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary files
+*.tmp
+*.temp
+
+# =========================================================================
+# 微信小程序
+# =========================================================================
+
+# 微信开发者工具生成的文件
+.tea/
+miniprogram_npm/
+miniprogram/miniprogram_npm/
+
+# 小程序私有配置（可能包含 appid）
+# 注意：project.private.config.json 已被提交，如需保护 appid 请取消注释下一行
+# miniprogram/project.private.config.json
+
+# =========================================================================
+# 数据库
+# =========================================================================
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# MySQL
+*.sql.gz
+*.sql.zip
+
+# 数据库备份
+backups/
+dumps/
+
+# =========================================================================
+# 上传文件与静态资源
+# =========================================================================
+
+# 后端上传目录（保留目录结构但忽略实际文件）
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# =========================================================================
+# 日志文件
+# =========================================================================
+
+# 应用日志
+backend/logs/*
+!backend/logs/.gitkeep
+*.log
+*.log.*
+
+# =========================================================================
+# 系统文件
+# =========================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =========================================================================
+# 临时文件
+# =========================================================================
+
+# 测试临时文件
+/tmp/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Claude Code 聊天记录
+.chats/
+
+# =========================================================================
+# 敏感信息
+# =========================================================================
+
+# 环境变量文件（包含敏感配置）
+.env
+.env.production
+backend/.env
+admin-web/.env
+
+# 密钥文件
+*.key
+*.pem
+*.p12
+secrets/
+credentials/
+
+# =========================================================================
+# 构建产物
+# =========================================================================
+
+# Python
+*.pyc
+__pycache__/
+
+# JavaScript
+*.js.map
+*.css.map
+
+# =========================================================================
+# 开发工具
+# =========================================================================
+
+# JetBrains IDEs (PyCharm, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Vim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+auto-save-list
+tramp
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# =========================================================================
+# 特定项目文件
+# =========================================================================
+
+# 测试脚本输出
+/tmp/
+fixtures/tmp/
+
+# API 测试文件（如需保留请注释掉）
+# fixtures/*.http
+
+# 文档草稿
+docs/drafts/
+
+# =========================================================================
+# 其他
+# =========================================================================
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# Sphinx documentation
+docs/_build/
+
+# End of .gitignore
