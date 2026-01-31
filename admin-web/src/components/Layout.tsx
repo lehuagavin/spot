@@ -148,15 +148,16 @@ export default function Layout() {
               style={{
                 width: 36,
                 height: 36,
-                background: 'linear-gradient(135deg, #0071e3 0%, #42a1ff 100%)',
                 borderRadius: 'var(--radius-md)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
                 flexShrink: 0,
+                overflow: 'hidden',
               }}
             >
-              <span style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Y</span>
+              <img
+                src="/images/logo.png"
+                alt="Logo"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
             </div>
             {!collapsed && (
               <span

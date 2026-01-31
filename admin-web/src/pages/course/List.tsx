@@ -47,6 +47,7 @@ import type {
 } from '../../types';
 import { CourseStatusText, CourseStatusColor } from '../../types';
 import ImageUpload from '../../components/ImageUpload';
+import EmptyState from '../../components/EmptyState';
 import dayjs from 'dayjs';
 
 export default function CourseList() {
@@ -335,6 +336,7 @@ export default function CourseList() {
         dataSource={data}
         rowKey="id"
         loading={loading}
+        locale={{ emptyText: <EmptyState description="暂无课程数据" imageSize={120} /> }}
         pagination={{
           current: params.page,
           pageSize: params.page_size,
@@ -498,7 +500,7 @@ export default function CourseList() {
         <List
           loading={studentsLoading}
           dataSource={courseStudents}
-          locale={{ emptyText: '暂无报名学员' }}
+          locale={{ emptyText: <EmptyState description="暂无报名学员" imageSize={100} /> }}
           renderItem={(student) => (
             <List.Item>
               <List.Item.Meta

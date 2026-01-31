@@ -25,6 +25,7 @@ import {
 import { getImageUrl } from '../../api/upload';
 import type { Teacher, TeacherCreateRequest, PageParams } from '../../types';
 import ImageUpload from '../../components/ImageUpload';
+import EmptyState from '../../components/EmptyState';
 import dayjs from 'dayjs';
 
 export default function TeacherList() {
@@ -228,6 +229,7 @@ export default function TeacherList() {
         dataSource={data}
         rowKey="id"
         loading={loading}
+        locale={{ emptyText: <EmptyState description="暂无教练数据" imageSize={120} /> }}
         pagination={{
           current: params.page,
           pageSize: params.page_size,

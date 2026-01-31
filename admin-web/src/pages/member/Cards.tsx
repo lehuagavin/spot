@@ -23,6 +23,7 @@ import {
 } from '../../api/members';
 import type { MemberCard, MemberCardCreateRequest, MemberCardType, PageParams } from '../../types';
 import { MemberCardTypeText } from '../../types';
+import EmptyState from '../../components/EmptyState';
 import dayjs from 'dayjs';
 
 export default function MemberCards() {
@@ -218,6 +219,7 @@ export default function MemberCards() {
         dataSource={data}
         rowKey="id"
         loading={loading}
+        locale={{ emptyText: <EmptyState description="暂无权益卡数据" imageSize={120} /> }}
         pagination={{
           current: params.page,
           pageSize: params.page_size,

@@ -37,8 +37,24 @@ export default function Login() {
         justifyContent: 'center',
         alignItems: 'center',
         background: 'linear-gradient(180deg, #f5f5f7 0%, #e8e8ed 100%)',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
+      {/* 背景装饰图 */}
+      <img
+        src="/images/login-bg.png"
+        alt=""
+        style={{
+          position: 'absolute',
+          right: '-5%',
+          bottom: '-10%',
+          width: '50%',
+          maxWidth: '600px',
+          opacity: 0.6,
+          pointerEvents: 'none',
+        }}
+      />
       <div
         className="slide-up"
         style={{
@@ -59,18 +75,19 @@ export default function Login() {
         >
           <div
             style={{
-              width: 64,
-              height: 64,
+              width: 72,
+              height: 72,
               margin: '0 auto 20px',
-              background: 'linear-gradient(135deg, #0071e3 0%, #42a1ff 100%)',
               borderRadius: 'var(--radius-lg)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 16px rgba(0, 113, 227, 0.3)',
+              overflow: 'hidden',
+              boxShadow: '0 4px 16px rgba(0, 113, 227, 0.2)',
             }}
           >
-            <span style={{ fontSize: 28, color: '#fff', fontWeight: 600 }}>Y</span>
+            <img
+              src="/images/logo.png"
+              alt="Logo"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
           </div>
           <h1
             style={{

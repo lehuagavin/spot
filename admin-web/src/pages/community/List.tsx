@@ -26,6 +26,7 @@ import {
 import { getImageUrl } from '../../api/upload';
 import type { Community, CommunityCreateRequest, PageParams } from '../../types';
 import ImageUpload from '../../components/ImageUpload';
+import EmptyState from '../../components/EmptyState';
 import dayjs from 'dayjs';
 
 export default function CommunityList() {
@@ -233,6 +234,7 @@ export default function CommunityList() {
         dataSource={data}
         rowKey="id"
         loading={loading}
+        locale={{ emptyText: <EmptyState description="暂无小区数据" imageSize={120} /> }}
         pagination={{
           current: params.page,
           pageSize: params.page_size,

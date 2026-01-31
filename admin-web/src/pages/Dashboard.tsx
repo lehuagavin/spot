@@ -2,7 +2,8 @@
  * 仪表盘页面 - Apple 风格设计
  */
 import { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, Spin, Empty } from 'antd';
+import { Card, Row, Col, Statistic, Table, Tag, Spin } from 'antd';
+import EmptyState from '../components/EmptyState';
 import {
   UserOutlined,
   ShoppingCartOutlined,
@@ -176,21 +177,42 @@ export default function Dashboard() {
   return (
     <Spin spinning={loading}>
       <div className="fade-in">
-        {/* 页面标题 */}
-        <div style={{ marginBottom: 24 }}>
-          <h1
+        {/* 页面标题与欢迎区域 */}
+        <div
+          style={{
+            marginBottom: 24,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'linear-gradient(135deg, rgba(0, 113, 227, 0.05) 0%, rgba(52, 199, 89, 0.05) 100%)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '24px 32px',
+          }}
+        >
+          <div>
+            <h1
+              style={{
+                fontSize: 'var(--font-size-2xl)',
+                fontWeight: 600,
+                color: 'var(--color-text-primary)',
+                marginBottom: 4,
+              }}
+            >
+              仪表盘
+            </h1>
+            <p style={{ color: 'var(--color-text-secondary)' }}>
+              欢迎回来，这是今天的数据概览
+            </p>
+          </div>
+          <img
+            src="/images/welcome.png"
+            alt="Welcome"
             style={{
-              fontSize: 'var(--font-size-2xl)',
-              fontWeight: 600,
-              color: 'var(--color-text-primary)',
-              marginBottom: 4,
+              height: 100,
+              objectFit: 'contain',
+              opacity: 0.9,
             }}
-          >
-            仪表盘
-          </h1>
-          <p style={{ color: 'var(--color-text-secondary)' }}>
-            欢迎回来，这是今天的数据概览
-          </p>
+          />
         </div>
 
         {/* 统计卡片 */}
@@ -292,7 +314,7 @@ export default function Dashboard() {
               {stats?.course_status_distribution?.length ? (
                 <Pie {...pieConfig} height={280} />
               ) : (
-                <Empty description="暂无数据" style={{ padding: '60px 0' }} />
+                <EmptyState description="暂无课程数据" imageSize={120} />
               )}
             </Card>
           </Col>
@@ -319,7 +341,7 @@ export default function Dashboard() {
                 rowKey="id"
                 pagination={false}
                 size="small"
-                locale={{ emptyText: <Empty description="暂无订单" /> }}
+                locale={{ emptyText: <EmptyState description="暂无订单" imageSize={100} /> }}
               />
             </Card>
           </Col>

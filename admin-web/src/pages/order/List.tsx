@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { getOrders, processRefund } from '../../api/orders';
 import type { Order, OrderStatus, PageParams } from '../../types';
 import { OrderStatusText, OrderStatusColor } from '../../types';
+import EmptyState from '../../components/EmptyState';
 import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
@@ -245,6 +246,7 @@ export default function OrderList() {
         dataSource={data}
         rowKey="id"
         loading={loading}
+        locale={{ emptyText: <EmptyState description="暂无订单数据" imageSize={120} /> }}
         pagination={{
           current: params.page,
           pageSize: params.page_size,

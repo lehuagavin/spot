@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUsers, updateUserStatus } from '../../api/users';
 import { getImageUrl } from '../../api/upload';
 import type { User, PageParams } from '../../types';
+import EmptyState from '../../components/EmptyState';
 import dayjs from 'dayjs';
 
 export default function UserList() {
@@ -191,6 +192,7 @@ export default function UserList() {
         dataSource={data}
         rowKey="id"
         loading={loading}
+        locale={{ emptyText: <EmptyState description="暂无用户数据" imageSize={120} /> }}
         pagination={{
           current: params.page,
           pageSize: params.page_size,

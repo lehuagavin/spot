@@ -27,6 +27,7 @@ import {
 import { getImageUrl } from '../../api/upload';
 import type { Banner, BannerCreateRequest, PageParams } from '../../types';
 import ImageUpload from '../../components/ImageUpload';
+import EmptyState from '../../components/EmptyState';
 import dayjs from 'dayjs';
 
 export default function Banners() {
@@ -246,6 +247,7 @@ export default function Banners() {
         dataSource={data}
         rowKey="id"
         loading={loading}
+        locale={{ emptyText: <EmptyState description="暂无轮播图数据" imageSize={120} /> }}
         pagination={{
           current: params.page,
           pageSize: params.page_size,
