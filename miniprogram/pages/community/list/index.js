@@ -75,17 +75,22 @@ Page({
       
       let communities = data.list || data || [];
       
-      // 计算距离
+      // 计算距离并格式化
       if (location && communities.length > 0) {
-        communities = communities.map(item => ({
-          ...item,
-          distance: util.calculateDistance(
+        communities = communities.map(item => {
+          const distance = util.calculateDistance(
             location.latitude,
             location.longitude,
             item.latitude,
             item.longitude
-          ),
-        }));
+          );
+          return {
+            ...item,
+            distance,
+            distanceValue: distance < 1 ? Math.round(distance * 1000) : distance.toFixed(1),
+            distanceUnit: distance < 1 ? 'm' : 'km',
+          };
+        });
         
         // 按距离排序
         communities.sort((a, b) => a.distance - b.distance);
@@ -130,18 +135,23 @@ Page({
       let communities = data.list || data || [];
       const total = data.total || communities.length;
       
-      // 计算距离
+      // 计算距离并格式化
       const { location } = this.data;
       if (location && communities.length > 0) {
-        communities = communities.map(item => ({
-          ...item,
-          distance: util.calculateDistance(
+        communities = communities.map(item => {
+          const distance = util.calculateDistance(
             location.latitude,
             location.longitude,
             item.latitude,
             item.longitude
-          ),
-        }));
+          );
+          return {
+            ...item,
+            distance,
+            distanceValue: distance < 1 ? Math.round(distance * 1000) : distance.toFixed(1),
+            distanceUnit: distance < 1 ? 'm' : 'km',
+          };
+        });
       }
       
       this.setData({
@@ -178,6 +188,8 @@ Page({
         latitude: 20.05,
         longitude: 110.35,
         distance: 0.5,
+        distanceValue: '500',
+        distanceUnit: 'm',
       },
       {
         id: '2',
@@ -187,6 +199,8 @@ Page({
         latitude: 20.03,
         longitude: 110.32,
         distance: 1.2,
+        distanceValue: '1.2',
+        distanceUnit: 'km',
       },
       {
         id: '3',
@@ -196,6 +210,8 @@ Page({
         latitude: 20.01,
         longitude: 110.28,
         distance: 3.5,
+        distanceValue: '3.5',
+        distanceUnit: 'km',
       },
       {
         id: '4',
@@ -205,6 +221,8 @@ Page({
         latitude: 19.98,
         longitude: 110.42,
         distance: 5.8,
+        distanceValue: '5.8',
+        distanceUnit: 'km',
       },
     ];
   },

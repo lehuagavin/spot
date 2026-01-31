@@ -76,16 +76,20 @@ Page({
         communities = this.getMockCommunities();
       }
       
-      // 计算距离
-      communities = communities.map(item => ({
-        ...item,
-        distance: util.calculateDistance(
+      // 计算距离并格式化
+      communities = communities.map(item => {
+        const distance = util.calculateDistance(
           latitude,
           longitude,
           item.latitude,
           item.longitude
-        ),
-      }));
+        );
+        return {
+          ...item,
+          distance,
+          distanceText: util.formatDistance(distance),
+        };
+      });
       
       // 生成标记点
       const markers = communities.map((item, index) => ({

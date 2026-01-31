@@ -86,9 +86,9 @@
         </view>
         
         <!-- 距离 -->
-        <view class="item-distance" wx:if="{{item.distance !== undefined}}">
-          <text class="distance-value">{{item.distance < 1 ? (item.distance * 1000) : item.distance}}</text>
-          <text class="distance-unit">{{item.distance < 1 ? 'm' : 'km'}}</text>
+        <view class="item-distance" wx:if="{{item.distanceValue}}">
+          <text class="distance-value">{{item.distanceValue}}</text>
+          <text class="distance-unit">{{item.distanceUnit}}</text>
         </view>
         
         <!-- 选中标记 -->

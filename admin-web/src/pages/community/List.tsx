@@ -147,7 +147,7 @@ export default function CommunityList() {
       key: 'location',
       render: (_, record) => (
         <span style={{ color: 'var(--color-text-secondary)' }}>
-          {record.latitude.toFixed(4)}, {record.longitude.toFixed(4)}
+          {Number(record.latitude).toFixed(4)}, {Number(record.longitude).toFixed(4)}
         </span>
       ),
     },

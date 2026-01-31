@@ -39,8 +39,8 @@
       <view class="community-info">
         <view class="community-name">{{selectedCommunity.name}}</view>
         <view class="community-address">{{selectedCommunity.address}}</view>
-        <view class="community-distance" wx:if="{{selectedCommunity.distance !== undefined}}">
-          距您 {{selectedCommunity.distance < 1 ? (selectedCommunity.distance * 1000).toFixed(0) + 'm' : selectedCommunity.distance.toFixed(1) + 'km'}}
+        <view class="community-distance" wx:if="{{selectedCommunity.distanceText}}">
+          距您 {{selectedCommunity.distanceText}}
         </view>
       </view>
       <button class="select-btn" bindtap="onSelectCommunity">选择该小区</button>
