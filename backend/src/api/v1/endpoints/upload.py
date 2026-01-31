@@ -4,10 +4,12 @@
 import os
 import uuid
 from datetime import datetime
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File
 from pathlib import Path
 
 from src.models.schemas import ResponseSchema
+from src.core.exceptions import AppException
+from src.core.errors import ErrorCode
 
 router = APIRouter(tags=["文件上传"])
 
@@ -26,17 +28,17 @@ async def upload_image(file: UploadFile = File(...)):
     # 检查文件扩展名
     ext = Path(file.filename).suffix.lower()
     if ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"不支持的文件格式,仅支持: {', '.join(ALLOWED_EXTENSIONS)}",
+        raise AppException(
+            code=ErrorCode.FILE_TYPE_ERROR,
+            message=f"不支持的文件格式,仅支持: {', '.join(ALLOWED_EXTENSIONS)}",
         )
 
     # 检查文件大小
     contents = await file.read()
     if len(contents) > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"文件大小超过限制({MAX_FILE_SIZE / 1024 / 1024}MB)",
+        raise AppException(
+            code=ErrorCode.FILE_TOO_LARGE,
+            message=f"文件大小超过限制({MAX_FILE_SIZE / 1024 / 1024}MB)",
         )
 
     # 生成文件名

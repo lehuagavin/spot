@@ -4,7 +4,7 @@
 from datetime import datetime
 from typing import Optional
 from decimal import Decimal
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 
 class CommunityCreate(BaseModel):
@@ -19,6 +19,20 @@ class CommunityCreate(BaseModel):
     city: Optional[str] = Field(None, description="城市")
     district: Optional[str] = Field(None, description="区县")
 
+    @field_validator("latitude")
+    @classmethod
+    def validate_latitude(cls, v: Decimal) -> Decimal:
+        if v < -90 or v > 90:
+            raise ValueError("纬度必须在 -90 到 90 之间")
+        return v
+
+    @field_validator("longitude")
+    @classmethod
+    def validate_longitude(cls, v: Decimal) -> Decimal:
+        if v < -180 or v > 180:
+            raise ValueError("经度必须在 -180 到 180 之间")
+        return v
+
 
 class CommunityUpdate(BaseModel):
     """更新小区"""
@@ -32,6 +46,20 @@ class CommunityUpdate(BaseModel):
     city: Optional[str] = Field(None, description="城市")
     district: Optional[str] = Field(None, description="区县")
     status: Optional[int] = Field(None, description="状态")
+
+    @field_validator("latitude")
+    @classmethod
+    def validate_latitude(cls, v: Optional[Decimal]) -> Optional[Decimal]:
+        if v is not None and (v < -90 or v > 90):
+            raise ValueError("纬度必须在 -90 到 90 之间")
+        return v
+
+    @field_validator("longitude")
+    @classmethod
+    def validate_longitude(cls, v: Optional[Decimal]) -> Optional[Decimal]:
+        if v is not None and (v < -180 or v > 180):
+            raise ValueError("经度必须在 -180 到 180 之间")
+        return v
 
 
 class CommunityResponse(BaseModel):

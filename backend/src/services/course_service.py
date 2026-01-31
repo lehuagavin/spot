@@ -47,13 +47,26 @@ class CourseService:
                 message="教练不存在",
             )
 
+        # 校验 max_students >= min_students
+        if data.max_students < data.min_students:
+            raise AppException(
+                code=ErrorCode.BAD_REQUEST,
+                message="最大人数不能小于最小人数",
+            )
+
+        # 排除不需要存入数据库的字段
+        course_data = data.model_dump(exclude={"age_range", "schedule", "end_date", "description"})
+
+        # 确保 start_date 是 date 类型
+        if course_data.get("start_date") and isinstance(course_data["start_date"], datetime):
+            course_data["start_date"] = course_data["start_date"].date()
+
         course = await self.repo.create(
             db,
             {
                 "id": generate_id(),
                 "enrolled_count": 0,
-                "status": "pending",
-                **data.model_dump(),
+                **course_data,
             },
         )
         await db.refresh(course)
@@ -69,7 +82,11 @@ class CourseService:
                 code=ErrorCode.COURSE_NOT_FOUND,
                 message="课程不存在",
             )
-        await self.repo.update(db, course, data.model_dump(exclude_unset=True))
+
+        # 排除不需要存入数据库的字段
+        update_data = data.model_dump(exclude_unset=True, exclude={"age_range", "schedule", "end_date", "description"})
+
+        await self.repo.update(db, course, update_data)
         await db.refresh(course)
         return CourseResponse.model_validate(course)
 
@@ -159,6 +176,14 @@ class CourseService:
         self, db: AsyncSession, course_id: str, status: str
     ) -> CourseResponse:
         """更新课程状态"""
+        # 校验状态值
+        valid_statuses = ["pending", "enrolling", "ongoing", "completed", "cancelled"]
+        if status not in valid_statuses:
+            raise AppException(
+                code=ErrorCode.BAD_REQUEST,
+                message=f"无效的状态值，有效值为: {', '.join(valid_statuses)}",
+            )
+
         course = await self.repo.get(db, course_id)
         if not course:
             raise AppException(

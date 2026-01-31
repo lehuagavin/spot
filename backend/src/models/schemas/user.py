@@ -16,8 +16,9 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """创建用户"""
 
-    openid: str = Field(..., description="微信OpenID")
+    openid: Optional[str] = Field(None, description="微信OpenID")
     unionid: Optional[str] = Field(None, description="微信UnionID")
+    code: Optional[str] = Field(None, description="微信登录code（开发环境使用）")
 
 
 class UserUpdate(BaseModel):

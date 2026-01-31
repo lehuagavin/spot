@@ -3,7 +3,8 @@
 """
 from datetime import datetime, date
 from typing import Optional
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+import re
 
 
 class StudentCreate(BaseModel):
@@ -15,6 +16,23 @@ class StudentCreate(BaseModel):
     photo: Optional[str] = Field(None, description="照片URL")
     birthday: date = Field(..., description="出生日期")
     gender: str = Field(..., description="性别")
+
+    @field_validator("id_number")
+    @classmethod
+    def validate_id_number(cls, v: str) -> str:
+        """验证身份证号"""
+        # 简单的身份证号格式验证（18位数字或17位数字+X）
+        if not re.match(r"^\d{17}[\dX]$", v, re.IGNORECASE):
+            raise ValueError("无效的身份证号格式")
+        return v
+
+    @field_validator("birthday")
+    @classmethod
+    def validate_birthday(cls, v: date) -> date:
+        """验证出生日期"""
+        if v > date.today():
+            raise ValueError("出生日期不能是未来日期")
+        return v
 
 
 class StudentUpdate(BaseModel):

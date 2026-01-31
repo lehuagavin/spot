@@ -23,12 +23,13 @@ router = APIRouter(prefix="/admin/communities", tags=["管理端-小区管理"])
 async def list_communities(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    keyword: str = Query(None, description="搜索关键词"),
     current_admin: Admin = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
     """获取小区列表"""
     service = CommunityService()
-    result = await service.list_communities(db, page, page_size)
+    result = await service.list_communities(db, page, page_size, keyword=keyword)
     return ResponseSchema(data=result)
 
 

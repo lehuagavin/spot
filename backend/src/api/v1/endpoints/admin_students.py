@@ -46,14 +46,14 @@ async def get_student(
     db: AsyncSession = Depends(get_db),
 ):
     """获取学员详情"""
-    from src.core.errors import AppException, ErrorCode
+    from src.core.exceptions import AppException
+    from src.core.errors import ErrorCode
 
     repo = BaseRepository[Student](Student)
     student = await repo.get(db, student_id)
     if not student:
         raise AppException(
-            code=ErrorCode.STUDENT_NOT_FOUND.name,
+            code=ErrorCode.STUDENT_NOT_FOUND,
             message="学员不存在",
-            status_code=404,
         )
     return ResponseSchema(data=StudentResponse.model_validate(student))

@@ -52,11 +52,11 @@ class OrderService:
                 )
             students.append(student)
 
-        # 检查是否已报名
+        # 检查是否已报名（排除已取消和已退款的记录）
         stmt = select(CourseStudent).where(
             CourseStudent.course_id == data.course_id,
             CourseStudent.student_id.in_(data.student_ids),
-            CourseStudent.status.in_(["active", "completed"]),
+            CourseStudent.status.notin_(["cancelled", "refunded"]),
         )
         result = await db.execute(stmt)
         existing = result.scalars().first()
@@ -176,6 +176,14 @@ class OrderService:
             )
 
         await self.repo.update(db, order, {"status": "cancelled"})
+        
+        # 删除课程学员关联记录，允许学员后续重新报名
+        stmt = select(CourseStudent).where(CourseStudent.order_id == order_id)
+        result = await db.execute(stmt)
+        course_students = result.scalars().all()
+        for cs in course_students:
+            await db.delete(cs)
+        
         await db.refresh(order)
         return OrderResponse.model_validate(order)
 
@@ -196,7 +204,7 @@ class OrderService:
             )
         if order.status != "paid":
             raise AppException(
-                code="ORDER_CANNOT_REFUND",
+                code=ErrorCode.ORDER_CANNOT_REFUND,
                 message="订单状态不允许退款",
             )
 

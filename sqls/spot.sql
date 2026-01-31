@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS students (
   user_id VARCHAR(32) NOT NULL COMMENT '用户ID',
   id_type VARCHAR(20) NOT NULL COMMENT '证件类型',
   id_name VARCHAR(64) NOT NULL COMMENT '证件姓名',
-  id_number VARCHAR(64) NOT NULL COMMENT '证件号码(加密)',
+  id_number VARCHAR(256) NOT NULL COMMENT '证件号码(加密)',
   id_number_hash VARCHAR(64) NOT NULL COMMENT '证件号码哈希',
   photo VARCHAR(512) DEFAULT NULL COMMENT '照片URL',
   birthday DATE NOT NULL COMMENT '出生日期',

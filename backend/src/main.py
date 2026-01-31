@@ -5,6 +5,8 @@ FastAPI 应用入口
 """
 from contextlib import asynccontextmanager
 from datetime import datetime
+from decimal import Decimal
+import json
 import time
 
 from fastapi import FastAPI, Request, status
@@ -19,6 +21,33 @@ from src.core.config import settings
 from src.core.errors import ErrorCode
 from src.core.exceptions import AppException
 from src.core.logging import setup_logging
+
+
+# 自定义 JSON 编码器
+class CustomJSONEncoder(json.JSONEncoder):
+    """自定义 JSON 编码器，支持 Decimal 和 datetime"""
+
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
+
+# 自定义 JSONResponse
+class CustomJSONResponse(JSONResponse):
+    """自定义 JSONResponse，使用自定义编码器"""
+
+    def render(self, content) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+            cls=CustomJSONEncoder,
+        ).encode("utf-8")
 
 
 @asynccontextmanager
@@ -43,6 +72,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
+    default_response_class=CustomJSONResponse,
 )
 
 
@@ -91,13 +121,31 @@ async def app_exception_handler(request: Request, exc: AppException):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """参数验证异常处理"""
-    logger.error(f"参数验证失败: {exc.errors()}")
-    return JSONResponse(
+    # 格式化错误信息，确保可以 JSON 序列化
+    formatted_errors = []
+    for error in exc.errors():
+        formatted_error = {
+            "type": error.get("type", "unknown"),
+            "loc": error.get("loc", []),
+            "msg": str(error.get("msg", "")),
+        }
+        # 如果有 input 字段，尝试序列化它
+        if "input" in error:
+            try:
+                import json
+                json.dumps(error["input"])
+                formatted_error["input"] = error["input"]
+            except (TypeError, ValueError):
+                formatted_error["input"] = str(error["input"])
+        formatted_errors.append(formatted_error)
+
+    logger.error(f"参数验证失败: {formatted_errors}")
+    return CustomJSONResponse(
         status_code=status.HTTP_200_OK,
         content={
             "code": ErrorCode.BAD_REQUEST,
             "message": "请求参数错误",
-            "data": {"errors": exc.errors()},
+            "data": {"errors": formatted_errors},
         },
     )
 
@@ -139,4 +187,31 @@ async def root():
         "message": "义城上门教育 API",
         "version": "1.0.0",
         "docs": "/docs",
+    }
+
+
+@app.get("/health")
+async def health():
+    """根路径健康检查（兼容测试脚本）"""
+    from datetime import datetime
+    from sqlalchemy import text
+    from src.core.database import async_session_maker
+    from src.core.errors import ErrorCode
+
+    # 检查数据库连接
+    try:
+        async with async_session_maker() as db:
+            await db.execute(text("SELECT 1"))
+            db_status = "ok"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+
+    return {
+        "code": ErrorCode.SUCCESS,
+        "message": "success",
+        "data": {
+            "status": "ok" if db_status == "ok" else "degraded",
+            "timestamp": datetime.now().isoformat(),
+            "database": db_status,
+        },
     }

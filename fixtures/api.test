@@ -21,7 +21,7 @@
 #
 # ============================================================================
 
-set -e  # 遇到错误时停止执行
+# set -e  # 遇到错误时停止执行（注释掉以便收集所有测试结果）
 
 # 配置
 API_BASE="http://localhost:8000"
@@ -236,7 +236,10 @@ check_response "$response" 0 "获取小区列表成功"
 
 # 11. 获取小区列表 - 带搜索
 print_test "获取小区列表 - 带搜索"
-response=$(curl -s -X GET "$API_BASE/api/v1/admin/communities?page=1&page_size=10&keyword=测试" \
+response=$(curl -s -G "$API_BASE/api/v1/admin/communities" \
+    --data-urlencode "page=1" \
+    --data-urlencode "page_size=10" \
+    --data-urlencode "keyword=测试" \
     -H "$CONTENT_TYPE" \
     -H "Authorization: Bearer $ADMIN_TOKEN")
 check_response "$response" 0 "搜索小区成功"
@@ -833,7 +836,10 @@ check_response "$response" 0 "获取小区列表成功"
 
 # 54. 获取小区列表 - 带搜索
 print_test "获取小区列表 - 带搜索"
-response=$(curl -s -X GET "$API_BASE/api/v1/communities?page=1&page_size=10&keyword=测试" \
+response=$(curl -s -G "$API_BASE/api/v1/communities" \
+    --data-urlencode "page=1" \
+    --data-urlencode "page_size=10" \
+    --data-urlencode "keyword=测试" \
     -H "$CONTENT_TYPE")
 check_response "$response" 0 "搜索小区成功"
 
@@ -1039,6 +1045,15 @@ check_response "$response" 10004 "不存在的订单应该返回404"
 # ============================================================================
 
 print_header "小程序端 - 订单操作"
+
+# 先取消之前创建的订单，以便后续测试可以重新使用同一学员和课程
+if [ -n "$ORDER_ID" ]; then
+    echo "取消之前的订单: $ORDER_ID"
+    curl -s -X POST "$API_BASE/api/v1/orders/$ORDER_ID/cancel" \
+        -H "$CONTENT_TYPE" \
+        -H "Authorization: Bearer $USER_TOKEN" \
+        -d '{"reason": "测试准备: 取消旧订单"}' > /dev/null 2>&1
+fi
 
 # 创建一个新订单用于测试取消
 print_test "创建测试订单用于取消"
@@ -1265,7 +1280,10 @@ check_response "$response" 0 "获取用户列表成功"
 
 # 95. 获取用户列表 - 带搜索
 print_test "获取用户列表 - 带搜索"
-response=$(curl -s -X GET "$API_BASE/api/v1/admin/users?page=1&page_size=10&keyword=测试" \
+response=$(curl -s -G "$API_BASE/api/v1/admin/users" \
+    --data-urlencode "page=1" \
+    --data-urlencode "page_size=10" \
+    --data-urlencode "keyword=测试" \
     -H "$CONTENT_TYPE" \
     -H "Authorization: Bearer $ADMIN_TOKEN")
 check_response "$response" 0 "搜索用户成功"
@@ -1449,6 +1467,14 @@ curl -s -X GET "$API_BASE/api/v1/orders" \
 
 check_response "$payment_response" 0 "场景1: 新用户完整报名流程"
 
+# 取消场景1创建的订单，以便场景2可以重新报名
+if [ -n "$new_order_id" ]; then
+    curl -s -X POST "$API_BASE/api/v1/orders/$new_order_id/cancel" \
+        -H "$CONTENT_TYPE" \
+        -H "Authorization: Bearer $new_user_token" \
+        -d '{"reason": "测试准备: 取消旧订单"}' > /dev/null 2>&1
+fi
+
 # 108. 场景2: 会员购买权益卡后优惠报名
 print_test "场景2: 会员购买权益卡后优惠报名"
 # 1. 查看权益卡列表
@@ -1559,12 +1585,41 @@ check_response "$community_courses_response" 0 "场景4: 附近小区搜索并�
 
 # 111. 场景5: 订单状态变更流程
 print_test "场景5: 订单状态变更流程"
+
+# 为场景5创建专用课程
+deadline_date=$(date -v+30d '+%Y-%m-%d')
+start_date=$(date -v+7d '+%Y-%m-%d')
+end_date=$(date -v+37d '+%Y-%m-%d')
+
+scenario5_course_response=$(curl -s -X POST "$API_BASE/api/v1/admin/courses" \
+    -H "$CONTENT_TYPE" \
+    -H "Authorization: Bearer $ADMIN_TOKEN" \
+    -d "{
+        \"name\": \"场景5测试课程\",
+        \"community_id\": \"$COMMUNITY_ID\",
+        \"teacher_id\": \"$TEACHER_ID\",
+        \"category\": \"体能\",
+        \"age_range\": \"4-8岁\",
+        \"schedule\": \"周日 10:00-11:00\",
+        \"price\": 50.00,
+        \"member_price\": 40.00,
+        \"min_students\": 5,
+        \"max_students\": 15,
+        \"total_weeks\": 8,
+        \"total_lessons\": 8,
+        \"deadline\": \"$deadline_date\",
+        \"start_date\": \"$start_date\",
+        \"end_date\": \"$end_date\",
+        \"status\": \"enrolling\"
+    }")
+scenario5_course_id=$(echo "$scenario5_course_response" | grep -o '"id":"[^"]*' | head -1 | cut -d'"' -f4)
+
 # 1. 创建订单(pending)
 status_order_response=$(curl -s -X POST "$API_BASE/api/v1/orders" \
     -H "$CONTENT_TYPE" \
     -H "Authorization: Bearer $USER_TOKEN" \
     -d "{
-        \"course_id\": \"$COURSE_ID\",
+        \"course_id\": \"$scenario5_course_id\",
         \"student_ids\": [\"$STUDENT_ID\"],
         \"use_member_price\": false
     }")
@@ -1591,6 +1646,31 @@ check_response "$paid_order_response" 0 "场景5: 订单状态变更流程"
 
 # 112. 场景6: 多学员同时报名
 print_test "场景6: 多学员同时报名"
+
+# 为场景6创建专用课程
+scenario6_course_response=$(curl -s -X POST "$API_BASE/api/v1/admin/courses" \
+    -H "$CONTENT_TYPE" \
+    -H "Authorization: Bearer $ADMIN_TOKEN" \
+    -d "{
+        \"name\": \"场景6测试课程\",
+        \"community_id\": \"$COMMUNITY_ID\",
+        \"teacher_id\": \"$TEACHER_ID\",
+        \"category\": \"体能\",
+        \"age_range\": \"4-8岁\",
+        \"schedule\": \"周日 14:00-15:00\",
+        \"price\": 45.00,
+        \"member_price\": 35.00,
+        \"min_students\": 5,
+        \"max_students\": 20,
+        \"total_weeks\": 8,
+        \"total_lessons\": 8,
+        \"deadline\": \"$deadline_date\",
+        \"start_date\": \"$start_date\",
+        \"end_date\": \"$end_date\",
+        \"status\": \"enrolling\"
+    }")
+scenario6_course_id=$(echo "$scenario6_course_response" | grep -o '"id":"[^"]*' | head -1 | cut -d'"' -f4)
+
 # 1. 添加第二个学员
 student2_response=$(curl -s -X POST "$API_BASE/api/v1/students" \
     -H "$CONTENT_TYPE" \
@@ -1609,7 +1689,7 @@ multi_student_order_response=$(curl -s -X POST "$API_BASE/api/v1/orders" \
     -H "$CONTENT_TYPE" \
     -H "Authorization: Bearer $USER_TOKEN" \
     -d "{
-        \"course_id\": \"$COURSE_ID\",
+        \"course_id\": \"$scenario6_course_id\",
         \"student_ids\": [\"$STUDENT_ID\", \"$student2_id\"],
         \"use_member_price\": false
     }")
@@ -1708,7 +1788,8 @@ print_header "边界测试"
 
 # 117. SQL注入测试
 print_test "SQL注入测试"
-response=$(curl -s -X GET "$API_BASE/api/v1/courses?keyword='; DROP TABLE courses; --" \
+response=$(curl -s -G "$API_BASE/api/v1/courses" \
+    --data-urlencode "keyword='; DROP TABLE courses; --" \
     -H "$CONTENT_TYPE")
 check_response "$response" 0 "SQL注入防护"
 

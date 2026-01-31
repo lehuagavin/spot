@@ -29,12 +29,21 @@ class MemberCardService:
         self, db: AsyncSession, data: MemberCardCreate
     ) -> MemberCardResponse:
         """创建会员卡"""
+        # 校验价格
+        if data.price < 0:
+            raise AppException(
+                code=ErrorCode.BAD_REQUEST,
+                message="价格不能为负数",
+            )
+
+        # 排除不需要存入数据库的字段
+        card_data = data.model_dump(exclude={"type", "duration_days", "description"})
+
         card = await self.repo.create(
             db,
             {
                 "id": generate_id(),
-                "status": 1,
-                **data.model_dump(),
+                **card_data,
             },
         )
         await db.refresh(card)
@@ -50,7 +59,10 @@ class MemberCardService:
                 code=ErrorCode.MEMBER_CARD_NOT_FOUND,
                 message="会员卡不存在",
             )
-        await self.repo.update(db, card, data.model_dump(exclude_unset=True))
+
+        # 排除不需要存入数据库的字段
+        update_data = data.model_dump(exclude_unset=True, exclude={"type", "duration_days", "description"})
+        await self.repo.update(db, card, update_data)
         await db.refresh(card)
         return MemberCardResponse.model_validate(card)
 

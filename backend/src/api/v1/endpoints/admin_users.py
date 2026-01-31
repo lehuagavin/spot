@@ -21,12 +21,13 @@ router = APIRouter(prefix="/admin/users", tags=["管理端-用户管理"])
 async def list_users(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    keyword: str = Query(None, description="搜索关键字"),
     current_admin: Admin = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
     """获取用户列表"""
     service = UserService()
-    result = await service.list_users(db, page, page_size)
+    result = await service.list_users(db, page, page_size, keyword=keyword)
     return ResponseSchema(data=result)
 
 

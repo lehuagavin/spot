@@ -82,7 +82,7 @@ class CommunityService:
         return CommunityResponse.model_validate(community)
 
     async def list_communities(
-        self, db: AsyncSession, page: int = 1, page_size: int = 20
+        self, db: AsyncSession, page: int = 1, page_size: int = 20, keyword: str = None
     ) -> PaginatedResponseSchema[CommunityResponse]:
         """获取小区列表
 
@@ -90,15 +90,32 @@ class CommunityService:
             db: 数据库会话
             page: 页码
             page_size: 每页数量
+            keyword: 搜索关键词
 
         Returns:
             分页结果
         """
+        from sqlalchemy import select, func
+
         skip = (page - 1) * page_size
-        communities = await self.repo.get_multi(
-            db, skip=skip, limit=page_size, status=1
-        )
-        total = await self.repo.count(db, status=1)
+
+        # 构建查询
+        stmt = select(Community).where(Community.status == 1)
+        count_stmt = select(func.count()).select_from(Community).where(Community.status == 1)
+
+        if keyword:
+            stmt = stmt.where(Community.name.contains(keyword))
+            count_stmt = count_stmt.where(Community.name.contains(keyword))
+
+        # 分页
+        stmt = stmt.offset(skip).limit(page_size)
+
+        # 执行查询
+        result = await db.execute(stmt)
+        communities = result.scalars().all()
+
+        count_result = await db.execute(count_stmt)
+        total = count_result.scalar() or 0
 
         return PaginatedResponseSchema(
             items=[CommunityResponse.model_validate(c) for c in communities],

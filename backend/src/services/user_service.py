@@ -71,13 +71,32 @@ class UserService:
         return UserResponse.model_validate(user)
 
     async def list_users(
-        self, db: AsyncSession, page: int, page_size: int
+        self, db: AsyncSession, page: int, page_size: int, keyword: str = None
     ) -> dict:
         """获取用户列表"""
-        total = await self.repo.count(db)
-        users = await self.repo.get_multi(
-            db, skip=(page - 1) * page_size, limit=page_size
-        )
+        # 构建基础查询
+        query = select(User)
+        
+        # 如果有关键字，按昵称或手机号搜索
+        if keyword:
+            query = query.where(
+                (User.nickname.contains(keyword)) | (User.phone.contains(keyword))
+            )
+        
+        # 计算总数
+        count_query = select(User)
+        if keyword:
+            count_query = count_query.where(
+                (User.nickname.contains(keyword)) | (User.phone.contains(keyword))
+            )
+        result = await db.execute(count_query)
+        total = len(result.scalars().all())
+        
+        # 分页查询
+        query = query.offset((page - 1) * page_size).limit(page_size)
+        result = await db.execute(query)
+        users = result.scalars().all()
+        
         return {
             "items": [UserResponse.model_validate(u) for u in users],
             "total": total,
