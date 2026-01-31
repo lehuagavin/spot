@@ -112,7 +112,7 @@ Page({
       current_week: 1,
       deadline: '2026-02-01 08:00:00',
       price: 80,
-      member_price: 39.8,
+      member_price: 40,
       min_students: 4,
       max_students: 10,
       enrolled_count: 6,

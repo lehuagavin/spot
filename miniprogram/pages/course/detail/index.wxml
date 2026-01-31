@@ -84,7 +84,7 @@
         <view class="price-label">课程单价</view>
         <view class="price-value">
           <text class="price-symbol">¥</text>
-          <text class="price-amount">{{course.price || 80}}</text>
+          <text class="price-amount">{{course.price || 0}}</text>
           <text class="price-unit">/节</text>
         </view>
       </view>
@@ -96,7 +96,7 @@
         </view>
         <view class="price-value member-price">
           <text class="price-symbol">¥</text>
-          <text class="price-amount">{{course.member_price || 39.8}}</text>
+          <text class="price-amount">{{course.member_price || 0}}</text>
           <text class="price-unit">/节</text>
         </view>
       </view>

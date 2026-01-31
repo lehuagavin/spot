@@ -43,8 +43,8 @@ Page({
         start_date: '2026-02-02',
         community_name: '海沧天心岛',
         location: '海沧天心岛',
-        price: 120,
-        member_price: 80,
+        price: 80,
+        member_price: 40,
         total_weeks: 2,
         current_week: 1,
         max_students: 6,
@@ -89,7 +89,7 @@ Page({
     const { course } = this.data;
     const userInfo = app.globalData.userInfo;
     const isMember = userInfo?.is_member;
-    const coursePrice = parseFloat(course.price) || 120;
+    const coursePrice = parseFloat(course.price) || 0;
     const memberPrice = parseFloat(course.member_price) || coursePrice;
     
     const processedStudents = students.map(student => {
