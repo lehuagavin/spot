@@ -1,0 +1,38 @@
+---
+description: Web Design Extractor - Extract design tokens and reverse-engineer website designs to create pixel-perfect reproductions.
+globs:
+alwaysApply: false
+---
+
+# Web Design Extractor Skill
+
+This project includes a custom skill for extracting and reproducing website designs.
+
+## When to Use
+
+Use this skill when the user asks to:
+- Analyze a website's design
+- Extract a design system from a URL
+- Create a design guide from a webpage
+- Reproduce/clone a website's look and feel
+- Understand and replicate visual design patterns
+
+## How to Use
+
+Read the skill file at `.cursor/skills/web-design-extractor/SKILL.md` for complete instructions.
+
+## Quick Reference
+
+| Script | Purpose |
+|--------|---------|
+| `extract_design.py` | Extract CSS and design tokens from URL |
+| `capture_screenshot.py` | Capture viewport and full-page screenshots |
+| `generate_guide.py` | Generate design guide markdown |
+| `compare_pages.py` | Compare screenshots for pixel-perfect validation |
+
+## Dependencies
+
+```bash
+pip install playwright pillow numpy
+playwright install chromium
+```
