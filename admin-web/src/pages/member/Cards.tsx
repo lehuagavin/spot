@@ -46,9 +46,10 @@ export default function MemberCards() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await getMemberCards(params);
-      setData(res.items);
-      setTotal(res.total);
+      const res = await getMemberCards();
+      // 后端返回数组格式，直接使用
+      setData(Array.isArray(res) ? res : []);
+      setTotal(Array.isArray(res) ? res.length : 0);
     } catch (error) {
       message.error('获取权益卡列表失败');
     } finally {
@@ -72,7 +73,20 @@ export default function MemberCards() {
 
   const handleEdit = (record: MemberCard) => {
     setEditingRecord(record);
-    form.setFieldsValue(record);
+    // 转换字段格式
+    const formValues: Record<string, unknown> = { ...record };
+    
+    // 将 duration 映射到 duration_days（表单字段名）
+    formValues.duration_days = record.duration;
+    
+    // 将 benefits 数组转换为文本显示（每行一条）
+    if (Array.isArray(record.benefits)) {
+      formValues.benefits = record.benefits.join('\n');
+    } else if (record.benefits && typeof record.benefits === 'object' && 'items' in record.benefits) {
+      formValues.benefits = (record.benefits as { items: string[] }).items.join('\n');
+    }
+    
+    form.setFieldsValue(formValues);
     setModalVisible(true);
   };
 
@@ -90,6 +104,16 @@ export default function MemberCards() {
     try {
       const values = await form.validateFields();
       setSubmitLoading(true);
+      
+      // 将 benefits 文本转换为数组（按行分割，过滤空行）
+      if (values.benefits && typeof values.benefits === 'string') {
+        const benefitsArray = values.benefits
+          .split('\n')
+          .map((item: string) => item.trim())
+          .filter((item: string) => item.length > 0);
+        values.benefits = benefitsArray.length > 0 ? benefitsArray : undefined;
+      }
+      
       if (editingRecord) {
         await updateMemberCard(editingRecord.id, values);
         message.success('更新成功');
@@ -120,7 +144,7 @@ export default function MemberCards() {
       dataIndex: 'type',
       key: 'type',
       render: (type: MemberCardType) => (
-        <Tag color="blue">{MemberCardTypeText[type]}</Tag>
+        type ? <Tag color="blue">{MemberCardTypeText[type] || type}</Tag> : '-'
       ),
     },
     {
@@ -145,8 +169,8 @@ export default function MemberCards() {
     },
     {
       title: '有效期',
-      dataIndex: 'duration_days',
-      key: 'duration_days',
+      dataIndex: 'duration',
+      key: 'duration',
       render: (days: number) => `${days} 天`,
     },
     {
@@ -199,7 +223,9 @@ export default function MemberCards() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 152, 0, 0.08) 100%)',
+          backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 100%), url(/images/member-vip.png)',
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
           borderRadius: 'var(--radius-lg)',
           padding: '24px 32px',
         }}
@@ -219,15 +245,6 @@ export default function MemberCards() {
             管理会员权益卡配置
           </p>
         </div>
-        <img
-          src="/images/member-vip.png"
-          alt="VIP"
-          style={{
-            height: 100,
-            objectFit: 'contain',
-            opacity: 0.9,
-          }}
-        />
       </div>
 
       {/* 工具栏 */}

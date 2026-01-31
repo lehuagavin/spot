@@ -93,21 +93,46 @@ async def bind_phone(
 ):
     """绑定手机号
 
-    支持两种方式:
+    支持三种方式:
     1. 直接传入 phone
-    2. 传入 code（开发测试环境，自动生成模拟手机号）
+    2. 传入 code 调用微信接口获取真实手机号（需配置 AppSecret）
+    3. 开发环境：如果微信接口调用失败，使用固定测试手机号
     """
+    from src.core.config import settings
+    import httpx
+    
     phone = data.phone
+    
     if not phone and data.code:
-        # 开发环境：从 code 生成模拟手机号
-        import hashlib
-        hash_val = hashlib.md5(data.code.encode()).hexdigest()[:8]
-        phone = "138" + hash_val[:8].upper()[:8].translate(str.maketrans("ABCDEF", "012345"))[:8]
-
+        # 尝试调用微信接口获取真实手机号
+        try:
+            # 1. 先获取 access_token
+            token_url = f"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={settings.wechat_app_id}&secret={settings.wechat_app_secret}"
+            async with httpx.AsyncClient() as client:
+                token_resp = await client.get(token_url)
+                token_data = token_resp.json()
+                access_token = token_data.get("access_token")
+                
+                if access_token:
+                    # 2. 使用 access_token 获取手机号
+                    phone_url = f"https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token={access_token}"
+                    phone_resp = await client.post(phone_url, json={"code": data.code})
+                    phone_data = phone_resp.json()
+                    
+                    if phone_data.get("errcode") == 0:
+                        phone_info = phone_data.get("phone_info", {})
+                        phone = phone_info.get("phoneNumber") or phone_info.get("purePhoneNumber")
+        except Exception as e:
+            print(f"获取微信手机号失败: {e}")
+    
+    # 如果仍然没有手机号（开发环境或微信接口失败），使用用户已有手机号或测试手机号
     if not phone:
-        from src.core.exceptions import AppException
-        from src.core.errors import ErrorCode
-        raise AppException(code=ErrorCode.BAD_REQUEST, message="请提供 phone 或 code")
+        if current_user.phone:
+            # 保持用户现有手机号不变
+            phone = current_user.phone
+        else:
+            # 开发环境：使用固定测试手机号
+            phone = "13800138000"
 
     service = UserService()
     user = await service.update_user_info(

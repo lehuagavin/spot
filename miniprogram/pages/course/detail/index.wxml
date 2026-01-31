@@ -7,159 +7,185 @@
   </view>
   
   <block wx:elif="{{course}}">
-    <!-- 头部品牌区 -->
-    <view class="brand-section">
-      <view class="brand-logo">
-        <text class="logo-text">义城上门教育</text>
-        <text class="logo-sub">YICHENG HOME EDUCATION</text>
-      </view>
-      <view class="brand-tags">
-        <view class="brand-tag">线上预约</view>
-        <view class="brand-tag">首次付费</view>
-        <view class="brand-tag">教练上门</view>
-        <view class="brand-tag">户外教学</view>
-        <view class="brand-tag">快乐运动</view>
+    <!-- 头部课程图片 -->
+    <view class="course-banner {{course.image ? '' : 'no-image'}}">
+      <image 
+        wx:if="{{course.image}}"
+        class="banner-image" 
+        src="{{course.image}}" 
+        mode="aspectFill"
+      />
+      <view class="banner-overlay" wx:if="{{!course.image}}">
+        <view class="brand-logo">
+          <text class="logo-text">义城上门教育</text>
+          <text class="logo-sub">YICHENG HOME EDUCATION</text>
+        </view>
       </view>
     </view>
     
-    <!-- 课程信息 -->
-    <view class="course-section">
-      <view class="course-header">
-        <view class="course-title">
-          <text class="age-tag">({{course.age_range || '7-12岁'}})</text>
-          <text class="course-name">{{course.name}}</text>
-        </view>
-        <view class="status-tag {{course.status === 'enrolling' ? 'enrolling' : ''}}">
-          {{course.status === 'enrolling' ? '报名中' : course.status === 'ongoing' ? '进行中' : '已结束'}}
-        </view>
+    <!-- 课程标题区 -->
+    <view class="title-section">
+      <view class="title-left">
+        <text class="course-name">{{course.name}}</text>
+        <text class="teacher-info">上课老师：{{course.teacher.name || '待定'}}</text>
       </view>
-      
-      <!-- 教练信息 -->
-      <view class="info-row" wx:if="{{course.teacher}}">
-        <view class="info-label">上课老师</view>
-        <view class="info-value">
-          <view class="teacher-avatar">
-            <image wx:if="{{course.teacher.avatar}}" src="{{course.teacher.avatar}}" mode="aspectFill"/>
-            <text wx:else>👨‍🏫</text>
-          </view>
-          <text class="teacher-name">{{course.teacher.name}}</text>
-        </view>
-      </view>
-      
-      <!-- 课程周期 -->
-      <view class="info-row">
-        <view class="info-label">课程周期</view>
-        <view class="info-value">第{{course.current_week || 1}}周 - 第{{course.total_weeks || 10}}周</view>
-      </view>
-      
-      <view class="info-row">
-        <view class="info-label">上课周期</view>
-        <view class="info-value">共{{course.total_weeks || 10}}周，{{course.total_lessons || 10}}节课</view>
-      </view>
-      
-      <!-- 时间地点 -->
-      <view class="info-row">
-        <view class="info-label">上课时间</view>
-        <view class="info-value">{{course.schedule || '待定'}}</view>
-      </view>
-      
-      <view class="info-row">
-        <view class="info-label">上课地点</view>
-        <view class="info-value address">
-          <text>{{course.community_name}}</text>
-          <text class="address-detail">{{course.address}}</text>
-        </view>
-      </view>
-      
-      <!-- 截止时间 -->
-      <view class="info-row">
-        <view class="info-label">成班截止</view>
-        <view class="info-value deadline">{{course.deadline}}</view>
+      <button class="share-btn" open-type="share">
+        <text class="share-icon">↗</text>
+        <text>分享</text>
+      </button>
+    </view>
+    
+    <!-- 周数状态标签 -->
+    <view class="week-tag-section">
+      <view class="week-tag">
+        <text class="week-num">第{{course.current_week || 1}}周</text>
+        <text class="week-status">{{course.status === 'enrolling' ? '报名中' : course.status === 'ongoing' ? '进行中' : '已结束'}}</text>
       </view>
     </view>
     
-    <!-- 价格信息 -->
+    <!-- 课程信息列表 -->
+    <view class="info-section">
+      <view class="info-row">
+        <view class="info-icon">📅</view>
+        <text class="info-label">上课周期：</text>
+        <text class="info-value">共{{course.total_weeks || 1}}周，{{course.total_lessons || 1}}节课</text>
+      </view>
+      <view class="info-row">
+        <view class="info-icon">🕐</view>
+        <text class="info-label">上课时段：</text>
+        <text class="info-value">{{course.schedule || '待定'}}</text>
+      </view>
+      <view class="info-row">
+        <view class="info-icon">🏠</view>
+        <text class="info-label">上课小区：</text>
+        <text class="info-value">{{course.community_name || '待定'}}</text>
+      </view>
+      <view class="info-row" wx:if="{{course.class_no}}">
+        <view class="info-icon">🔢</view>
+        <text class="info-label">班级号：</text>
+        <text class="info-value">{{course.class_no}}</text>
+      </view>
+      <view class="info-row address-row">
+        <view class="address-left">
+          <view class="info-icon">📍</view>
+          <text class="info-label">上课地址：</text>
+          <text class="info-value address-text">{{course.location || course.address || '待定'}}</text>
+        </view>
+        <view class="nav-btn" bindtap="onNavigate">
+          <text class="nav-icon">↗</text>
+          <text>导航</text>
+        </view>
+      </view>
+      <view class="info-row">
+        <view class="info-icon">⏰</view>
+        <text class="info-label">成班截止时间：</text>
+        <text class="info-value deadline">{{course.deadline}}</text>
+      </view>
+    </view>
+    
+    <!-- 价格区域 -->
     <view class="price-section">
-      <view class="price-row">
-        <view class="price-label">课程单价</view>
+      <view class="price-header">
+        <text class="price-label">课程单价</text>
         <view class="price-value">
           <text class="price-symbol">¥</text>
-          <text class="price-amount">{{course.price || 0}}</text>
+          <text class="price-amount">{{course.member_price || course.price || 0}}</text>
           <text class="price-unit">/节</text>
         </view>
       </view>
       
-      <view class="price-row member">
-        <view class="price-label">
-          <view class="member-badge">会员</view>
-          <text>权益卡价格</text>
+      <!-- 会员权益卡 -->
+      <view class="member-card">
+        <view class="member-card-header">
+          <view class="member-title">
+            <text class="member-icon">💛</text>
+            <text class="member-text">儿童权益卡</text>
+          </view>
+          <view class="recommend-tag">推荐</view>
         </view>
-        <view class="price-value member-price">
-          <text class="price-symbol">¥</text>
-          <text class="price-amount">{{course.member_price || 0}}</text>
-          <text class="price-unit">/节</text>
+        <view class="member-price-row">
+          <text class="member-price-label">会员专享价格</text>
+          <view class="member-price-value">
+            <text class="member-price-num">{{course.price || 0}}</text>
+            <text class="member-price-unit">元/节</text>
+          </view>
         </view>
-      </view>
-      
-      <view class="saving-tip">
-        <text class="tip-icon">💡</text>
-        <text>会员权益卡每节课为您节省 ¥{{savingAmount}}</text>
+        <view class="member-saving">
+          <text>会员权益卡每节课为您节省</text>
+          <text class="saving-amount">-{{savingAmount}}</text>
+          <text class="saving-unit">元</text>
+        </view>
       </view>
     </view>
     
-    <!-- 报名信息 -->
+    <!-- 班级报名信息 -->
     <view class="enroll-section">
       <view class="enroll-header">
-        <view class="enroll-title">报名信息</view>
-        <view class="enroll-stats">
-          <text class="stats-item">{{course.max_students || 10}}人班</text>
-          <text class="stats-divider">|</text>
-          <text class="stats-item">满{{course.min_students || 4}}人成班</text>
-          <text class="stats-divider">|</text>
-          <text class="stats-item highlight">剩余{{remainingSlots}}个名额</text>
-        </view>
+        <text class="enroll-class">{{course.max_students || 10}}人班</text>
+        <text class="enroll-time">{{course.start_date}} {{course.schedule_time || ''}}</text>
+        <text class="enroll-status {{course.status}}">{{course.status === 'enrolling' ? '报名中' : course.status === 'ongoing' ? '进行中' : '已结束'}}</text>
       </view>
       
-      <!-- 已报名学员 -->
-      <view class="enrolled-list" wx:if="{{enrolledStudents.length > 0}}">
-        <text class="enrolled-label">已报名学员</text>
-        <view class="enrolled-avatars">
-          <view 
-            class="enrolled-avatar"
-            wx:for="{{enrolledStudents}}"
-            wx:key="index"
-            wx:if="{{index < 8}}"
-          >
-            <image wx:if="{{item.avatar}}" src="{{item.avatar}}" mode="aspectFill"/>
-            <text wx:else>👤</text>
-          </view>
-          <view class="enrolled-more" wx:if="{{enrolledStudents.length > 8}}">
-            +{{enrolledStudents.length - 8}}
-          </view>
+      <view class="enroll-progress">
+        <text>满{{course.min_students || 1}}人成班，剩余</text>
+        <text class="remaining-count">{{remainingSlots}}</text>
+        <text>个名额</text>
+      </view>
+      
+      <!-- 已报名学员头像 -->
+      <view class="enrolled-avatars">
+        <view 
+          class="avatar-item"
+          wx:for="{{course.max_students || 10}}"
+          wx:key="index"
+        >
+          <image 
+            wx:if="{{enrolledStudents[index] && enrolledStudents[index].avatar}}" 
+            src="{{enrolledStudents[index].avatar}}" 
+            mode="aspectFill"
+          />
+          <view wx:else class="avatar-placeholder"></view>
         </view>
       </view>
     </view>
     
     <!-- 拼班说明 -->
     <view class="notice-section">
-      <view class="notice-title">拼班说明</view>
-      <view class="notice-list">
-        <view class="notice-item">
-          <text class="notice-num">1</text>
-          <text class="notice-text">支付成功即视为拼班成功</text>
-        </view>
-        <view class="notice-item">
-          <text class="notice-num">2</text>
-          <text class="notice-text">所支付的费用为该产品的实际价格</text>
-        </view>
-        <view class="notice-item">
-          <text class="notice-num">3</text>
-          <text class="notice-text">报名时间截止前随时可申请退款，报名时间截止后费用不退</text>
-        </view>
-        <view class="notice-item">
-          <text class="notice-num">4</text>
-          <text class="notice-text">若遇到不可抗拒因素（天气、场地不满足开班人数等）该班将解散，费用将在10分钟内自动原路返还</text>
-        </view>
+      <view class="notice-title">
+        <view class="title-bar"></view>
+        <text>拼班说明</text>
+      </view>
+      <view class="notice-content">
+        <text class="notice-subtitle">拼班说明：</text>
+        <text class="notice-text">1、支付成功则视为拼班成功。</text>
+        <text class="notice-text">2、所支付的费用为该产品的实际价格。</text>
+        <text class="notice-text">3、报名时间截止前随时可申请退款，报名时间截止后费用不可退。</text>
+        <text class="notice-text">4、若遇到不可抗拒因素（天气、班级不满最低人数等）该班级解散，款项将在10分钟内自动原路返还，无需操作。</text>
+      </view>
+    </view>
+    
+    <!-- 退款政策 -->
+    <view class="notice-section">
+      <view class="notice-title">
+        <view class="title-bar"></view>
+        <text>退款政策</text>
+      </view>
+      <view class="notice-content">
+        <text class="notice-subtitle">退款政策：</text>
+        <text class="notice-text">1、报名时间截止前随时可申请退款，报名时间截止后费用不可退。</text>
+        <text class="notice-text">2、若遇到不可抗拒因素（天气、班级不满最低人数等）该班级解散，款项将在10分钟内自动原路返还，无需操作。</text>
+      </view>
+    </view>
+    
+    <!-- 课程简介 -->
+    <view class="notice-section" wx:if="{{course.description}}">
+      <view class="notice-title">
+        <view class="title-bar"></view>
+        <text>课程简介</text>
+      </view>
+      <view class="notice-content">
+        <text class="notice-subtitle">{{course.name}}</text>
+        <text class="notice-text">{{course.description}}</text>
       </view>
     </view>
     
@@ -170,17 +196,6 @@
 
 <!-- 底部操作栏 -->
 <view class="bottom-bar" wx:if="{{course}}">
-  <view class="bar-actions">
-    <button class="action-btn" open-type="share">
-      <text class="action-icon">📤</text>
-      <text class="action-text">分享</text>
-    </button>
-    <button class="action-btn" open-type="contact">
-      <text class="action-icon">💬</text>
-      <text class="action-text">客服</text>
-    </button>
-  </view>
-  
   <button 
     class="join-btn {{remainingSlots <= 0 || course.status !== 'enrolling' ? 'disabled' : ''}}"
     bindtap="onJoinClass"

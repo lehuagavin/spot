@@ -200,7 +200,9 @@ export default function TeacherList() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(139, 195, 74, 0.08) 100%)',
+          backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 100%), url(/images/teacher-coach.png)',
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
           borderRadius: 'var(--radius-lg)',
           padding: '24px 32px',
         }}
@@ -220,15 +222,6 @@ export default function TeacherList() {
             管理平台教练信息
           </p>
         </div>
-        <img
-          src="/images/teacher-coach.png"
-          alt="Coach"
-          style={{
-            height: 100,
-            objectFit: 'contain',
-            opacity: 0.9,
-          }}
-        />
       </div>
 
       {/* 工具栏 */}

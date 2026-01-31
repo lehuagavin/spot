@@ -1,35 +1,264 @@
-/* 拼班记录页面样式 */
-.page-container { min-height: 100vh; background-color: #f5f5f7; }
+/* 我的订单页面样式 */
+.page-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
 
-.tab-section { background-color: #fff; padding: 0 24rpx; }
-.tab-scroll { white-space: nowrap; }
-.tab-list { display: inline-flex; padding: 16rpx 0; }
-.tab-item { padding: 12rpx 28rpx; font-size: 28rpx; color: #6e6e73; border-radius: 28rpx; margin-right: 16rpx; }
-.tab-item.active { color: #fff; background-color: #0071e3; font-weight: 500; }
+/* ========== 标签栏 ========== */
+.tab-section {
+  background-color: #ffffff;
+  padding: 24rpx 32rpx;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
 
-.loading-state { display: flex; flex-direction: column; align-items: center; padding: 120rpx; }
-.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid #e8e8ed; border-top-color: #0071e3; border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { font-size: 28rpx; color: #86868b; margin-top: 20rpx; }
+.tab-list {
+  display: flex;
+  gap: 24rpx;
+}
 
-.order-list { padding: 24rpx; }
-.order-card { background-color: #fff; border-radius: 24rpx; padding: 24rpx; margin-bottom: 24rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
-.order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; }
-.order-name { font-size: 32rpx; font-weight: 600; color: #1d1d1f; }
-.order-status { padding: 6rpx 16rpx; font-size: 24rpx; border-radius: 8rpx; }
-.order-status.pending { color: #ff9500; background-color: rgba(255,149,0,0.1); }
-.order-status.waiting { color: #0071e3; background-color: rgba(0,113,227,0.1); }
-.order-status.ongoing { color: #34c759; background-color: rgba(52,199,89,0.1); }
-.order-status.completed { color: #6e6e73; background-color: #f5f5f7; }
-.order-status.cancelled { color: #6e6e73; background-color: #f5f5f7; }
-.order-info { display: flex; align-items: center; font-size: 26rpx; color: #6e6e73; margin-bottom: 8rpx; }
-.info-icon { margin-right: 8rpx; }
-.order-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid rgba(0,0,0,0.06); }
-.order-time { font-size: 24rpx; color: #86868b; }
-.order-amount { font-size: 32rpx; font-weight: 600; color: #ff3b30; }
+.tab-item {
+  padding: 12rpx 32rpx;
+  font-size: 28rpx;
+  color: #666666;
+  background-color: #f5f5f5;
+  border-radius: 28rpx;
+  transition: all 0.2s;
+}
 
-.empty-state { display: flex; flex-direction: column; align-items: center; padding: 160rpx 0; }
-.empty-icon { font-size: 100rpx; margin-bottom: 24rpx; opacity: 0.6; }
-.empty-text { font-size: 32rpx; color: #1d1d1f; margin-bottom: 24rpx; }
-.empty-btn { padding: 20rpx 60rpx; font-size: 28rpx; color: #0071e3; background-color: rgba(0,113,227,0.1); border-radius: 40rpx; border: none; }
-.empty-btn::after { border: none; }
+.tab-item.active {
+  color: #ffffff;
+  background-color: #07C160;
+  font-weight: 500;
+}
+
+/* ========== 加载状态 ========== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #e8e8ed;
+  border-top-color: #07C160;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999999;
+  margin-top: 20rpx;
+}
+
+/* ========== 订单列表 ========== */
+.order-list {
+  padding: 24rpx;
+}
+
+.order-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+}
+
+/* 订单头部 */
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28rpx 24rpx;
+}
+
+.course-name {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 16rpx;
+}
+
+.order-status-amount {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-shrink: 0;
+}
+
+.status-text {
+  font-size: 26rpx;
+  color: #ff4d4f;
+}
+
+.status-text.paid,
+.status-text.waiting,
+.status-text.ongoing {
+  color: #07C160;
+}
+
+.status-text.completed {
+  color: #999999;
+}
+
+.status-text.cancelled,
+.status-text.refunded {
+  color: #999999;
+}
+
+.amount-text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #ff4d4f;
+}
+
+/* 分隔线 */
+.divider {
+  height: 1rpx;
+  background-color: #f0f0f0;
+  margin: 0 24rpx;
+}
+
+/* 订单详情 */
+.order-detail {
+  padding: 20rpx 24rpx;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 0;
+}
+
+.detail-label {
+  font-size: 26rpx;
+  color: #999999;
+}
+
+.detail-value {
+  font-size: 26rpx;
+  color: #333333;
+}
+
+.price-value {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.original-price {
+  font-size: 24rpx;
+  color: #999999;
+  text-decoration: line-through;
+}
+
+.actual-price {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #ff4d4f;
+}
+
+/* ========== 空状态 ========== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 160rpx 0;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #333333;
+  margin-bottom: 24rpx;
+}
+
+.empty-btn {
+  padding: 20rpx 60rpx;
+  font-size: 28rpx;
+  color: #07C160;
+  background-color: rgba(7, 193, 96, 0.1);
+  border-radius: 40rpx;
+  border: none;
+}
+
+.empty-btn::after {
+  border: none;
+}
+
+/* ========== 未登录提示悬浮层 ========== */
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.login-card {
+  width: 560rpx;
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.login-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 16rpx;
+}
+
+.login-desc {
+  font-size: 28rpx;
+  color: #999999;
+  margin-bottom: 40rpx;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 24rpx 0;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #07C160;
+  border-radius: 48rpx;
+  border: none;
+}
+
+.login-btn::after {
+  border: none;
+}

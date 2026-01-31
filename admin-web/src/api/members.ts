@@ -11,11 +11,11 @@ import type {
   PageResponse 
 } from '../types';
 
-// 获取权益卡列表
-export function getMemberCards(params: PageParams & { 
+// 获取权益卡列表（后端返回数组格式，不是分页格式）
+export function getMemberCards(_params?: PageParams & { 
   status?: number;
-}): Promise<PageResponse<MemberCard>> {
-  return request.get('/api/v1/admin/member/cards', { params });
+}): Promise<MemberCard[]> {
+  return request.get('/api/v1/admin/member/cards');
 }
 
 // 获取权益卡详情

@@ -320,7 +320,9 @@ export default function CommunityList() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.08) 0%, rgba(3, 169, 244, 0.08) 100%)',
+          backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 100%), url(/images/community-home.png)',
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
           borderRadius: 'var(--radius-lg)',
           padding: '24px 32px',
         }}
@@ -340,15 +342,6 @@ export default function CommunityList() {
             管理可服务的小区信息
           </p>
         </div>
-        <img
-          src="/images/community-home.png"
-          alt="Community"
-          style={{
-            height: 100,
-            objectFit: 'contain',
-            opacity: 0.9,
-          }}
-        />
       </div>
 
       {/* 工具栏 */}

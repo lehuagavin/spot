@@ -40,6 +40,8 @@ class BaseRepository(Generic[ModelType]):
         *,
         skip: int = 0,
         limit: int = 100,
+        order_by: str = None,
+        order_desc: bool = False,
         **filters: Any,
     ) -> list[ModelType]:
         """获取多条记录
@@ -48,6 +50,8 @@ class BaseRepository(Generic[ModelType]):
             db: 数据库会话
             skip: 跳过记录数
             limit: 返回记录数
+            order_by: 排序字段
+            order_desc: 是否降序
             **filters: 过滤条件
 
         Returns:
@@ -59,6 +63,11 @@ class BaseRepository(Generic[ModelType]):
         for key, value in filters.items():
             if hasattr(self.model, key):
                 query = query.filter(getattr(self.model, key) == value)
+
+        # 应用排序
+        if order_by and hasattr(self.model, order_by):
+            order_column = getattr(self.model, order_by)
+            query = query.order_by(order_column.desc() if order_desc else order_column)
 
         query = query.offset(skip).limit(limit)
         result = await db.execute(query)

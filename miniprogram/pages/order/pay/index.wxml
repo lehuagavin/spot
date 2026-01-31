@@ -1,52 +1,110 @@
-<!-- 支付页面 -->
+<!-- 确认支付页面 -->
 <view class="page-container">
   <view class="loading-state" wx:if="{{loading}}">
     <view class="loading-spinner"></view>
   </view>
   
   <block wx:elif="{{order}}">
-    <!-- 状态提示 -->
+    <!-- 状态提示区域 -->
     <view class="status-section">
-      <view class="status-icon">⏳</view>
-      <view class="status-text">等待支付</view>
-      <view class="countdown">
-        <text>订单将在 </text>
-        <text class="time">{{countdownText}}</text>
-        <text> 后自动取消</text>
+      <view class="status-title">等待用户支付</view>
+      <view class="countdown-text">
+        订单{{countdownMinutes}} 分{{countdownSeconds}} 秒后将自动取消
       </view>
     </view>
     
-    <!-- 订单信息 -->
-    <view class="order-card">
-      <view class="order-title">{{order.course_name}}</view>
-      <view class="order-info">
-        <text class="info-label">订单编号</text>
-        <text class="info-value">{{order.id}}</text>
+    <!-- 课程卡片 -->
+    <view class="course-card">
+      <view class="course-header">
+        <text class="course-name">{{order.course_name || '普通-运动课1.5h'}}</text>
+        <view class="status-tag {{order.course_status === 'ongoing' ? 'ongoing' : ''}}">
+          {{order.course_status === 'ongoing' ? '进行中' : order.course_status === 'enrolling' ? '报名中' : '进行中'}}
+        </view>
+      </view>
+      <view class="course-meta">
+        <view class="week-tag">总周期{{order.total_weeks || 2}}周, 当前第{{order.current_week || 1}}周</view>
+        <text class="slots-text">剩余{{order.remaining_slots || 3}}名额拼满</text>
+      </view>
+      <view class="course-info-row">
+        <view class="info-icon-wrapper">
+          <text class="info-icon-text">🕐</text>
+        </view>
+        <text class="info-text">{{order.schedule || '2026-02-02 星期一 16:10~17:40'}}</text>
+      </view>
+      <view class="course-info-row">
+        <view class="info-icon-wrapper">
+          <text class="info-icon-text">📍</text>
+        </view>
+        <text class="info-text">{{order.location || '海沧天心岛'}}</text>
       </view>
     </view>
     
-    <!-- 支付金额 -->
-    <view class="amount-section">
-      <text class="amount-label">支付金额</text>
-      <view class="amount-value">
-        <text class="amount-symbol">¥</text>
-        <text class="amount-number">{{order.pay_amount || '80.00'}}</text>
+    <!-- 课程名称和价格 -->
+    <view class="price-header">
+      <text class="course-title">{{order.course_name || '普通-运动课1.5h'}}</text>
+      <text class="unit-price">¥{{order.unit_price || '120.00'}}/位</text>
+    </view>
+    
+    <!-- 学员列表 -->
+    <view class="students-section">
+      <view class="student-item" wx:for="{{order.students || [{name: '陈乐华', is_new: true, price: 29.9, discount: 90.1}]}}" wx:key="index">
+        <view class="student-header">
+          <text class="student-name">{{item.name}}</text>
+        </view>
+        <view class="price-row">
+          <text class="price-type">{{item.is_new ? '新人价' : '会员价'}}</text>
+          <text class="price-value">¥{{item.price}}</text>
+        </view>
+        <view class="discount-row">
+          <text class="discount-text">已优惠 <text class="discount-amount">¥{{item.discount}}</text></text>
+          <text class="subtotal-text">小计 <text class="subtotal-amount">¥{{item.price}}</text></text>
+        </view>
       </view>
     </view>
     
-    <!-- 退款说明 -->
+    <!-- 总计金额 -->
+    <view class="total-section">
+      <text class="total-label">总计:</text>
+      <text class="total-amount">¥ {{order.pay_amount || '29.90'}}</text>
+    </view>
+    
+    <!-- 温馨提示 -->
     <view class="notice-section">
-      <view class="notice-item">如遇到拼班未成功的情况，相应的金额会自动原路退回</view>
-      <view class="notice-item">退款时间可能有几秒延迟，请耐心等候</view>
-      <view class="notice-item">支付时如网络状态不佳可退出查看拼班记录</view>
-      <view class="notice-item">请勿多次支付以免造成损失</view>
+      <view class="notice-content">
+        购买时，如遇到拼班未成功的情况，相应的金额会自动原路退回，退款时间可能有几秒延迟，请耐心等候，支付时如网络状态不佳(如:网络超时)可退出查看拼班记录，请勿多次支付以免造成损失，如需帮助请联系客服。
+      </view>
     </view>
+    
+    <view class="bottom-placeholder"></view>
   </block>
 </view>
 
+<!-- 底部按钮 -->
 <view class="bottom-bar" wx:if="{{order}}">
   <button class="cancel-btn" bindtap="onCancel">取消订单</button>
-  <button class="pay-btn" bindtap="onPay" disabled="{{paying}}">
+  <button class="pay-btn" bindtap="onShowPayModal" disabled="{{paying}}">
     {{paying ? '支付中...' : '立即支付'}}
   </button>
+</view>
+
+<!-- 支付方式弹窗 -->
+<view class="pay-modal-mask" wx:if="{{showPayModal}}" bindtap="onHidePayModal"></view>
+<view class="pay-modal {{showPayModal ? 'show' : ''}}">
+  <view class="modal-header">
+    <view class="modal-close" bindtap="onHidePayModal">×</view>
+  </view>
+  <view class="modal-body">
+    <view class="pay-icon-wrapper">
+      <text class="pay-icon-text">✓</text>
+    </view>
+    <text class="pay-title">订单支付</text>
+    
+    <button class="pay-option-btn primary" bindtap="onPayToPhone">
+      发送到手机微信支付
+    </button>
+    
+    <view class="pay-option-link" bindtap="onPayByQrcode">
+      二维码支付
+    </view>
+  </view>
 </view>

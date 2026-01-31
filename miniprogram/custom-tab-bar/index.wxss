@@ -1,0 +1,197 @@
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100rpx;
+  background: #ffffff;
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: 1rpx solid #e5e5e5;
+  z-index: 999;
+}
+
+.tab-bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 0;
+}
+
+.tab-bar-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-bottom: 6rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 首页图标 - 房子 */
+.icon-home .icon-house {
+  width: 40rpx;
+  height: 36rpx;
+  position: relative;
+}
+
+.icon-home .icon-house::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 22rpx solid transparent;
+  border-right: 22rpx solid transparent;
+  border-bottom: 18rpx solid #86868b;
+}
+
+.icon-home .icon-house::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32rpx;
+  height: 22rpx;
+  background: #86868b;
+  border-radius: 2rpx;
+}
+
+.icon-home.active .icon-house::before {
+  border-bottom-color: #0071e3;
+}
+
+.icon-home.active .icon-house::after {
+  background: #0071e3;
+}
+
+/* 权益卡图标 - 心形 */
+.icon-card .icon-heart {
+  width: 36rpx;
+  height: 36rpx;
+  position: relative;
+}
+
+.icon-card .icon-heart::before {
+  content: '';
+  position: absolute;
+  top: 8rpx;
+  left: 50%;
+  transform: translateX(-50%) rotate(-45deg);
+  width: 22rpx;
+  height: 22rpx;
+  background: #86868b;
+  border-radius: 50% 50% 50% 0;
+}
+
+.icon-card .icon-heart::after {
+  content: '';
+  position: absolute;
+  top: 8rpx;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 22rpx;
+  height: 22rpx;
+  background: #86868b;
+  border-radius: 50% 50% 0 50%;
+}
+
+.icon-card.active .icon-heart::before,
+.icon-card.active .icon-heart::after {
+  background: #0071e3;
+}
+
+/* 拼班图标 - 文档 */
+.icon-order .icon-doc {
+  width: 32rpx;
+  height: 40rpx;
+  background: #86868b;
+  border-radius: 4rpx;
+  position: relative;
+}
+
+.icon-order .icon-doc::before {
+  content: '';
+  position: absolute;
+  top: 10rpx;
+  left: 6rpx;
+  right: 6rpx;
+  height: 4rpx;
+  background: #fff;
+  border-radius: 2rpx;
+}
+
+.icon-order .icon-doc::after {
+  content: '';
+  position: absolute;
+  top: 20rpx;
+  left: 6rpx;
+  right: 10rpx;
+  height: 4rpx;
+  background: #fff;
+  border-radius: 2rpx;
+}
+
+.icon-order.active .icon-doc {
+  background: #0071e3;
+}
+
+/* 我的图标 - 人像 */
+.icon-user .icon-person {
+  width: 40rpx;
+  height: 40rpx;
+  position: relative;
+}
+
+.icon-user .icon-person::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18rpx;
+  height: 18rpx;
+  background: #86868b;
+  border-radius: 50%;
+}
+
+.icon-user .icon-person::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32rpx;
+  height: 18rpx;
+  background: #86868b;
+  border-radius: 16rpx 16rpx 0 0;
+}
+
+.icon-user.active .icon-person::before,
+.icon-user.active .icon-person::after {
+  background: #0071e3;
+}
+
+/* 文字样式 */
+.tab-bar-text {
+  font-size: 24rpx;
+  line-height: 1.2;
+  font-weight: 400;
+  color: #86868b;
+}
+
+.tab-bar-text.active {
+  color: #0071e3;
+}

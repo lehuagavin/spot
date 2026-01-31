@@ -521,7 +521,9 @@ export default function CourseList() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.08) 0%, rgba(233, 30, 99, 0.08) 100%)',
+          backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 100%), url(/images/course-learning.png)',
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
           borderRadius: 'var(--radius-lg)',
           padding: '24px 32px',
         }}
@@ -541,15 +543,6 @@ export default function CourseList() {
             管理拼班课程信息
           </p>
         </div>
-        <img
-          src="/images/course-learning.png"
-          alt="Course"
-          style={{
-            height: 100,
-            objectFit: 'contain',
-            opacity: 0.9,
-          }}
-        />
       </div>
 
       {/* 工具栏 */}

@@ -50,6 +50,11 @@ Page({
     try {
       const course = await api.course.getDetail(id);
       
+      // 处理图片 URL（将相对路径转换为完整 URL）
+      if (course.image) {
+        course.image = app.getImageUrl(course.image);
+      }
+      
       // 格式化数据（确保价格为数字类型，后端 Decimal 序列化为字符串）
       const coursePrice = parseFloat(course.price) || 0;
       const memberPrice = parseFloat(course.member_price) || 0;
@@ -72,6 +77,10 @@ Page({
       
       // 使用模拟数据
       const course = this.getMockCourse(id);
+      // 处理模拟数据图片 URL
+      if (course.image) {
+        course.image = app.getImageUrl(course.image);
+      }
       const priceObj = util.formatPriceObject(course.price);
       const memberPriceObj = util.formatPriceObject(course.member_price);
       const savingAmount = (course.price - course.member_price).toFixed(1);
@@ -95,36 +104,64 @@ Page({
   getMockCourse(id) {
     return {
       id,
-      name: '体能+跳绳',
+      name: '基础跳绳寒假班',
       age_range: '7-12岁',
-      status: 'enrolling',
+      status: 'ongoing',
       teacher: {
         id: 't1',
-        name: '小黑老师',
+        name: '蔡薇',
         avatar: '',
         intro: '专业体育教练，从业5年',
       },
-      community_name: '碧桂园中央公园',
-      address: '海口市美兰区桂林横路',
-      schedule: '周六 08:00-09:00',
-      total_weeks: 10,
-      total_lessons: 10,
+      community_name: '光明大地',
+      address: '深圳市广东省深圳市光明区光明街道观光路与邦凯路交汇处(光明会展中心对面)',
+      location: '深圳市广东省深圳市光明区光明街道观光路与邦凯路交汇处(光明会展中心对面)',
+      schedule: '周日11:00~12:30',
+      schedule_time: '11:00~12:30',
+      start_date: '2026-02-01',
+      total_weeks: 1,
+      total_lessons: 1,
       current_week: 1,
-      deadline: '2026-02-01 08:00:00',
-      price: 80,
-      member_price: 40,
-      min_students: 4,
+      class_no: '141688',
+      deadline: '2026-02-01 10:00',
+      price: 560,
+      member_price: 420,
+      min_students: 1,
       max_students: 10,
-      enrolled_count: 6,
+      enrolled_count: 5,
+      description: '跳绳项目是一项学生喜爱的体育运动，跳绳形式多样，它不受场地、器材设备的限制，易开展，不同身体条件的学生都可以参加，它能使学生全身得到锻炼，发展心肺功能，培养学生下肢力量、灵敏性、协调性、耐力；培养学生顽拼搏的意志品德。\n教学目标',
       enrolled_students: [
-        { avatar: '' },
-        { avatar: '' },
-        { avatar: '' },
-        { avatar: '' },
-        { avatar: '' },
-        { avatar: '' },
+        { avatar: 'https://randomuser.me/api/portraits/kids/1.jpg' },
+        { avatar: 'https://randomuser.me/api/portraits/kids/2.jpg' },
+        { avatar: 'https://randomuser.me/api/portraits/kids/3.jpg' },
+        { avatar: 'https://randomuser.me/api/portraits/kids/4.jpg' },
+        { avatar: 'https://randomuser.me/api/portraits/kids/5.jpg' },
       ],
     };
+  },
+
+  /**
+   * 导航到上课地址
+   */
+  onNavigate() {
+    const { course } = this.data;
+    const address = course.location || course.address;
+    if (!address) {
+      wx.showToast({
+        title: '地址信息不完整',
+        icon: 'none',
+      });
+      return;
+    }
+    
+    // 使用微信地图导航
+    wx.openLocation({
+      latitude: 22.7506, // 默认深圳光明区坐标
+      longitude: 113.9187,
+      name: course.community_name || '上课地点',
+      address: address,
+      scale: 18,
+    });
   },
 
   /**

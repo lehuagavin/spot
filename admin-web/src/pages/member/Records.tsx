@@ -123,7 +123,9 @@ export default function MemberRecords() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 152, 0, 0.08) 100%)',
+          backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 100%), url(/images/member-vip.png)',
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
           borderRadius: 'var(--radius-lg)',
           padding: '24px 32px',
         }}
@@ -143,15 +145,6 @@ export default function MemberRecords() {
             查看会员权益卡购买记录
           </p>
         </div>
-        <img
-          src="/images/member-vip.png"
-          alt="VIP"
-          style={{
-            height: 100,
-            objectFit: 'contain',
-            opacity: 0.9,
-          }}
-        />
       </div>
 
       {/* 数据表格 */}

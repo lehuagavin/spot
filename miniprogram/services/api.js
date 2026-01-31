@@ -181,6 +181,14 @@ const payment = {
   prepay(orderId) {
     return post('/payment/prepay', { order_id: orderId });
   },
+
+  /**
+   * 确认支付（开发环境模拟支付回调）
+   * @param {string} orderId 订单ID
+   */
+  confirm(orderId) {
+    return post('/payment/confirm', { order_id: orderId });
+  },
 };
 
 // ========== 会员模块 ==========

@@ -67,16 +67,18 @@ class PaymentService:
         timestamp = str(int(time.time()))
         nonce_str = generate_id()[:16]
         prepay_id = f"prepay_{payment.id}"
+        package = f"prepay_id={prepay_id}"
 
-        # 生成模拟签名
-        sign_str = f"prepay_id={prepay_id}&timestamp={timestamp}&nonce={nonce_str}"
-        sign = hashlib.md5(sign_str.encode()).hexdigest()
+        # 生成模拟签名 (符合微信支付签名规则)
+        sign_str = f"nonceStr={nonce_str}&package={package}&signType=MD5&timeStamp={timestamp}"
+        pay_sign = hashlib.md5(sign_str.encode()).hexdigest().upper()
 
         return PaymentPrepayResponse(
-            prepay_id=prepay_id,
-            timestamp=timestamp,
-            nonce_str=nonce_str,
-            sign=sign,
+            timeStamp=timestamp,
+            nonceStr=nonce_str,
+            package=package,
+            signType="MD5",
+            paySign=pay_sign,
         )
 
     async def handle_payment_callback(

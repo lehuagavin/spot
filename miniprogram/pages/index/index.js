@@ -52,6 +52,11 @@ Page({
    * 页面显示
    */
   onShow() {
+    // 设置 tabBar 选中状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 0 });
+    }
+    
     // 检查小区是否变化（包括从有定位变为无定位，或小区变化）
     const selectedCommunity = app.globalData.selectedCommunity;
     const currentCommunityId = this.data.selectedCommunity?.id;

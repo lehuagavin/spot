@@ -136,35 +136,32 @@ export interface TeacherUpdateRequest {
   status?: number;
 }
 
-// 课程状态类型
-export type CourseStatus = 'draft' | 'enrolling' | 'full' | 'in_progress' | 'completed' | 'cancelled';
+// 课程状态类型（与后端保持一致）
+export type CourseStatus = 'pending' | 'enrolling' | 'ongoing' | 'completed' | 'cancelled';
 
 // 课程状态常量
 export const CourseStatusValues = {
-  DRAFT: 'draft' as const,
+  PENDING: 'pending' as const,
   ENROLLING: 'enrolling' as const,
-  FULL: 'full' as const,
-  IN_PROGRESS: 'in_progress' as const,
+  ONGOING: 'ongoing' as const,
   COMPLETED: 'completed' as const,
   CANCELLED: 'cancelled' as const,
 };
 
 // 课程状态文本映射
 export const CourseStatusText: Record<CourseStatus, string> = {
-  draft: '草稿',
+  pending: '待开课',
   enrolling: '报名中',
-  full: '已满员',
-  in_progress: '进行中',
+  ongoing: '进行中',
   completed: '已完成',
   cancelled: '已取消',
 };
 
 // 课程状态颜色映射
 export const CourseStatusColor: Record<CourseStatus, string> = {
-  draft: 'default',
+  pending: 'default',
   enrolling: 'processing',
-  full: 'warning',
-  in_progress: 'success',
+  ongoing: 'success',
   completed: 'default',
   cancelled: 'error',
 };
@@ -329,27 +326,28 @@ export const MemberCardTypeText: Record<MemberCardType, string> = {
 export interface MemberCard {
   id: string;
   name: string;
-  type: MemberCardType;
+  type?: MemberCardType;
   price: number;
   original_price: number;
-  duration_days: number;
-  description: string | null;
-  benefits: string | null;
+  duration: number;
+  description?: string | null;
+  benefits?: string[] | { items: string[] } | null;
+  is_recommended?: number;
   status: number;
   sort_order: number;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
 }
 
 // 创建权益卡请求
 export interface MemberCardCreateRequest {
   name: string;
-  type: MemberCardType;
+  type?: MemberCardType;
   price: number;
   original_price: number;
   duration_days: number;
   description?: string;
-  benefits?: string;
+  benefits?: string[];
   sort_order?: number;
 }
 
@@ -361,7 +359,7 @@ export interface MemberCardUpdateRequest {
   original_price?: number;
   duration_days?: number;
   description?: string;
-  benefits?: string;
+  benefits?: string[];
   status?: number;
   sort_order?: number;
 }

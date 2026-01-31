@@ -14,12 +14,13 @@ class PaymentPrepay(BaseModel):
 
 
 class PaymentPrepayResponse(BaseModel):
-    """支付预下单响应"""
+    """支付预下单响应 - 符合微信小程序 wx.requestPayment 参数格式"""
 
-    prepay_id: str = Field(..., description="预支付ID")
-    timestamp: str = Field(..., description="时间戳")
-    nonce_str: str = Field(..., description="随机字符串")
-    sign: str = Field(..., description="签名")
+    timeStamp: str = Field(..., description="时间戳")
+    nonceStr: str = Field(..., description="随机字符串")
+    package: str = Field(..., description="统一下单接口返回的 prepay_id，格式为 prepay_id=xxx")
+    signType: str = Field(default="MD5", description="签名类型")
+    paySign: str = Field(..., description="签名")
 
 
 class PaymentResponse(BaseModel):

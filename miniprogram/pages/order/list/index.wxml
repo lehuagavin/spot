@@ -1,18 +1,16 @@
-<!-- 拼班记录页面 -->
+<!-- 我的订单页面 -->
 <view class="page-container">
   <!-- 标签栏 -->
   <view class="tab-section">
-    <scroll-view class="tab-scroll" scroll-x>
-      <view class="tab-list">
-        <view 
-          class="tab-item {{currentTab === item.key ? 'active' : ''}}"
-          wx:for="{{tabs}}"
-          wx:key="key"
-          bindtap="onTabChange"
-          data-key="{{item.key}}"
-        >{{item.label}}</view>
-      </view>
-    </scroll-view>
+    <view class="tab-list">
+      <view 
+        class="tab-item {{currentTab === item.key ? 'active' : ''}}"
+        wx:for="{{tabs}}"
+        wx:key="key"
+        bindtap="onTabChange"
+        data-key="{{item.key}}"
+      >{{item.label}}</view>
+    </view>
   </view>
   
   <!-- 加载中 -->
@@ -30,21 +28,43 @@
       bindtap="onOrderTap"
       data-id="{{item.id}}"
     >
+      <!-- 订单头部 -->
       <view class="order-header">
-        <text class="order-name">{{item.course_name}}</text>
-        <view class="order-status {{item.status}}">{{item.status_text}}</view>
+        <text class="course-name">{{item.course_name || '普通-运动课1.5h(第1周)'}}</text>
+        <view class="order-status-amount">
+          <text class="status-text {{item.status}}">{{item.status_text}}</text>
+          <text class="amount-text">{{item.pay_amount || 0}}元</text>
+        </view>
       </view>
-      <view class="order-info">
-        <text class="info-icon">🕐</text>
-        <text>{{item.schedule}}</text>
-      </view>
-      <view class="order-info">
-        <text class="info-icon">📍</text>
-        <text>{{item.community_name}}</text>
-      </view>
-      <view class="order-footer">
-        <text class="order-time">{{item.created_at}}</text>
-        <text class="order-amount">¥{{item.pay_amount}}</text>
+      
+      <!-- 分隔线 -->
+      <view class="divider"></view>
+      
+      <!-- 订单详情 -->
+      <view class="order-detail">
+        <view class="detail-row">
+          <text class="detail-label">订单编号</text>
+          <text class="detail-value">{{item.order_no}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">订单学员</text>
+          <text class="detail-value">{{item.student_name || '未知'}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">订单时间</text>
+          <text class="detail-value">{{item.created_at_full}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">支付方式</text>
+          <text class="detail-value">{{item.pay_method || '微信'}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">实付金额</text>
+          <view class="detail-value price-value">
+            <text class="original-price" wx:if="{{item.total_amount > item.pay_amount}}">总价 ¥{{item.total_amount}}</text>
+            <text class="actual-price">¥{{item.pay_amount || 0}}</text>
+          </view>
+        </view>
       </view>
     </view>
   </view>
@@ -52,7 +72,17 @@
   <!-- 空状态 -->
   <view class="empty-state" wx:else>
     <view class="empty-icon">📋</view>
-    <text class="empty-text">暂无拼班记录</text>
+    <text class="empty-text">暂无订单记录</text>
     <button class="empty-btn" bindtap="goHome">去看看课程</button>
+  </view>
+  
+  <!-- 未登录提示悬浮层 -->
+  <view class="login-overlay" wx:if="{{!isLoggedIn}}">
+    <view class="login-card">
+      <view class="login-icon">🔐</view>
+      <text class="login-title">登录后查看订单</text>
+      <text class="login-desc">登录后可查看您的全部订单</text>
+      <button class="login-btn" bindtap="goLogin">立即登录</button>
+    </view>
   </view>
 </view>

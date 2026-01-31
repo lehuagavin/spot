@@ -329,12 +329,35 @@ export default function Banners() {
 
   return (
     <div className="fade-in">
-      {/* 页面标题 */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 600, marginBottom: 4 }}>
-          轮播图管理
-        </h1>
-        <p style={{ color: 'var(--color-text-secondary)' }}>管理首页轮播图配置</p>
+      {/* 页面标题与装饰区域 */}
+      <div
+        style={{
+          marginBottom: 24,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 100%), url(/images/banner-manage.png)',
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px 32px',
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontSize: 'var(--font-size-2xl)',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+              marginBottom: 4,
+            }}
+          >
+            轮播图管理
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)' }}>
+            管理首页轮播图配置
+          </p>
+        </div>
       </div>
 
       {/* 工具栏 */}

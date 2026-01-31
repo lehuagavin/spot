@@ -1,71 +1,100 @@
 <!-- 个人中心页面 -->
 <view class="page-container">
-  <!-- 用户信息区 -->
-  <view class="user-section">
-    <!-- 未登录 -->
+  <!-- 顶部绿色背景区域 -->
+  <view class="header-section">
+    <!-- 用户信息卡片 -->
     <view class="user-card" wx:if="{{!isLoggedIn}}" bindtap="onLogin">
       <view class="avatar default">
         <text>👤</text>
       </view>
       <view class="user-info">
-        <view class="login-text">立即登录</view>
-        <view class="login-hint">登录后享受更多服务</view>
+        <text class="username">立即登录</text>
+        <text class="user-desc">登录后享受更多服务</text>
       </view>
       <view class="arrow">›</view>
     </view>
     
-    <!-- 已登录 -->
-    <view class="user-card logged" wx:else>
-      <view class="avatar">
-        <image wx:if="{{userInfo.avatar}}" src="{{userInfo.avatar}}" mode="aspectFill"/>
-        <text wx:else>😊</text>
-      </view>
+    <view class="user-card" wx:else>
+      <!-- 头像：点击可更换 -->
+      <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <view class="avatar">
+          <image 
+            wx:if="{{userInfo.avatar && !avatarLoadError}}" 
+            src="{{userInfo.avatar}}" 
+            mode="aspectFill"
+            binderror="onAvatarError"
+          />
+          <text wx:else>👤</text>
+        </view>
+        <view class="avatar-edit-hint">点击更换</view>
+      </button>
       <view class="user-info">
-        <view class="username">{{userInfo.nickname || '用户'}}</view>
-        <view class="phone">{{userInfo.phone_masked || ''}}</view>
+        <text class="username">{{userInfo.nickname || '微信用户'}}</text>
+        <text class="user-phone" wx:if="{{userInfo.phone}}">{{userInfo.phone_masked || userInfo.phone}}</text>
       </view>
       <button class="invite-btn" bindtap="onInvite">邀请好友</button>
     </view>
     
-    <!-- 资产 -->
+    <!-- 资产卡片 -->
     <view class="assets-row">
-      <view class="asset-item">
-        <view class="asset-value">{{assets.health_beans || 0}}</view>
-        <view class="asset-label">健康豆</view>
+      <view class="asset-card">
+        <view class="asset-left">
+          <text class="asset-label">健康豆</text>
+          <text class="asset-value">{{assets.health_beans || 0}}</text>
+        </view>
+        <view class="asset-icon bean-icon">🫘</view>
       </view>
-      <view class="asset-divider"></view>
-      <view class="asset-item">
-        <view class="asset-value">{{assets.coupons || 0}}</view>
-        <view class="asset-label">优惠券</view>
+      <view class="asset-card">
+        <view class="asset-left">
+          <text class="asset-label">优惠券</text>
+          <text class="asset-value">{{assets.coupons || 0}}</text>
+        </view>
+        <view class="asset-icon coupon-icon">🎫</view>
       </view>
     </view>
   </view>
   
-  <!-- 菜单列表 -->
-  <view class="menu-section">
-    <view 
-      class="menu-item {{item.type === 'info' ? 'info' : ''}}"
-      wx:for="{{menuList}}"
-      wx:key="title"
-      bindtap="onMenuTap"
-      data-url="{{item.url}}"
-      data-type="{{item.type}}"
-    >
-      <view class="menu-icon">{{item.icon}}</view>
-      <view class="menu-content">
-        <view class="menu-title">{{item.title}}</view>
-        <view class="menu-desc" wx:if="{{item.desc}}">{{item.desc}}</view>
-      </view>
-      <view class="menu-arrow">›</view>
+  <!-- 主理人入口 -->
+  <view class="agent-card" bindtap="onAgentTap">
+    <view class="agent-left">
+      <text class="agent-title">小区运动主理人</text>
+      <text class="agent-desc">事业家庭两不误</text>
     </view>
+    <button class="agent-btn">立即进入</button>
   </view>
   
-  <!-- 其他按钮 -->
-  <view class="other-section">
-    <button class="service-btn" open-type="contact">
-      <text class="btn-icon">💬</text>
-      <text>联系客服</text>
-    </button>
+  <!-- 功能菜单网格 -->
+  <view class="menu-grid">
+    <view class="menu-item" bindtap="onMenuTap" data-url="/pages/order/list/index">
+      <view class="menu-icon">📋</view>
+      <text class="menu-text">我的订单</text>
+    </view>
+    <view class="menu-item" bindtap="onInvite">
+      <view class="menu-icon">✉️</view>
+      <text class="menu-text">邀请好友</text>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-url="/pages/student/list/index">
+      <view class="menu-icon">👶</view>
+      <text class="menu-text">我的学员</text>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-url="/pages/user/about/index">
+      <view class="menu-icon">📄</view>
+      <text class="menu-text">关于我们</text>
+    </view>
+    <view class="menu-item" bindtap="onApplyAgent">
+      <view class="menu-icon">📝</view>
+      <text class="menu-text">申请主理人</text>
+    </view>
+    <view class="menu-item" bindtap="onContact">
+      <button class="contact-btn" open-type="contact">
+        <view class="menu-icon">💬</view>
+        <text class="menu-text">客服</text>
+      </button>
+    </view>
+    <view class="menu-item" bindtap="onAutoEnroll">
+      <view class="menu-icon">🔄</view>
+      <text class="menu-text">自动报班</text>
+    </view>
   </view>
   
   <!-- 退出登录 -->

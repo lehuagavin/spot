@@ -36,6 +36,17 @@ class OrderResponse(BaseModel):
     remark: Optional[str] = Field(None, description="备注")
     created_at: datetime = Field(..., description="创建时间")
 
+    # 课程相关信息（可选，用于列表展示）
+    course_name: Optional[str] = Field(None, description="课程名称")
+    course_image: Optional[str] = Field(None, description="课程图片")
+    schedule: Optional[str] = Field(None, description="上课时间")
+    community_name: Optional[str] = Field(None, description="小区名称")
+    teacher_name: Optional[str] = Field(None, description="教练名称")
+    total_lessons: Optional[int] = Field(None, description="总课时")
+    enrolled_count: Optional[int] = Field(None, description="已报名人数")
+    max_students: Optional[int] = Field(None, description="最大学员数")
+    student_name: Optional[str] = Field(None, description="学员姓名")
+
 
 class RefundRequest(BaseModel):
     """退款请求"""
