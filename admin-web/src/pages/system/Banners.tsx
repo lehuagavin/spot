@@ -26,10 +26,11 @@ import {
   updateBanner,
   deleteBanner,
 } from '../../api/banners';
-import { getImageUrl, generateAIImage } from '../../api/upload';
+import { getImageUrl, generateAIImage, generateDescription } from '../../api/upload';
 import type { Banner, BannerCreateRequest, PageParams } from '../../types';
 import ImageUpload from '../../components/ImageUpload';
 import EmptyState from '../../components/EmptyState';
+import { STYLE_PRESETS } from '../../constants/aiStyles';
 import dayjs from 'dayjs';
 
 export default function Banners() {
@@ -51,6 +52,13 @@ export default function Banners() {
   const [aiSize, setAiSize] = useState('2K');
   const [aiGenerating, setAiGenerating] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+
+  // AI 描述生成相关状态
+  const [descMode, setDescMode] = useState<'manual' | 'auto'>('manual');
+  const [selectedStyle, setSelectedStyle] = useState<string>(STYLE_PRESETS[0].value);
+  const [generatingDesc, setGeneratingDesc] = useState(false);
+  // 存储每个记录的 AI 描述（key: recordId 或 'new'）
+  const [aiPromptMap, setAiPromptMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchData();
@@ -82,8 +90,10 @@ export default function Banners() {
     form.resetFields();
     // 重置 AI 生成相关状态
     setImageMode('upload');
-    setAiPrompt('');
+    setAiPrompt(aiPromptMap['new'] || ''); // 恢复新增时的描述
     setGeneratedImageUrl(null);
+    setDescMode('manual');
+    setSelectedStyle(STYLE_PRESETS[0].value);
     setModalVisible(true);
   };
 
@@ -93,7 +103,52 @@ export default function Banners() {
     // 编辑时默认使用上传模式
     setImageMode('upload');
     setGeneratedImageUrl(null);
+    // 恢复该记录的 AI 描述
+    setAiPrompt(aiPromptMap[record.id] || '');
+    setDescMode('manual');
+    setSelectedStyle(STYLE_PRESETS[0].value);
     setModalVisible(true);
+  };
+
+  // AI 生成描述
+  const handleGenerateDescription = async () => {
+    if (!selectedStyle) {
+      message.warning('请先选择一种艺术风格');
+      return;
+    }
+
+    const title = form.getFieldValue('title');
+    if (!title || !title.trim()) {
+      message.warning('请先填写标题');
+      return;
+    }
+
+    setGeneratingDesc(true);
+    try {
+      const result = await generateDescription({
+        style: selectedStyle as any,
+        context_type: 'banner',
+        context_data: {
+          title: title.trim(),
+        },
+      });
+
+      setAiPrompt(result.description);
+      // 保存到 Map 中
+      const recordKey = editingRecord?.id || 'new';
+      setAiPromptMap(prev => ({ ...prev, [recordKey]: result.description }));
+      message.success('描述生成成功，您可以继续编辑');
+    } catch (error: any) {
+      if (error.response?.data?.detail?.code === 'API_KEY_MISSING') {
+        message.error('系统未配置AI描述生成功能，请联系管理员');
+      } else if (error.response?.data?.detail?.code === 'QUOTA_EXCEEDED') {
+        message.error('AI服务配额已用完，请稍后重试或手动输入');
+      } else {
+        message.error('描述生成失败，请手动输入');
+      }
+    } finally {
+      setGeneratingDesc(false);
+    }
   };
 
   // AI 生成图片
@@ -164,6 +219,8 @@ export default function Banners() {
         message.success('创建成功');
       }
       setModalVisible(false);
+      // 只清空生成的图片，保留描述在 Map 中
+      setGeneratedImageUrl(null);
       fetchData();
     } catch (error) {
       if (error instanceof Error) {
@@ -315,7 +372,11 @@ export default function Banners() {
       <Modal
         title={editingRecord ? '编辑轮播图' : '新增轮播图'}
         open={modalVisible}
-        onCancel={() => setModalVisible(false)}
+        onCancel={() => {
+          setModalVisible(false);
+          // 关闭时只清空生成的图片，保留描述在 Map 中
+          setGeneratedImageUrl(null);
+        }}
         onOk={handleSubmit}
         confirmLoading={submitLoading}
         width={600}
@@ -359,6 +420,75 @@ export default function Banners() {
                 marginBottom: 24,
               }}
             >
+              {/* 第一行：描述生成方式 + 艺术风格选择 */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <Form.Item label="描述生成方式" style={{ marginBottom: 0 }}>
+                  <Radio.Group
+                    value={descMode}
+                    onChange={(e) => {
+                      setDescMode(e.target.value);
+                      // 切换到智能生成时，如果未选择风格则默认选择第一个
+                      if (e.target.value === 'auto' && !selectedStyle) {
+                        setSelectedStyle(STYLE_PRESETS[0].value);
+                      }
+                    }}
+                  >
+                    <Radio.Button value="manual">手动输入</Radio.Button>
+                    <Radio.Button value="auto">
+                      <RobotOutlined /> 智能生成
+                    </Radio.Button>
+                  </Radio.Group>
+                </Form.Item>
+
+                {descMode === 'auto' && (
+                  <Form.Item label="艺术风格" style={{ marginBottom: 0 }}>
+                    <Select
+                      value={selectedStyle}
+                      onChange={setSelectedStyle}
+                      placeholder="请选择艺术风格"
+                      style={{ width: '100%' }}
+                      optionLabelProp="label"
+                    >
+                      {STYLE_PRESETS.map((style) => (
+                        <Select.Option key={style.value} value={style.value} label={style.label}>
+                          <div>
+                            <div style={{ fontWeight: 500 }}>{style.label}</div>
+                            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                              {style.description}
+                            </div>
+                          </div>
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                )}
+              </div>
+
+              {/* 智能生成：生成描述按钮 */}
+              {descMode === 'auto' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <Button
+                    type="primary"
+                    icon={<RobotOutlined />}
+                    onClick={handleGenerateDescription}
+                    loading={generatingDesc}
+                    disabled={!selectedStyle || !form.getFieldValue('title')}
+                  >
+                    {generatingDesc ? '生成中...' : '生成描述'}
+                  </Button>
+                  {!form.getFieldValue('title') && (
+                    <span style={{ fontSize: 12, color: '#faad14' }}>
+                      请先填写标题
+                    </span>
+                  )}
+                  {form.getFieldValue('title') && !selectedStyle && (
+                    <span style={{ fontSize: 12, color: '#faad14' }}>
+                      请选择艺术风格
+                    </span>
+                  )}
+                </div>
+              )}
+
               <Form.Item
                 label="图片描述"
                 required

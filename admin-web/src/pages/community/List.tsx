@@ -14,8 +14,11 @@ import {
   message,
   Popconfirm,
   Image,
+  Radio,
+  Select,
+  Spin,
 } from 'antd';
-import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined, RobotOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import {
   getCommunities,
@@ -23,10 +26,11 @@ import {
   updateCommunity,
   deleteCommunity,
 } from '../../api/communities';
-import { getImageUrl } from '../../api/upload';
+import { getImageUrl, generateAIImage, generateDescription } from '../../api/upload';
 import type { Community, CommunityCreateRequest, PageParams } from '../../types';
 import ImageUpload from '../../components/ImageUpload';
 import EmptyState from '../../components/EmptyState';
+import { STYLE_PRESETS } from '../../constants/aiStyles';
 import dayjs from 'dayjs';
 
 export default function CommunityList() {
@@ -41,6 +45,23 @@ export default function CommunityList() {
   const [editingRecord, setEditingRecord] = useState<Community | null>(null);
   const [form] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
+
+  // AI 图片生成相关状态
+  const [imageMode, setImageMode] = useState<'upload' | 'ai'>('upload');
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiSize, setAiSize] = useState('2K');
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+
+  // AI 描述生成相关状态
+  const [descMode, setDescMode] = useState<'manual' | 'auto'>('manual');
+  const [selectedStyle, setSelectedStyle] = useState<string>(STYLE_PRESETS[0].value);
+  const [generatingDesc, setGeneratingDesc] = useState(false);
+  // 存储每个记录的 AI 描述（key: recordId 或 'new'）
+  const [aiPromptMap, setAiPromptMap] = useState<Record<string, string>>({});
+
+  // 监听小区名称字段变化
+  const watchedName = Form.useWatch('name', form);
 
   useEffect(() => {
     fetchData();
@@ -74,12 +95,25 @@ export default function CommunityList() {
   const handleAdd = () => {
     setEditingRecord(null);
     form.resetFields();
+    // 重置 AI 生成相关状态
+    setImageMode('upload');
+    setAiPrompt(aiPromptMap['new'] || ''); // 恢复新增时的描述
+    setGeneratedImageUrl(null);
+    setDescMode('manual');
+    setSelectedStyle(STYLE_PRESETS[0].value);
     setModalVisible(true);
   };
 
   const handleEdit = (record: Community) => {
     setEditingRecord(record);
     form.setFieldsValue(record);
+    // 编辑时默认使用上传模式
+    setImageMode('upload');
+    setGeneratedImageUrl(null);
+    // 恢复该记录的 AI 描述
+    setAiPrompt(aiPromptMap[record.id] || '');
+    setDescMode('manual');
+    setSelectedStyle(STYLE_PRESETS[0].value);
     setModalVisible(true);
   };
 
@@ -90,6 +124,84 @@ export default function CommunityList() {
       fetchData();
     } catch (error) {
       message.error('删除失败');
+    }
+  };
+
+  // AI 生成描述
+  const handleGenerateDescription = async () => {
+    if (!selectedStyle) {
+      message.warning('请先选择一种艺术风格');
+      return;
+    }
+
+    if (!watchedName?.trim()) {
+      message.warning('请先填写小区名称');
+      return;
+    }
+
+    const values = form.getFieldsValue();
+
+    setGeneratingDesc(true);
+    try {
+      const result = await generateDescription({
+        style: selectedStyle as any,
+        context_type: 'banner',
+        context_data: {
+          title: `${values.name}小区` + (values.address ? ` - ${values.address}` : ''),
+        },
+      });
+
+      setAiPrompt(result.description);
+      // 保存到 Map 中
+      const recordKey = editingRecord?.id || 'new';
+      setAiPromptMap(prev => ({ ...prev, [recordKey]: result.description }));
+      message.success('描述生成成功，您可以继续编辑');
+    } catch (error: any) {
+      if (error.response?.data?.detail?.code === 'API_KEY_MISSING') {
+        message.error('系统未配置AI描述生成功能，请联系管理员');
+      } else if (error.response?.data?.detail?.code === 'QUOTA_EXCEEDED') {
+        message.error('AI服务配额已用完，请稍后重试或手动输入');
+      } else {
+        message.error('描述生成失败，请手动输入');
+      }
+    } finally {
+      setGeneratingDesc(false);
+    }
+  };
+
+  // AI 生成图片
+  const handleGenerateImage = async () => {
+    if (!aiPrompt.trim()) {
+      message.warning('请输入图片描述');
+      return;
+    }
+
+    setAiGenerating(true);
+    try {
+      const result = await generateAIImage({
+        prompt: aiPrompt,
+        size: aiSize,
+      });
+      setGeneratedImageUrl(result.url);
+      // 自动填充到表单
+      form.setFieldsValue({ image: result.url });
+      message.success('图片生成成功');
+    } catch (error) {
+      if (error instanceof Error) {
+        message.error(error.message);
+      } else {
+        message.error('生成图片失败');
+      }
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
+  // 使用生成的图片
+  const handleUseGeneratedImage = () => {
+    if (generatedImageUrl) {
+      form.setFieldsValue({ image: generatedImageUrl });
+      message.success('已应用生成的图片');
     }
   };
 
@@ -105,6 +217,8 @@ export default function CommunityList() {
         message.success('创建成功');
       }
       setModalVisible(false);
+      // 只清空生成的图片，保留描述在 Map 中
+      setGeneratedImageUrl(null);
       fetchData();
     } catch (error) {
       if (error instanceof Error) {
@@ -250,10 +364,14 @@ export default function CommunityList() {
       <Modal
         title={editingRecord ? '编辑小区' : '新增小区'}
         open={modalVisible}
-        onCancel={() => setModalVisible(false)}
+        onCancel={() => {
+          setModalVisible(false);
+          // 关闭时只清空生成的图片，保留描述在 Map 中
+          setGeneratedImageUrl(null);
+        }}
         onOk={handleSubmit}
         confirmLoading={submitLoading}
-        width={600}
+        width={800}
         destroyOnClose
       >
         <Form
@@ -275,9 +393,205 @@ export default function CommunityList() {
           >
             <Input.TextArea placeholder="请输入详细地址" rows={2} />
           </Form.Item>
-          <Form.Item name="image" label="小区图片">
-            <ImageUpload />
+
+          <Form.Item label="图片来源">
+            <Radio.Group
+              value={imageMode}
+              onChange={(e) => setImageMode(e.target.value)}
+              style={{ marginBottom: 16 }}
+            >
+              <Radio.Button value="upload">上传图片</Radio.Button>
+              <Radio.Button value="ai">
+                <RobotOutlined /> AI 生成
+              </Radio.Button>
+            </Radio.Group>
           </Form.Item>
+
+          {imageMode === 'upload' ? (
+            <Form.Item name="image" label="小区图片">
+              <ImageUpload />
+            </Form.Item>
+          ) : (
+            <div
+              style={{
+                background: 'var(--color-bg-secondary)',
+                padding: 16,
+                borderRadius: 'var(--radius-md)',
+                marginBottom: 24,
+              }}
+            >
+              {/* 第一行：描述生成方式 + 艺术风格选择 */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <Form.Item label="描述生成方式" style={{ marginBottom: 0 }}>
+                  <Radio.Group
+                    value={descMode}
+                    onChange={(e) => {
+                      setDescMode(e.target.value);
+                      // 切换到智能生成时，如果未选择风格则默认选择第一个
+                      if (e.target.value === 'auto' && !selectedStyle) {
+                        setSelectedStyle(STYLE_PRESETS[0].value);
+                      }
+                    }}
+                  >
+                    <Radio.Button value="manual">手动输入</Radio.Button>
+                    <Radio.Button value="auto">
+                      <RobotOutlined /> 智能生成
+                    </Radio.Button>
+                  </Radio.Group>
+                </Form.Item>
+
+                {descMode === 'auto' && (
+                  <Form.Item label="艺术风格" style={{ marginBottom: 0 }}>
+                    <Select
+                      value={selectedStyle}
+                      onChange={setSelectedStyle}
+                      placeholder="请选择艺术风格"
+                      style={{ width: '100%' }}
+                      optionLabelProp="label"
+                    >
+                      {STYLE_PRESETS.map((style) => (
+                        <Select.Option key={style.value} value={style.value} label={style.label}>
+                          <div>
+                            <div style={{ fontWeight: 500 }}>{style.label}</div>
+                            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                              {style.description}
+                            </div>
+                          </div>
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                )}
+              </div>
+
+              {/* 智能生成：生成描述按钮 */}
+              {descMode === 'auto' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <Button
+                    type="primary"
+                    icon={<RobotOutlined />}
+                    onClick={handleGenerateDescription}
+                    loading={generatingDesc}
+                    disabled={!selectedStyle || !watchedName?.trim()}
+                  >
+                    {generatingDesc ? '生成中...' : '生成描述'}
+                  </Button>
+                  {!watchedName?.trim() && (
+                    <span style={{ fontSize: 12, color: '#faad14' }}>
+                      请先填写小区名称
+                    </span>
+                  )}
+                  {watchedName?.trim() && !selectedStyle && (
+                    <span style={{ fontSize: 12, color: '#faad14' }}>
+                      请选择艺术风格
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <Form.Item
+                label="图片描述"
+                required
+                help="描述小区场景、建筑风格、环境等特点，会影响生成的图片效果"
+              >
+                <Input.TextArea
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  placeholder="请输入图片描述，例如：现代化高层住宅小区，绿树成荫，配套设施完善"
+                  rows={4}
+                  disabled={descMode === 'auto' && generatingDesc}
+                />
+              </Form.Item>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 16, marginBottom: 16 }}>
+                <Form.Item label="图片尺寸" style={{ marginBottom: 0 }}>
+                  <Select value={aiSize} onChange={setAiSize}>
+                    <Select.Option value="1K">1024x1024 (1K)</Select.Option>
+                    <Select.Option value="2K">2048x2048 (2K)</Select.Option>
+                  </Select>
+                </Form.Item>
+
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <Button
+                    type="primary"
+                    icon={<RobotOutlined />}
+                    onClick={handleGenerateImage}
+                    loading={aiGenerating}
+                    disabled={!aiPrompt.trim()}
+                    block
+                  >
+                    {aiGenerating ? '生成中...' : '生成图片'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* 生成结果预览 */}
+              {(generatedImageUrl || aiGenerating) && (
+                <div
+                  style={{
+                    marginTop: 16,
+                    padding: 16,
+                    background: 'var(--color-bg-primary)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--color-border)',
+                  }}
+                >
+                  <div
+                    style={{
+                      marginBottom: 8,
+                      fontWeight: 500,
+                      color: 'var(--color-text-primary)',
+                    }}
+                  >
+                    生成结果
+                  </div>
+                  {aiGenerating ? (
+                    <div
+                      style={{
+                        height: 160,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'var(--color-bg-secondary)',
+                        borderRadius: 'var(--radius-sm)',
+                      }}
+                    >
+                      <Spin tip="AI 正在生成图片，请稍候..." />
+                    </div>
+                  ) : generatedImageUrl ? (
+                    <div>
+                      <Image
+                        src={getImageUrl(generatedImageUrl)}
+                        width={200}
+                        style={{
+                          borderRadius: 'var(--radius-sm)',
+                          marginBottom: 12,
+                        }}
+                      />
+                      <div>
+                        <Button
+                          type="primary"
+                          size="small"
+                          onClick={handleUseGeneratedImage}
+                        >
+                          使用此图片
+                        </Button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+
+              {/* 隐藏的表单项，用于存储图片 URL */}
+              <Form.Item
+                name="image"
+                style={{ display: 'none' }}
+              >
+                <Input />
+              </Form.Item>
+            </div>
+          )}
+
           <Space size={16}>
             <Form.Item
               name="latitude"

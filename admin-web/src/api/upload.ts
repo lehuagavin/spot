@@ -43,3 +43,24 @@ export function generateAIImage(params: AIGenerateImageRequest): Promise<AIGener
     timeout: 120000, // 120 秒
   });
 }
+
+// AI 生成描述请求参数
+export interface AIGenerateDescriptionRequest {
+  style: 'ghibli' | 'futurism' | 'pixar' | 'oil' | 'chinese';
+  context_type: 'banner' | 'course';
+  context_data: Record<string, any>;
+}
+
+// AI 生成描述响应
+export interface AIGenerateDescriptionResponse {
+  description: string;
+  tokens_used: number;
+  model: string;
+}
+
+// AI 生成描述（超时时间 30 秒）
+export function generateDescription(params: AIGenerateDescriptionRequest): Promise<AIGenerateDescriptionResponse> {
+  return request.post('/api/v1/ai/generate-description', params, {
+    timeout: 30000, // 30 秒
+  });
+}

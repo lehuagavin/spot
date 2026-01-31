@@ -69,7 +69,7 @@ Page({
         radius: 10,
       });
       
-      let communities = data.list || data || [];
+      let communities = data.items || data || [];
       
       // 如果没有数据，使用模拟数据
       if (communities.length === 0) {
@@ -273,7 +273,7 @@ Page({
         page_size: 10,
       });
       
-      const searchResults = data.list || data || [];
+      const searchResults = data.items || data || [];
       this.setData({ searchResults });
     } catch (err) {
       console.error('搜索失败:', err);

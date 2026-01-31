@@ -62,6 +62,24 @@
     
     <!-- 列表 -->
     <view class="community-list" wx:elif="{{communities.length > 0}}">
+      <!-- 全部小区选项（取消定位） -->
+      <view 
+        class="community-item all-item {{!selectedId ? 'selected' : ''}}"
+        bindtap="onSelectAll"
+      >
+        <view class="item-icon-wrap">
+          <text class="all-icon">🌍</text>
+        </view>
+        <view class="item-content">
+          <view class="item-name">全部小区</view>
+          <view class="item-address">显示所有小区的课程</view>
+        </view>
+        <view class="item-check" wx:if="{{!selectedId}}">
+          <text class="check-icon">✓</text>
+        </view>
+      </view>
+      
+      <!-- 小区列表 -->
       <view 
         class="community-item {{item.id === selectedId ? 'selected' : ''}}"
         wx:for="{{communities}}"

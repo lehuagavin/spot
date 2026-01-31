@@ -50,10 +50,12 @@ Page({
     try {
       const course = await api.course.getDetail(id);
       
-      // 格式化数据
-      const priceObj = util.formatPriceObject(course.price || 0);
-      const memberPriceObj = util.formatPriceObject(course.member_price || 0);
-      const savingAmount = ((course.price || 0) - (course.member_price || 0)).toFixed(1);
+      // 格式化数据（确保价格为数字类型，后端 Decimal 序列化为字符串）
+      const coursePrice = parseFloat(course.price) || 0;
+      const memberPrice = parseFloat(course.member_price) || 0;
+      const priceObj = util.formatPriceObject(coursePrice);
+      const memberPriceObj = util.formatPriceObject(memberPrice);
+      const savingAmount = (coursePrice - memberPrice).toFixed(1);
       const remainingSlots = (course.max_students || 10) - (course.enrolled_count || 0);
       
       this.setData({

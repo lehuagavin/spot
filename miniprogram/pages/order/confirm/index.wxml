@@ -1,100 +1,107 @@
-<!-- 确认订单页面 -->
+<!-- 加入拼班页面 -->
 <view class="page-container">
   <view class="loading-state" wx:if="{{loading}}">
     <view class="loading-spinner"></view>
   </view>
   
   <block wx:elif="{{course}}">
-    <!-- 课程信息 -->
+    <!-- 课程卡片 -->
     <view class="course-card">
       <view class="course-header">
         <text class="course-name">{{course.name}}</text>
-        <view class="status-tag">报名中</view>
+        <view class="status-tag {{course.status === 'ongoing' ? 'ongoing' : ''}}">
+          {{course.status === 'ongoing' ? '进行中' : course.status === 'enrolling' ? '报名中' : '已结束'}}
+        </view>
       </view>
-      <view class="course-info">
-        <text>当前周期 第{{course.current_week || 1}}周（总周期{{course.total_weeks || 10}}周）</text>
+      <view class="course-meta">
+        <view class="week-tag">总周期{{course.total_weeks || 10}}周, 当前第{{course.current_week || 1}}周</view>
+        <text class="slots-text">剩余{{remainingSlots}}名额拼满</text>
       </view>
-      <view class="course-info highlight">
-        <text>剩余{{course.remaining_slots || 4}}个名额</text>
+      <view class="course-info-row">
+        <view class="info-icon-wrapper">
+          <text class="info-icon-text">🕐</text>
+        </view>
+        <text class="info-text">{{courseScheduleText}}</text>
       </view>
-      <view class="course-info">
-        <text class="icon">🕐</text>
-        <text>{{course.schedule}}</text>
+      <view class="course-info-row">
+        <view class="info-icon-wrapper">
+          <text class="info-icon-text">📍</text>
+        </view>
+        <text class="info-text">{{course.community_name || course.location}}</text>
       </view>
-      <view class="course-info">
-        <text class="icon">📍</text>
-        <text>{{course.community_name}}</text>
-      </view>
+    </view>
+    
+    <!-- 课程名称标题 -->
+    <view class="section-title-row">
+      <text class="section-main-title">{{course.name}}</text>
     </view>
     
     <!-- 选择学员 -->
     <view class="student-section">
-      <view class="section-header" bindtap="onSelectStudent">
-        <text class="section-title">选择学员</text>
-        <text class="section-action">{{selectedStudents.length > 0 ? '修改' : '请选择'}} ›</text>
+      <view class="select-student-row" bindtap="onSelectStudent">
+        <text class="select-label">请选择加入拼班的学员</text>
+        <text class="arrow-icon">›</text>
       </view>
-      
-      <view class="student-list" wx:if="{{selectedStudents.length > 0}}">
-        <view class="student-item" wx:for="{{selectedStudents}}" wx:key="id">
-          <view class="student-info">
-            <text class="student-name">{{item.name}}</text>
-            <view class="new-tag" wx:if="{{item.is_new}}">新人价</view>
+    </view>
+    
+    <!-- 已选学员列表 -->
+    <view class="selected-students" wx:if="{{selectedStudents.length > 0}}">
+      <view class="student-item" wx:for="{{selectedStudents}}" wx:key="id">
+        <view class="student-row">
+          <text class="student-name">{{item.name}}</text>
+          <text class="insurance-tag">免费赠送保险</text>
+        </view>
+        <view class="price-row">
+          <view class="price-type">
+            <view class="price-check {{item.is_new ? 'active' : ''}}">
+              <text class="check-icon" wx:if="{{item.is_new}}">✓</text>
+            </view>
+            <text class="price-type-label">新人价</text>
           </view>
-          <view class="student-price">
-            <text class="price-original" wx:if="{{item.is_new}}">¥{{course.price}}</text>
-            <text class="price-current">¥{{item.is_new ? '9.9' : course.price}}</text>
+          <view class="price-values">
+            <text class="price-original">原价: ¥{{course.price}}</text>
+            <text class="price-current">¥{{item.actualPrice}}</text>
           </view>
-          <view class="student-remove" catchtap="onRemoveStudent" data-id="{{item.id}}">✕</view>
+        </view>
+        <view class="discount-row">
+          <text class="discount-text">已优惠 <text class="discount-amount">¥{{item.discountAmount}}</text></text>
+          <text class="subtotal-text">小计 ¥{{item.actualPrice}}</text>
         </view>
       </view>
     </view>
     
-    <!-- 费用明细 -->
-    <view class="price-section" wx:if="{{selectedStudents.length > 0}}">
-      <view class="price-row">
-        <text class="price-label">课程单价</text>
-        <text class="price-value">¥{{course.price}}/位</text>
-      </view>
-      <view class="price-row" wx:if="{{discountPrice > 0}}">
-        <text class="price-label">已优惠</text>
-        <text class="price-value discount">-¥{{discountPrice}}</text>
-      </view>
-      <view class="price-row total">
-        <text class="price-label">总计</text>
-        <text class="price-value">¥{{payPrice}}</text>
-      </view>
+    <!-- 总计金额 -->
+    <view class="total-section" wx:if="{{selectedStudents.length > 0}}">
+      <text class="total-label">总计:</text>
+      <text class="total-amount">¥ {{payPrice}}</text>
     </view>
     
     <!-- 温馨提示 -->
     <view class="notice-section">
-      <text class="notice-title">温馨提示</text>
-      <text class="notice-text">如有基础疾病或身体不适，请勿参加本运动项目。如未告知而参加，后果需自行承担。</text>
+      <text class="notice-text">温馨提示:如有基础疾病或身体不适，请勿参加本运动项目。如未告知而参加，后果需自行承担。</text>
     </view>
     
     <!-- 协议 -->
     <view class="agreement-section">
-      <checkbox-group bindchange="onAgreementChange">
-        <label class="agreement-label">
-          <checkbox value="agreed" checked="{{agreed}}"/>
-          <text>我已阅读并同意</text>
-          <text class="agreement-link">《义城上门教育用户协议》</text>
-        </label>
-      </checkbox-group>
+      <view class="agreement-row" bindtap="onAgreementTap">
+        <view class="agreement-checkbox {{agreed ? 'checked' : ''}}">
+          <view class="checkbox-inner" wx:if="{{agreed}}"></view>
+        </view>
+        <text class="agreement-text">同意</text>
+        <text class="agreement-link" catchtap="onViewAgreement">《家门口用户协议》</text>
+      </view>
     </view>
     
     <view class="bottom-placeholder"></view>
   </block>
 </view>
 
+<!-- 底部按钮 -->
 <view class="bottom-bar" wx:if="{{course}}">
-  <view class="bar-price">
-    <text class="bar-label">合计</text>
-    <text class="bar-amount">¥{{payPrice || '0.00'}}</text>
-  </view>
   <button 
     class="pay-btn {{!agreed || selectedStudents.length === 0 ? 'disabled' : ''}}"
     bindtap="onSubmit"
-    disabled="{{submitting}}"
+    disabled="{{submitting || !agreed || selectedStudents.length === 0}}"
   >
     {{submitting ? '提交中...' : '确认支付'}}
   </button>

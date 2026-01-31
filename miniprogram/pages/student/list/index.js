@@ -39,7 +39,15 @@ Page({
     
     try {
       const data = await api.student.getList();
-      const students = data.list || data || [];
+      const rawStudents = data.list || data.items || data || [];
+      
+      // 转换后端字段名为前端使用的字段名
+      const students = rawStudents.map(item => ({
+        ...item,
+        name: item.id_name || item.name,  // 后端返回 id_name，前端使用 name
+        gender: item.gender === '男' ? 1 : (item.gender === '女' ? 2 : item.gender),  // 转换性别
+        photo: item.photo ? app.getImageUrl(item.photo) : '',
+      }));
       
       this.setData({
         students,

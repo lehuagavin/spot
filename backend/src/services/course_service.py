@@ -4,6 +4,7 @@
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
+from sqlalchemy.orm import selectinload
 
 from src.core.exceptions import AppException
 from src.core.errors import ErrorCode
@@ -92,33 +93,72 @@ class CourseService:
 
     async def get_course(self, db: AsyncSession, course_id: str) -> CourseResponse:
         """获取课程详情"""
-        course = await self.repo.get(db, course_id)
+        # 使用 selectinload 预加载关联数据
+        stmt = select(Course).where(Course.id == course_id).options(
+            selectinload(Course.community),
+            selectinload(Course.teacher),
+        )
+        result = await db.execute(stmt)
+        course = result.scalar_one_or_none()
+
         if not course:
             raise AppException(
                 code=ErrorCode.COURSE_NOT_FOUND,
                 message="课程不存在",
             )
-        return CourseResponse.model_validate(course)
+
+        # 创建响应对象并填充关联数据
+        response = CourseResponse.model_validate(course)
+        if course.community:
+            response.community_name = course.community.name
+        if course.teacher:
+            response.teacher_name = course.teacher.name
+        return response
 
     async def list_courses(
         self, db: AsyncSession, query: CourseQuery
     ) -> dict:
         """获取课程列表"""
-        filters = {}
+        # 构建查询条件
+        conditions = []
+        if query.keyword:
+            conditions.append(Course.name.contains(query.keyword))
         if query.community_id:
-            filters["community_id"] = query.community_id
+            conditions.append(Course.community_id == query.community_id)
         if query.status:
-            filters["status"] = query.status
+            conditions.append(Course.status == query.status)
 
-        total = await self.repo.count(db, **filters)
-        courses = await self.repo.get_multi(
-            db,
-            skip=(query.page - 1) * query.page_size,
-            limit=query.page_size,
-            **filters,
+        # 查询总数
+        count_stmt = select(func.count(Course.id))
+        if conditions:
+            count_stmt = count_stmt.where(and_(*conditions))
+        total_result = await db.execute(count_stmt)
+        total = total_result.scalar_one()
+
+        # 查询列表（预加载关联数据）
+        stmt = select(Course).options(
+            selectinload(Course.community),
+            selectinload(Course.teacher),
         )
+        if conditions:
+            stmt = stmt.where(and_(*conditions))
+
+        stmt = stmt.offset((query.page - 1) * query.page_size).limit(query.page_size)
+        result = await db.execute(stmt)
+        courses = result.scalars().all()
+
+        # 创建响应对象并填充关联数据
+        items = []
+        for course in courses:
+            response = CourseResponse.model_validate(course)
+            if course.community:
+                response.community_name = course.community.name
+            if course.teacher:
+                response.teacher_name = course.teacher.name
+            items.append(response)
+
         return {
-            "items": [CourseResponse.model_validate(c) for c in courses],
+            "items": items,
             "total": total,
             "page": query.page,
             "page_size": query.page_size,

@@ -15,8 +15,8 @@
     >
       <!-- 学员头像 -->
       <view class="student-avatar" bindtap="onEditStudent" data-id="{{item.id}}">
-        <image wx:if="{{item.photo}}" src="{{item.photo}}" mode="aspectFill"/>
-        <text wx:else>{{item.gender === 1 ? '👦' : '👧'}}</text>
+        <image wx:if="{{item.photo}}" src="{{item.photo}}" mode="aspectFill" class="avatar-img"/>
+        <text wx:else class="avatar-placeholder">{{item.gender === 1 ? '👦' : '👧'}}</text>
       </view>
       
       <!-- 学员信息 -->
@@ -28,8 +28,7 @@
           </view>
         </view>
         <view class="info-row">
-          <text class="info-label">出生日期</text>
-          <text class="info-value">{{item.birthday}}</text>
+          <text class="info-value">出生日期：{{item.birthday}}</text>
         </view>
       </view>
       
@@ -40,7 +39,7 @@
         data-id="{{item.id}}"
         data-name="{{item.name}}"
       >
-        <text class="delete-icon">🗑️</text>
+        <text class="delete-text">删除</text>
       </view>
     </view>
   </view>

@@ -223,16 +223,23 @@ App({
   /**
    * 获取图片完整 URL
    * @param {string} path 图片路径（可能是相对路径或完整 URL）
-   * @returns {string} 完整的图片 URL
+   * @returns {string} 完整的图片 URL，如果无效则返回空字符串
    */
   getImageUrl(path) {
     if (!path) return '';
-    // 如果已经是完整 URL，直接返回
+    
+    // 如果已经是完整 URL
     if (path.startsWith('http://') || path.startsWith('https://')) {
+      // 检查是否是无效的测试 URL
+      if (path.includes('img.example.com') || path.includes('example.com')) {
+        return ''; // 返回空，让组件使用默认图片
+      }
       return path;
     }
-    // 拼接服务器地址
-    return `${this.globalData.serverBase}${path}`;
+    
+    // 拼接服务器地址（处理路径前缀）
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${this.globalData.serverBase}${cleanPath}`;
   },
 
   /**

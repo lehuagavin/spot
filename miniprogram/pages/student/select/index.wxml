@@ -8,22 +8,35 @@
   
   <view class="student-list" wx:elif="{{students.length > 0}}">
     <view 
-      class="student-item {{selectedIds.includes(item.id) ? 'selected' : ''}}"
+      class="student-item {{item.selected ? 'selected' : ''}}"
       wx:for="{{students}}"
       wx:key="id"
-      bindtap="onToggleSelect"
-      data-id="{{item.id}}"
     >
-      <view class="student-avatar">
-        <text>{{item.gender === 1 ? '👦' : '👧'}}</text>
+      <!-- 头像 -->
+      <view class="student-avatar" bindtap="onToggleSelect" data-id="{{item.id}}">
+        <image wx:if="{{item.photo}}" src="{{item.photo}}" mode="aspectFill" class="avatar-img"/>
+        <text wx:else class="avatar-placeholder">{{item.gender === 1 ? '👦' : '👧'}}</text>
       </view>
-      <view class="student-info">
-        <view class="student-name">{{item.name}}</view>
-        <view class="student-birthday">{{item.birthday}}</view>
+      
+      <!-- 学员信息 -->
+      <view class="student-info" bindtap="onToggleSelect" data-id="{{item.id}}">
+        <view class="info-header">
+          <text class="student-name">{{item.name}}</text>
+          <view class="member-tag {{item.member_type === 'vip' ? 'vip' : ''}}">
+            {{item.member_type === 'vip' ? 'VIP会员' : '普通会员'}}
+          </view>
+        </view>
+        <view class="student-birthday">出生日期：{{item.birthday}}</view>
       </view>
-      <view class="new-tag" wx:if="{{item.is_new}}">新人价</view>
-      <view class="check-box {{selectedIds.includes(item.id) ? 'checked' : ''}}">
-        <text wx:if="{{selectedIds.includes(item.id)}}">✓</text>
+      
+      <!-- 删除按钮 -->
+      <view class="delete-btn" catchtap="onDeleteStudent" data-id="{{item.id}}" data-name="{{item.name}}">
+        <text class="delete-text">删除</text>
+      </view>
+      
+      <!-- 选择框 -->
+      <view class="check-box {{item.selected ? 'checked' : ''}}" bindtap="onToggleSelect" data-id="{{item.id}}">
+        <text wx:if="{{item.selected}}">✓</text>
       </view>
     </view>
   </view>
@@ -38,5 +51,5 @@
 
 <view class="bottom-bar">
   <button class="add-btn" bindtap="onAddStudent">新增学员</button>
-  <button class="confirm-btn" bindtap="onConfirm">确认选择 ({{selectedIds.length}})</button>
+  <button class="confirm-btn" bindtap="onConfirm">确认选择</button>
 </view>

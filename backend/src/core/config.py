@@ -58,6 +58,23 @@ class Settings(BaseSettings):
         alias="VOLCANO_MODEL_ID"
     )
 
+    # 硅基流动 AI 描述生成配置
+    siliconflow_api_key: str = Field(default="", alias="SILICONFLOW_API_KEY")
+    siliconflow_base_url: str = Field(
+        default="https://api.siliconflow.cn/v1",
+        alias="SILICONFLOW_BASE_URL"
+    )
+    siliconflow_model: str = Field(
+        default="Qwen/Qwen2.5-7B-Instruct",
+        alias="SILICONFLOW_MODEL"
+    )
+    siliconflow_timeout: int = Field(default=30, alias="SILICONFLOW_TIMEOUT")
+
+    @property
+    def is_siliconflow_enabled(self) -> bool:
+        """检查硅基流动是否已配置"""
+        return bool(self.siliconflow_api_key)
+
 
 @lru_cache
 def get_settings() -> Settings:

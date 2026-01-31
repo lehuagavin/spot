@@ -20,10 +20,9 @@ Page({
     location: null,
     selectedCommunity: null,
     
-    // 筛选
+    // 筛选（去掉报名中）
     filterTabs: [
       { key: 'all', label: '全部' },
-      { key: 'enrolling', label: '报名中' },
       { key: 'ongoing', label: '进行中' },
       { key: 'completed', label: '已结束' },
     ],
@@ -53,12 +52,14 @@ Page({
    * 页面显示
    */
   onShow() {
-    // 检查小区是否变化
+    // 检查小区是否变化（包括从有定位变为无定位，或小区变化）
     const selectedCommunity = app.globalData.selectedCommunity;
-    if (selectedCommunity && 
-        (!this.data.selectedCommunity || 
-         selectedCommunity.id !== this.data.selectedCommunity.id)) {
-      this.setData({ selectedCommunity });
+    const currentCommunityId = this.data.selectedCommunity?.id;
+    const newCommunityId = selectedCommunity?.id;
+    
+    // 定位状态发生变化时刷新
+    if (currentCommunityId !== newCommunityId) {
+      this.setData({ selectedCommunity: selectedCommunity || null });
       this.refreshData();
     }
   },
@@ -80,8 +81,8 @@ Page({
    */
   onPrivacyAgree() {
     this.setData({ showPrivacy: false });
-    // 显示位置授权
-    this.setData({ showLocationAuth: true });
+    // 直接加载数据，不强制位置授权
+    this.checkLocationAndLoad();
   },
 
   /**
@@ -118,16 +119,13 @@ Page({
     const location = app.globalData.location;
     const selectedCommunity = app.globalData.selectedCommunity;
     
-    if (location || selectedCommunity) {
-      this.setData({ 
-        location,
-        selectedCommunity,
-      });
-      this.loadInitialData();
-    } else {
-      // 没有位置信息，显示位置授权
-      this.setData({ showLocationAuth: true });
-    }
+    // 不管是否有位置信息，都加载数据
+    // 未定位时显示所有课程，定位后只显示对应小区的课程
+    this.setData({ 
+      location,
+      selectedCommunity,
+    });
+    this.loadInitialData();
   },
 
   /**
@@ -156,11 +154,17 @@ Page({
           ],
         });
       } else {
-        // 处理图片 URL，拼接完整地址
-        const banners = rawBanners.map(item => ({
-          ...item,
-          image: app.getImageUrl(item.image),
-        }));
+        // 处理图片 URL，拼接完整地址（过滤无效图片）
+        const banners = rawBanners.map(item => {
+          const imageUrl = app.getImageUrl(item.image);
+          return {
+            ...item,
+            image: imageUrl || '', // 如果无效则使用空字符串，让模板使用渐变色背景
+            // 如果没有图片，使用渐变色背景
+            color: item.color || '#667eea',
+            color2: item.color2 || '#764ba2',
+          };
+        });
         this.setData({ banners });
       }
     } catch (err) {
@@ -206,7 +210,7 @@ Page({
       }
       
       const data = await api.course.getList(params);
-      const list = Array.isArray(data.list) ? data.list : (Array.isArray(data) ? data : []);
+      const list = Array.isArray(data.items) ? data.items : (Array.isArray(data) ? data : []);
       const total = data.total || list.length;
       
       const currentCourses = Array.isArray(this.data.courses) ? this.data.courses : [];
@@ -340,6 +344,15 @@ Page({
     wx.navigateTo({
       url: '/pages/community/list/index',
     });
+  },
+
+  /**
+   * 轮播图图片加载失败
+   */
+  onBannerImageError(e) {
+    const { index } = e.currentTarget.dataset;
+    const key = `banners[${index}].imageError`;
+    this.setData({ [key]: true });
   },
 
   /**

@@ -1,109 +1,133 @@
 <!-- 新增/编辑学员页面 -->
 <view class="page-container">
-  <!-- 表单 -->
-  <view class="form-section">
+  <!-- 表单卡片 -->
+  <view class="form-card">
     <!-- 证件类型 -->
-    <view class="form-item">
-      <view class="form-label">证件类型</view>
-      <picker 
-        class="form-picker"
-        mode="selector"
-        range="{{idTypes}}"
-        range-key="label"
-        value="{{idTypeIndex}}"
-        bindchange="onIdTypeChange"
-      >
-        <view class="picker-value">
-          {{idTypes[idTypeIndex].label}}
-          <text class="picker-arrow">›</text>
+    <picker 
+      class="form-row"
+      mode="selector"
+      range="{{idTypes}}"
+      range-key="label"
+      value="{{idTypeIndex}}"
+      bindchange="onIdTypeChange"
+    >
+      <view class="form-row-inner">
+        <view class="form-label">
+          <text class="required">*</text>
+          <text>证件类型</text>
         </view>
-      </picker>
-    </view>
+        <view class="form-value-wrapper">
+          <text class="form-value">{{idTypes[idTypeIndex].label}}</text>
+          <text class="form-arrow">></text>
+        </view>
+      </view>
+    </picker>
     
-    <!-- 姓名 -->
-    <view class="form-item {{errors.name ? 'error' : ''}}">
-      <view class="form-label required">证件姓名</view>
-      <input 
-        class="form-input"
-        placeholder="请输入真实姓名"
-        value="{{form.name}}"
-        bindinput="onNameInput"
-      />
-      <view class="error-text" wx:if="{{errors.name}}">{{errors.name}}</view>
+    <!-- 证件姓名 -->
+    <view class="form-row">
+      <view class="form-row-inner">
+        <view class="form-label">
+          <text class="required">*</text>
+          <text>证件姓名</text>
+        </view>
+        <view class="form-value-wrapper">
+          <input 
+            class="form-input {{form.name ? '' : 'placeholder'}}"
+            placeholder="证件姓名"
+            placeholder-class="input-placeholder"
+            value="{{form.name}}"
+            bindinput="onNameInput"
+          />
+          <text class="form-arrow">></text>
+        </view>
+      </view>
     </view>
     
     <!-- 证件号码 -->
-    <view class="form-item {{errors.id_number ? 'error' : ''}}">
-      <view class="form-label required">证件号码</view>
-      <input 
-        class="form-input"
-        placeholder="请输入证件号码"
-        value="{{form.id_number}}"
-        bindinput="onIdNumberInput"
-      />
-      <view class="error-text" wx:if="{{errors.id_number}}">{{errors.id_number}}</view>
+    <view class="form-row">
+      <view class="form-row-inner">
+        <view class="form-label">
+          <text class="required">*</text>
+          <text>证件号码</text>
+        </view>
+        <view class="form-value-wrapper">
+          <input 
+            class="form-input {{form.id_number ? '' : 'placeholder'}}"
+            placeholder="证件号码"
+            placeholder-class="input-placeholder"
+            value="{{form.id_number}}"
+            bindinput="onIdNumberInput"
+          />
+          <text class="form-arrow">></text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 提示文字 -->
+    <view class="notice-text">
+      提示：个人信息仅用于购买保险使用，请填写真实身份信息，信息有误将影响保险生效，由此产生的损失自负全责
     </view>
     
     <!-- 照片 -->
-    <view class="form-item photo-item">
-      <view class="form-label">照片</view>
-      <view class="photo-upload">
-        <view class="photo-preview" wx:if="{{form.photo}}">
-          <image src="{{form.photo}}" mode="aspectFill"/>
-          <view class="photo-delete" catchtap="onDeletePhoto">✕</view>
+    <view class="form-row photo-row">
+      <view class="form-row-inner">
+        <view class="form-label">
+          <text>照片</text>
         </view>
-        <view class="photo-add" wx:else bindtap="onChoosePhoto">
-          <text class="add-icon">📷</text>
-          <text class="add-text">添加照片</text>
+        <view class="form-value-wrapper">
+          <view class="photo-circle" wx:if="{{form.photo}}" bindtap="onPreviewPhoto">
+            <image src="{{form.photo}}" mode="aspectFill" class="photo-img" binderror="onPhotoError"/>
+            <view class="photo-delete" catchtap="onDeletePhoto">×</view>
+          </view>
+          <view class="photo-circle photo-empty" wx:else bindtap="onChoosePhoto">
+            <text class="photo-placeholder"></text>
+          </view>
+          <text class="form-arrow">></text>
         </view>
       </view>
     </view>
     
     <!-- 出生日期 -->
-    <view class="form-item {{errors.birthday ? 'error' : ''}}">
-      <view class="form-label required">出生日期</view>
-      <picker 
-        class="form-picker"
-        mode="date"
-        start="{{startDate}}"
-        end="{{endDate}}"
-        value="{{form.birthday}}"
-        bindchange="onBirthdayChange"
-      >
-        <view class="picker-value {{form.birthday ? '' : 'placeholder'}}">
-          {{form.birthday || '请选择出生日期'}}
-          <text class="picker-arrow">›</text>
+    <picker 
+      class="form-row"
+      mode="date"
+      start="{{startDate}}"
+      end="{{endDate}}"
+      value="{{form.birthday}}"
+      bindchange="onBirthdayChange"
+    >
+      <view class="form-row-inner">
+        <view class="form-label">
+          <text class="required">*</text>
+          <text>出生日期</text>
         </view>
-      </picker>
-      <view class="error-text" wx:if="{{errors.birthday}}">{{errors.birthday}}</view>
-    </view>
+        <view class="form-value-wrapper">
+          <text class="form-value {{form.birthday ? '' : 'placeholder'}}">{{form.birthday || '出生日期'}}</text>
+          <text class="form-arrow">></text>
+        </view>
+      </view>
+    </picker>
     
     <!-- 性别 -->
-    <view class="form-item">
-      <view class="form-label required">性别</view>
-      <picker 
-        class="form-picker"
-        mode="selector"
-        range="{{genders}}"
-        range-key="label"
-        value="{{genderIndex}}"
-        bindchange="onGenderChange"
-      >
-        <view class="picker-value">
-          {{genders[genderIndex].label}}
-          <text class="picker-arrow">›</text>
+    <picker 
+      class="form-row no-border"
+      mode="selector"
+      range="{{genders}}"
+      range-key="label"
+      value="{{genderIndex}}"
+      bindchange="onGenderChange"
+    >
+      <view class="form-row-inner">
+        <view class="form-label">
+          <text class="required">*</text>
+          <text>性别</text>
         </view>
-      </picker>
-    </view>
-  </view>
-  
-  <!-- 提示 -->
-  <view class="notice-section">
-    <view class="notice-icon">⚠️</view>
-    <view class="notice-content">
-      <text class="notice-title">重要提示</text>
-      <text class="notice-text">个人信息仅用于购买保险使用，请填写真实身份信息。信息有误将影响保险生效，由此产生的损失自负全责。</text>
-    </view>
+        <view class="form-value-wrapper">
+          <text class="form-value {{genderIndex >= 0 ? '' : 'placeholder'}}">{{genders[genderIndex].label || '选择性别'}}</text>
+          <text class="form-arrow">></text>
+        </view>
+      </view>
+    </picker>
   </view>
   
   <!-- 底部占位 -->
@@ -117,6 +141,23 @@
     bindtap="onSubmit"
     disabled="{{submitting}}"
   >
-    {{submitting ? '提交中...' : '提交'}}
+    {{submitting ? '提交中...' : '提 交'}}
   </button>
+</view>
+
+<!-- 选择微信头像弹窗 -->
+<view class="avatar-modal" wx:if="{{showAvatarModal && !choosingAvatar}}" catchtap="onCloseAvatarModal">
+  <view class="avatar-modal-content" catchtap="stopPropagation">
+    <view class="avatar-modal-title">选择微信头像</view>
+    <view class="avatar-modal-desc">点击下方按钮选择您的微信头像</view>
+    <button 
+      class="avatar-modal-btn"
+      open-type="chooseAvatar"
+      bindchooseavatar="onChooseWechatAvatar"
+      disabled="{{choosingAvatar}}"
+    >
+      选择微信头像
+    </button>
+    <view class="avatar-modal-cancel" bindtap="onCloseAvatarModal">取消</view>
+  </view>
 </view>

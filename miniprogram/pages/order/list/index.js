@@ -47,7 +47,7 @@ Page({
       }
       
       const data = await api.order.getList(params);
-      const list = Array.isArray(data.list) ? data.list : (Array.isArray(data) ? data : []);
+      const list = Array.isArray(data.items) ? data.items : (Array.isArray(data) ? data : []);
       const currentOrders = Array.isArray(this.data.orders) ? this.data.orders : [];
       const orders = refresh ? list : [...currentOrders, ...list];
       

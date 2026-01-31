@@ -157,6 +157,28 @@
   background-color: rgba(0, 113, 227, 0.05);
 }
 
+/* 全部小区选项 */
+.community-item.all-item {
+  background-color: #f8f9fa;
+  border-bottom: 1rpx solid #e5e5e5;
+}
+
+.item-icon-wrap {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #7ed56f 0%, #28b485 100%);
+}
+
+.all-icon {
+  font-size: 48rpx;
+}
+
 /* 图片 */
 .item-image {
   width: 120rpx;

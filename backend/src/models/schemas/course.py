@@ -4,7 +4,7 @@
 from datetime import datetime, date, time
 from typing import Optional, Union
 from decimal import Decimal
-from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator, computed_field
 import re
 
 
@@ -155,10 +155,30 @@ class CourseResponse(BaseModel):
     status: str = Field(..., description="状态")
     created_at: datetime = Field(..., description="创建时间")
 
+    # 关联数据字段（可选，在需要时由服务层填充）
+    community_name: Optional[str] = Field(None, description="小区名称")
+    teacher_name: Optional[str] = Field(None, description="教练名称")
+
+    # 计算属性 - 组合字段（序列化时自动包含）
+    @computed_field
+    @property
+    def age_range(self) -> str:
+        """年龄范围（如 7-12岁）"""
+        return f"{self.age_min}-{self.age_max}岁"
+
+    @computed_field
+    @property
+    def schedule(self) -> str:
+        """上课时间（如 周六 08:00-09:00）"""
+        start_str = self.schedule_start.strftime("%H:%M")
+        end_str = self.schedule_end.strftime("%H:%M")
+        return f"{self.schedule_day} {start_str}-{end_str}"
+
 
 class CourseQuery(BaseModel):
     """课程查询"""
 
+    keyword: Optional[str] = Field(None, description="搜索关键词")
     community_id: Optional[str] = Field(None, description="小区ID")
     status: Optional[str] = Field(None, description="状态")
     page: int = Field(default=1, ge=1, description="页码")

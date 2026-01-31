@@ -21,12 +21,14 @@
           style="background: linear-gradient(135deg, {{item.color || '#667eea'}} 0%, {{item.color2 || '#764ba2'}} 100%);"
         >
           <image 
-            wx:if="{{item.image}}"
+            wx:if="{{item.image && !item.imageError}}"
             class="banner-image" 
             src="{{item.image}}" 
             mode="aspectFill"
+            binderror="onBannerImageError"
+            data-index="{{index}}"
           />
-          <view class="banner-content" wx:else>
+          <view class="banner-content" wx:if="{{!item.image || item.imageError}}">
             <text class="banner-title">{{item.title}}</text>
           </view>
         </view>
@@ -34,35 +36,32 @@
     </swiper>
   </view>
   
-  <!-- 定位区域 -->
-  <view class="location-section" bindtap="onLocationTap">
-    <view class="location-icon">📍</view>
-    <view class="location-info">
-      <text class="location-name truncate">
-        {{selectedCommunity.name || '选择小区'}}
-      </text>
-      <text class="location-hint">点击切换定位</text>
-    </view>
-    <view class="location-arrow">
-      <text class="arrow-icon">›</text>
-    </view>
-  </view>
-  
-  <!-- 筛选标签 -->
+  <!-- 筛选区域 -->
   <view class="filter-section">
-    <scroll-view class="filter-scroll" scroll-x>
-      <view class="filter-tabs">
-        <view 
-          wx:for="{{filterTabs}}" 
-          wx:key="key"
-          class="filter-tab {{currentFilter === item.key ? 'active' : ''}}"
-          bindtap="onFilterChange"
-          data-key="{{item.key}}"
-        >
-          {{item.label}}
-        </view>
+    <!-- 标题行 -->
+    <view class="filter-header">
+      <view class="filter-title">
+        <text class="title-main">小区拼班</text>
+        <text class="title-sub">{{selectedCommunity.name || '全部小区'}}</text>
       </view>
-    </scroll-view>
+      <view class="location-btn" bindtap="onLocationTap">
+        <text class="location-icon">📍</text>
+        <text class="location-text">{{selectedCommunity ? '切换' : '定位'}}</text>
+      </view>
+    </view>
+    
+    <!-- 状态筛选标签 -->
+    <view class="filter-tabs">
+      <view 
+        wx:for="{{filterTabs}}" 
+        wx:key="key"
+        class="filter-tab {{currentFilter === item.key ? 'active' : ''}}"
+        bindtap="onFilterChange"
+        data-key="{{item.key}}"
+      >
+        {{item.label}}
+      </view>
+    </view>
   </view>
   
   <!-- 课程列表 -->

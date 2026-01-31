@@ -28,6 +28,7 @@ from src.api.v1.endpoints import (
     admin_banners,
     admin_dashboard,
     ai_image,
+    ai_description,
     # 测试工具路由
     test_utils,
 )
@@ -61,6 +62,7 @@ api_router.include_router(admin_member.router)
 api_router.include_router(admin_banners.router)
 api_router.include_router(admin_dashboard.router)
 api_router.include_router(ai_image.router)
+api_router.include_router(ai_description.router)
 
 # 测试工具路由（仅开发/测试环境使用）
 api_router.include_router(test_utils.router)

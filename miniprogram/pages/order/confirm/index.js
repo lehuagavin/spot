@@ -1,8 +1,9 @@
 /**
- * 确认订单页面
+ * 加入拼班页面
  */
 const app = getApp();
 const api = require('../../../services/api');
+const { formatWeekDay } = require('../../../utils/util');
 
 Page({
   data: {
@@ -14,7 +15,9 @@ Page({
     submitting: false,
     totalPrice: 0,
     discountPrice: 0,
-    payPrice: 0,
+    payPrice: '0.00',
+    remainingSlots: 0,
+    courseScheduleText: '',
   },
 
   onLoad(options) {
@@ -27,20 +30,51 @@ Page({
   async loadCourseDetail(id) {
     try {
       const course = await api.course.getDetail(id);
-      this.setData({ course, loading: false });
+      this.processCourseData(course);
     } catch (err) {
-      this.setData({
-        course: {
-          id, name: '体能+跳绳', age_range: '7-12岁',
-          schedule: '周六 08:00-09:00',
-          community_name: '碧桂园中央公园',
-          price: 80, member_price: 39.8,
-          total_weeks: 10, current_week: 1,
-          remaining_slots: 4,
-        },
-        loading: false,
+      // 使用模拟数据
+      this.processCourseData({
+        id,
+        name: '普通-运动课1.5h',
+        age_range: '7-12岁',
+        schedule_day: 1,
+        schedule_start: '16:10',
+        schedule_end: '17:40',
+        start_date: '2026-02-02',
+        community_name: '海沧天心岛',
+        location: '海沧天心岛',
+        price: 120,
+        member_price: 80,
+        total_weeks: 2,
+        current_week: 1,
+        max_students: 6,
+        enrolled_count: 3,
+        status: 'ongoing',
       });
     }
+  },
+
+  processCourseData(course) {
+    // 计算剩余名额
+    const remainingSlots = (course.max_students || 6) - (course.enrolled_count || 0);
+    
+    // 格式化课程时间文字
+    let scheduleText = '';
+    if (course.start_date) {
+      const date = new Date(course.start_date);
+      const weekDay = formatWeekDay(course.schedule_day || date.getDay());
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      scheduleText = `${dateStr} ${weekDay} ${course.schedule_start || '16:10'}~${course.schedule_end || '17:40'}`;
+    } else if (course.schedule) {
+      scheduleText = course.schedule;
+    }
+    
+    this.setData({
+      course,
+      loading: false,
+      remainingSlots,
+      courseScheduleText: scheduleText,
+    });
   },
 
   onSelectStudent() {
@@ -51,34 +85,60 @@ Page({
   },
 
   onStudentsSelected(students) {
-    this.setData({ selectedStudents: students });
+    // 处理学员数据，计算每个学员的价格
+    const { course } = this.data;
+    const userInfo = app.globalData.userInfo;
+    const isMember = userInfo?.is_member;
+    const coursePrice = parseFloat(course.price) || 120;
+    const memberPrice = parseFloat(course.member_price) || 80;
+    const newUserPrice = 29.9; // 新人价固定29.9
+    
+    const processedStudents = students.map(student => {
+      let actualPrice, discountAmount;
+      
+      // 判断是否是新用户（这里简单判断：如果学员没有 order_count 或 order_count 为 0，则为新用户）
+      const isNewUser = student.is_new || student.is_new_user || !student.order_count;
+      
+      if (isNewUser) {
+        // 新人价
+        actualPrice = newUserPrice;
+        discountAmount = (coursePrice - newUserPrice).toFixed(1);
+      } else if (isMember) {
+        // 会员价
+        actualPrice = memberPrice;
+        discountAmount = (coursePrice - memberPrice).toFixed(1);
+      } else {
+        // 原价
+        actualPrice = coursePrice;
+        discountAmount = '0';
+      }
+      
+      return {
+        ...student,
+        is_new: isNewUser,
+        actualPrice: actualPrice.toFixed(1),
+        discountAmount,
+      };
+    });
+    
+    this.setData({ selectedStudents: processedStudents });
     this.calculatePrice();
   },
 
   calculatePrice() {
-    const { course, selectedStudents } = this.data;
-    if (!course || selectedStudents.length === 0) {
-      this.setData({ totalPrice: 0, discountPrice: 0, payPrice: 0 });
+    const { selectedStudents } = this.data;
+    
+    if (selectedStudents.length === 0) {
+      this.setData({ totalPrice: 0, discountPrice: 0, payPrice: '0.00' });
       return;
     }
-    
-    const userInfo = app.globalData.userInfo;
-    const isMember = userInfo?.is_member;
-    const price = isMember ? course.member_price : course.price;
     
     let total = 0;
     let discount = 0;
     
     selectedStudents.forEach(student => {
-      if (student.is_new) {
-        total += 9.9;
-        discount += course.price - 9.9;
-      } else {
-        total += price;
-        if (isMember) {
-          discount += course.price - course.member_price;
-        }
-      }
+      total += parseFloat(student.actualPrice);
+      discount += parseFloat(student.discountAmount);
     });
     
     this.setData({
@@ -95,8 +155,18 @@ Page({
     this.calculatePrice();
   },
 
+  onAgreementTap() {
+    this.setData({ agreed: !this.data.agreed });
+  },
+
   onAgreementChange(e) {
     this.setData({ agreed: e.detail.value.length > 0 });
+  },
+
+  onViewAgreement() {
+    wx.navigateTo({
+      url: '/pages/user/about/index',
+    });
   },
 
   async onSubmit() {

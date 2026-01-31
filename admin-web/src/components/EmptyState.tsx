@@ -1,7 +1,7 @@
 /**
  * 自定义空状态组件 - Ghibli 风格插图
  */
-import { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 
 interface EmptyStateProps {
   description?: string;

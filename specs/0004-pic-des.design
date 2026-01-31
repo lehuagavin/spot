@@ -1,0 +1,1301 @@
+# 设计文档 0004: AI 智能图片描述生成功能
+
+## 文档信息
+
+- **文档编号**: 0004
+- **创建日期**: 2026-01-31
+- **状态**: 设计中
+- **作者**: Claude
+- **版本**: 1.0
+
+---
+
+## 1. 需求概述
+
+### 1.1 业务背景
+
+在轮播图和课程管理中，AI 生成图片功能已上线，但用户需要手动编写图片描述（Prompt），存在以下问题：
+- 编写专业的图片描述需要一定技能和经验
+- 缺乏统一的风格规范
+- 编写耗时较长（2-3分钟/个）
+- 描述质量参差不齐
+
+### 1.2 解决方案
+
+通过集成硅基流动的千问模型（Qwen），实现：
+1. 根据表单信息自动生成专业的图片描述
+2. 提供5种预设艺术风格（吉卜力、未来主义、皮克斯、油画、中国画）
+3. 支持手动编辑生成的描述
+4. 保持现有手动输入模式的兼容性
+
+### 1.3 核心价值
+
+- **效率提升**: 生成描述从 2-3 分钟降低到 10 秒
+- **质量提升**: AI 生成更专业、更适合绘画的描述
+- **一致性**: 统一的风格和描述规范
+- **易用性**: 降低使用门槛，无需专业 Prompt 技能
+
+---
+
+## 2. 功能设计
+
+### 2.1 使用场景
+
+**场景1: 新增轮播图**
+```
+1. 用户输入标题: "春季运动季开启"
+2. 选择图片来源: AI生成
+3. 选择描述方式: 智能生成
+4. 选择风格: 吉卜力
+5. 点击"生成描述"
+6. AI生成: "春季运动季开启，孩子们在社区运动场上欢快地跳绳..."
+7. 用户确认/微调描述
+8. 点击"生成图片"
+9. 完成
+```
+
+**场景2: 新增课程**
+```
+1. 用户填写课程信息（名称、年龄、地点等）
+2. 选择图片来源: AI生成
+3. 选择描述方式: 智能生成
+4. 选择风格: 皮克斯
+5. 点击"生成描述"
+6. AI提取: 课程名称、适合年龄、地点、班级规模等
+7. 生成: "网球启蒙课程，专业教练在社区网球场上指导青少年..."
+8. 用户确认描述
+9. 生成图片
+10. 完成
+```
+
+### 2.2 UI组件结构
+
+```
+图片来源选择
+├─ [上传图片] (现有功能)
+└─ [AI 生成] (展开面板)
+    │
+    ├─ 描述生成方式
+    │   ├─ [手动输入] (默认，现有流程)
+    │   └─ [智能生成] (新增功能)
+    │
+    ├─ 智能生成面板 (条件显示)
+    │   ├─ 风格选择器
+    │   │   ├─ [吉卜力] 卡片
+    │   │   ├─ [未来主义] 卡片
+    │   │   ├─ [皮克斯] 卡片
+    │   │   ├─ [油画] 卡片
+    │   │   └─ [中国画] 卡片
+    │   │
+    │   ├─ 信息预览区
+    │   │   └─ 显示将要提取的字段
+    │   │
+    │   └─ [生成描述] 按钮
+    │
+    ├─ 图片描述输入框 (可编辑)
+    │   └─ 支持 300 字，显示字数统计
+    │
+    ├─ 图片尺寸选择
+    │   └─ [2K / 1080P / 720P / 480P]
+    │
+    ├─ [生成图片] 按钮
+    │
+    └─ 生成结果预览
+        ├─ 加载状态
+        ├─ 图片预览
+        └─ [使用此图片] 按钮
+```
+
+### 2.3 交互流程
+
+```
+用户进入新增/编辑页面
+    ↓
+选择 "AI生成" 图片来源
+    ↓
+选择描述生成方式
+    ├─ 手动输入 (现有流程)
+    │      ↓
+    │  直接输入描述 → 生成图片
+    │
+    └─ 智能生成 (新增流程)
+           ↓
+       填写表单基础信息 (标题/课程信息)
+           ↓
+       选择风格 (5种风格卡片)
+           ↓
+       点击 [生成描述] 按钮
+           ↓
+       调用千问模型 (显示加载状态)
+           ↓
+       描述自动填充到输入框 (可编辑)
+           ↓
+       用户确认/修改描述
+           ↓
+       点击 [生成图片] 按钮
+           ↓
+       生成图片 (现有流程)
+           ↓
+       完成
+```
+
+### 2.4 UI状态管理
+
+**智能生成面板状态**
+
+| 状态 | 条件 | 显示内容 |
+|------|------|----------|
+| 未选择风格 | `!selectedStyle` | 5个风格卡片，提示"请选择一种艺术风格" |
+| 选择风格但无内容 | `selectedStyle && !hasRequiredData` | 提示"请先填写{标题/课程名称}等基础信息" |
+| 已准备就绪 | `selectedStyle && hasRequiredData` | 信息预览 + 激活生成按钮 |
+| 生成中 | `generatingDesc === true` | 按钮loading，禁用风格切换 |
+| 生成成功 | `generatedDesc` | 描述自动填充，高亮显示，提示可编辑 |
+| 生成失败 | `error` | 显示错误信息，保持可编辑状态 |
+
+**信息预览区示例**
+```
+将使用以下信息生成描述：
+✓ 课程名称：体能+跳绳
+✓ 适合年龄：7-12岁
+✓ 上课地点：碧海金阁小区运动场
+✓ 班级规模：4-10人小班
+✓ 风格：吉卜力
+```
+
+---
+
+## 3. 前端技术方案
+
+### 3.1 状态管理
+
+```typescript
+// 描述生成相关状态
+const [descMode, setDescMode] = useState<'manual' | 'auto'>('manual');
+const [selectedStyle, setSelectedStyle] = useState<string>();
+const [generatingDesc, setGeneratingDesc] = useState(false);
+const [generatedDesc, setGeneratedDesc] = useState('');
+
+// 原有图片生成状态 (保持不变)
+const [imageMode, setImageMode] = useState<'upload' | 'ai'>('upload');
+const [aiPrompt, setAiPrompt] = useState('');
+const [aiSize, setAiSize] = useState('2K');
+const [aiGenerating, setAiGenerating] = useState(false);
+const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+```
+
+### 3.2 风格预设配置
+
+```typescript
+interface StylePreset {
+  value: string;
+  label: string;
+  description: string;
+  thumbnail?: string;
+  promptSuffix: string;
+}
+
+const STYLE_PRESETS: StylePreset[] = [
+  {
+    value: 'ghibli',
+    label: '吉卜力风格',
+    description: '温暖治愈，柔和色彩，充满想象力',
+    thumbnail: '/images/styles/ghibli.png',
+    promptSuffix: '吉卜力工作室风格，水彩画质感，柔和的色彩过渡，温暖治愈的氛围'
+  },
+  {
+    value: 'futurism',
+    label: '未来主义',
+    description: '科技感，几何线条，鲜明对比',
+    thumbnail: '/images/styles/futurism.png',
+    promptSuffix: '未来主义风格，科技感十足，几何线条流畅，高饱和度色彩对比'
+  },
+  {
+    value: 'pixar',
+    label: '皮克斯风格',
+    description: '3D质感，圆润可爱，明亮色彩',
+    thumbnail: '/images/styles/pixar.png',
+    promptSuffix: '皮克斯动画风格，3D渲染质感，圆润的角色设计，明亮温暖的配色'
+  },
+  {
+    value: 'oil',
+    label: '油画风格',
+    description: '厚重笔触，古典优雅，丰富层次',
+    thumbnail: '/images/styles/oil.png',
+    promptSuffix: '油画风格，厚重的笔触质感，古典优雅的色调，丰富的明暗层次'
+  },
+  {
+    value: 'chinese',
+    label: '中国画',
+    description: '水墨意境，留白艺术，淡雅清新',
+    thumbnail: '/images/styles/chinese.png',
+    promptSuffix: '中国画风格，水墨渲染，注重留白与意境，淡雅清新的色彩'
+  }
+];
+```
+
+### 3.3 数据提取逻辑
+
+**轮播图数据提取**
+```typescript
+interface BannerContext {
+  title: string;
+}
+
+function extractBannerContext(): BannerContext {
+  const title = form.getFieldValue('title');
+
+  if (!title || !title.trim()) {
+    throw new Error('INSUFFICIENT_DATA');
+  }
+
+  return {
+    title: title.trim()
+  };
+}
+```
+
+**课程数据提取**
+```typescript
+interface CourseContext {
+  name: string;
+  age_range?: string;
+  community_name?: string;
+  location?: string;
+  total_weeks?: number;
+  total_lessons?: number;
+  min_students?: number;
+  max_students?: number;
+}
+
+function extractCourseContext(): CourseContext {
+  const values = form.getFieldsValue();
+
+  // 必填字段检查
+  if (!values.name || !values.name.trim()) {
+    throw new Error('INSUFFICIENT_DATA');
+  }
+
+  // 组合上课地点和时间
+  let location = values.location;
+  if (values.location && scheduleWeekday && scheduleTime) {
+    const timeStr = `${scheduleTime[0].format('HH:mm')}-${scheduleTime[1].format('HH:mm')}`;
+    location = `${values.location}（${scheduleWeekday} ${timeStr}）`;
+  }
+
+  // 组合适合年龄
+  const age_range = ageMin && ageMax ? `${ageMin}-${ageMax}岁` : undefined;
+
+  // 获取小区名称
+  const community_name = communities.find(c => c.id === values.community_id)?.name;
+
+  return {
+    name: values.name,
+    age_range,
+    community_name,
+    location: location || '社区运动场',
+    total_weeks: values.total_weeks,
+    total_lessons: values.total_lessons,
+    min_students: values.min_students,
+    max_students: values.max_students,
+  };
+}
+```
+
+### 3.4 API调用
+
+```typescript
+// 类型定义
+interface GenerateDescriptionRequest {
+  style: string;
+  context_type: 'banner' | 'course';
+  context_data: BannerContext | CourseContext;
+}
+
+interface GenerateDescriptionResponse {
+  description: string;
+  tokens_used: number;
+  model: string;
+}
+
+// API函数
+export async function generateDescription(
+  params: GenerateDescriptionRequest
+): Promise<GenerateDescriptionResponse> {
+  return request.post('/api/v1/ai/generate-description', params, {
+    timeout: 30000, // 30秒超时
+  });
+}
+```
+
+### 3.5 事件处理
+
+```typescript
+// 生成描述
+const handleGenerateDescription = async () => {
+  if (!selectedStyle) {
+    message.warning('请先选择一种艺术风格');
+    return;
+  }
+
+  setGeneratingDesc(true);
+  try {
+    // 提取上下文数据
+    const contextData = isBannerPage
+      ? extractBannerContext()
+      : extractCourseContext();
+
+    // 调用API
+    const result = await generateDescription({
+      style: selectedStyle,
+      context_type: isBannerPage ? 'banner' : 'course',
+      context_data: contextData,
+    });
+
+    // 填充描述
+    setAiPrompt(result.description);
+    setGeneratedDesc(result.description);
+
+    message.success('描述生成成功，您可以继续编辑');
+  } catch (error) {
+    handleDescriptionError(error);
+  } finally {
+    setGeneratingDesc(false);
+  }
+};
+
+// 错误处理
+function handleDescriptionError(error: any) {
+  if (error.message === 'INSUFFICIENT_DATA') {
+    message.warning('请先填写必要的表单信息');
+  } else if (error.code === 'API_KEY_MISSING') {
+    message.error('系统未配置AI描述生成功能，请联系管理员');
+  } else if (error.code === 'QUOTA_EXCEEDED') {
+    message.error('AI服务配额已用完，请稍后重试或手动输入');
+  } else if (error.code === 'TIMEOUT') {
+    message.error('生成超时，请重试或手动输入');
+  } else {
+    message.error('描述生成失败，请手动输入');
+    console.error('Description generation error:', error);
+  }
+}
+```
+
+---
+
+## 4. 后端技术方案
+
+### 4.1 API端点设计
+
+**新增端点：生成图片描述**
+
+```python
+POST /api/v1/ai/generate-description
+
+Request Body:
+{
+  "style": "ghibli",  // 风格代码
+  "context_type": "banner" | "course",  // 上下文类型
+  "context_data": {
+    // 轮播图
+    "title": "春季运动季开启",
+
+    // 或者课程
+    "name": "体能+跳绳",
+    "age_range": "7-12岁",
+    "community_name": "碧海金阁",
+    "location": "小区运动场（周六 08:00-09:00）",
+    "total_weeks": 10,
+    "total_lessons": 20,
+    "min_students": 4,
+    "max_students": 10
+  }
+}
+
+Response:
+{
+  "description": "春季运动季开启，孩子们在社区运动场上欢快地跳绳...",
+  "tokens_used": 256,
+  "model": "Qwen/Qwen2.5-7B-Instruct"
+}
+
+Error Response:
+{
+  "code": "API_KEY_MISSING" | "QUOTA_EXCEEDED" | "TIMEOUT" | "INVALID_REQUEST",
+  "message": "错误描述",
+  "details": {}
+}
+```
+
+**现有端点保持不变**
+```python
+POST /api/v1/ai/generate-image
+```
+
+### 4.2 目录结构
+
+```
+backend/src/
+├── api/v1/endpoints/
+│   ├── ai_image.py (现有)
+│   └── ai_description.py (新增)
+├── services/
+│   ├── ai_image_service.py (现有)
+│   └── ai_description_service.py (新增)
+├── schemas/
+│   └── ai.py (扩展)
+└── core/
+    └── config.py (扩展)
+```
+
+### 4.3 数据模型
+
+```python
+# schemas/ai.py
+
+from pydantic import BaseModel, Field
+from typing import Literal, Optional, Dict, Any
+
+class BannerContextData(BaseModel):
+    """轮播图上下文数据"""
+    title: str = Field(..., min_length=1, max_length=100)
+
+class CourseContextData(BaseModel):
+    """课程上下文数据"""
+    name: str = Field(..., min_length=1, max_length=100)
+    age_range: Optional[str] = None
+    community_name: Optional[str] = None
+    location: Optional[str] = None
+    total_weeks: Optional[int] = None
+    total_lessons: Optional[int] = None
+    min_students: Optional[int] = None
+    max_students: Optional[int] = None
+
+class GenerateDescriptionRequest(BaseModel):
+    """生成描述请求"""
+    style: Literal['ghibli', 'futurism', 'pixar', 'oil', 'chinese']
+    context_type: Literal['banner', 'course']
+    context_data: Dict[str, Any]
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "style": "ghibli",
+                "context_type": "course",
+                "context_data": {
+                    "name": "体能+跳绳",
+                    "age_range": "7-12岁",
+                    "location": "碧海金阁小区运动场"
+                }
+            }
+        }
+
+class GenerateDescriptionResponse(BaseModel):
+    """生成描述响应"""
+    description: str
+    tokens_used: int
+    model: str
+```
+
+### 4.4 服务层实现
+
+```python
+# services/ai_description_service.py
+
+from typing import Dict, Any
+import httpx
+from ..core.config import settings
+from ..schemas.ai import GenerateDescriptionRequest
+
+class AIDescriptionService:
+    """AI描述生成服务"""
+
+    def __init__(self):
+        self.api_key = settings.SILICONFLOW_API_KEY
+        self.base_url = settings.SILICONFLOW_BASE_URL
+        self.model = settings.SILICONFLOW_MODEL
+        self.timeout = settings.SILICONFLOW_TIMEOUT
+
+    async def generate_description(
+        self,
+        style: str,
+        context_type: str,
+        context_data: Dict[str, Any]
+    ) -> tuple[str, int]:
+        """
+        生成图片描述
+
+        Args:
+            style: 风格代码
+            context_type: 上下文类型
+            context_data: 上下文数据
+
+        Returns:
+            (description, tokens_used)
+
+        Raises:
+            APIKeyMissingError: API Key未配置
+            QuotaExceededError: 配额超限
+            TimeoutError: 请求超时
+            GenerationError: 生成失败
+        """
+        # 检查API Key
+        if not self.api_key:
+            raise APIKeyMissingError()
+
+        # 构建提示词
+        prompt = self._build_prompt(style, context_type, context_data)
+
+        # 调用API
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": self.model,
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": SYSTEM_PROMPT
+                            },
+                            {
+                                "role": "user",
+                                "content": prompt
+                            }
+                        ],
+                        "temperature": 0.7,
+                        "max_tokens": 500,
+                    }
+                )
+
+                if response.status_code == 401:
+                    raise APIKeyInvalidError()
+                elif response.status_code == 429:
+                    raise QuotaExceededError()
+                elif response.status_code != 200:
+                    raise GenerationError(f"API error: {response.status_code}")
+
+                result = response.json()
+                description = result['choices'][0]['message']['content'].strip()
+                tokens_used = result['usage']['total_tokens']
+
+                return description, tokens_used
+
+        except httpx.TimeoutException:
+            raise TimeoutError("AI description generation timeout")
+
+    def _build_prompt(
+        self,
+        style: str,
+        context_type: str,
+        context_data: Dict[str, Any]
+    ) -> str:
+        """构建提示词"""
+        style_info = STYLE_DESCRIPTIONS.get(style)
+        if not style_info:
+            raise ValueError(f"Unknown style: {style}")
+
+        if context_type == 'banner':
+            return self._build_banner_prompt(style_info, context_data)
+        elif context_type == 'course':
+            return self._build_course_prompt(style_info, context_data)
+        else:
+            raise ValueError(f"Unknown context_type: {context_type}")
+
+    def _build_banner_prompt(
+        self,
+        style_info: Dict[str, str],
+        context_data: Dict[str, Any]
+    ) -> str:
+        """构建轮播图提示词"""
+        return f"""
+请为以下轮播图生成一段图片描述：
+
+标题：{context_data['title']}
+风格：{style_info['name']}
+
+要求：
+- 基于标题内容展开想象，描绘一个生动的教育或运动场景
+- 体现{style_info['name']}的艺术特点
+- 场景要温馨、有活力、富有教育意义
+- 适合家庭和儿童
+- 描述长度：100-200字
+- 包含场景、人物、动作、氛围
+- 最后加上风格描述：{style_info['suffix']}
+
+请直接输出描述，不要有其他说明文字。
+"""
+
+    def _build_course_prompt(
+        self,
+        style_info: Dict[str, str],
+        context_data: Dict[str, Any]
+    ) -> str:
+        """构建课程提示词"""
+        # 提取数据
+        name = context_data['name']
+        age_range = context_data.get('age_range', '')
+        location = context_data.get('location', '社区运动场')
+        min_students = context_data.get('min_students')
+        max_students = context_data.get('max_students')
+        total_weeks = context_data.get('total_weeks')
+        total_lessons = context_data.get('total_lessons')
+
+        # 构建课程规模描述
+        class_size = ''
+        if min_students and max_students:
+            class_size = f"{min_students}-{max_students}人小班"
+
+        # 构建课程周期描述
+        duration = ''
+        if total_weeks and total_lessons:
+            duration = f"{total_weeks}周，共{total_lessons}课时"
+
+        return f"""
+请为以下课程生成一段图片描述：
+
+课程信息：
+- 名称：{name}
+- 适合年龄：{age_range}
+- 上课地点：{location}
+{f'- 课程规模：{class_size}' if class_size else ''}
+{f'- 课程周期：{duration}' if duration else ''}
+
+风格要求：{style_info['name']}
+
+要求：
+- 描绘孩子们在{location}上课的场景
+- 突出{name}的特点和动作
+{f'- 体现{age_range}儿童的活力和成长' if age_range else ''}
+- 画面要阳光、积极、有教育意义
+- 符合{style_info['name']}的艺术风格
+- 描述长度：100-200字
+- 包含场景、人物、动作、氛围
+- 最后加上风格描述：{style_info['suffix']}
+
+请直接输出描述，不要有其他说明文字。
+"""
+
+# 服务实例
+ai_description_service = AIDescriptionService()
+```
+
+### 4.5 Prompt工程
+
+```python
+# 系统提示词
+SYSTEM_PROMPT = """你是一个专业的图片描述生成助手，擅长根据结构化信息生成适合AI绘画的详细描述。
+
+你的任务是生成专业的图片描述，用于 AI 图片生成（如 Stable Diffusion）。
+
+要求：
+1. 描述长度：100-200字
+2. 包含场景、人物、动作、氛围
+3. 突出指定的艺术风格
+4. 描述要具体、生动、富有画面感
+5. 适合用于AI图片生成
+
+输出格式：
+<场景描述，包含人物、动作、环境>。<风格描述，包含配色、氛围、质感等>。
+
+注意：
+- 直接输出描述，不要有"描述："、"图片："等前缀
+- 不要有任何解释性文字
+- 场景要积极向上，适合教育场景
+"""
+
+# 风格描述
+STYLE_DESCRIPTIONS = {
+    "ghibli": {
+        "name": "吉卜力风格",
+        "suffix": "吉卜力工作室风格，水彩画质感，柔和的色彩过渡，温暖治愈的氛围，充满童趣和想象力。"
+    },
+    "futurism": {
+        "name": "未来主义风格",
+        "suffix": "未来主义风格，科技感十足，几何线条流畅，高饱和度色彩对比，充满现代感和活力。"
+    },
+    "pixar": {
+        "name": "皮克斯风格",
+        "suffix": "皮克斯动画风格，3D渲染质感，圆润的角色设计，明亮温暖的配色，活泼可爱的氛围。"
+    },
+    "oil": {
+        "name": "油画风格",
+        "suffix": "油画风格，厚重的笔触质感，古典优雅的色调，丰富的明暗层次，艺术感十足。"
+    },
+    "chinese": {
+        "name": "中国画风格",
+        "suffix": "中国画风格，水墨渲染效果，注重留白与意境，淡雅清新的色彩，诗意的画面氛围。"
+    }
+}
+```
+
+### 4.6 路由层
+
+```python
+# api/v1/endpoints/ai_description.py
+
+from fastapi import APIRouter, HTTPException, Depends
+from ....schemas.ai import (
+    GenerateDescriptionRequest,
+    GenerateDescriptionResponse
+)
+from ....services.ai_description_service import ai_description_service
+from ....core.logging import logger
+
+router = APIRouter(prefix="/ai", tags=["AI"])
+
+@router.post(
+    "/generate-description",
+    response_model=GenerateDescriptionResponse,
+    summary="生成图片描述",
+    description="使用AI根据结构化信息生成图片描述"
+)
+async def generate_description(
+    request: GenerateDescriptionRequest
+) -> GenerateDescriptionResponse:
+    """生成图片描述"""
+    logger.info(
+        "generate_description_request",
+        style=request.style,
+        context_type=request.context_type
+    )
+
+    try:
+        description, tokens_used = await ai_description_service.generate_description(
+            style=request.style,
+            context_type=request.context_type,
+            context_data=request.context_data
+        )
+
+        logger.info(
+            "generate_description_success",
+            tokens_used=tokens_used,
+            description_length=len(description)
+        )
+
+        return GenerateDescriptionResponse(
+            description=description,
+            tokens_used=tokens_used,
+            model=ai_description_service.model
+        )
+
+    except Exception as e:
+        logger.error(
+            "generate_description_failed",
+            error=str(e),
+            error_type=type(e).__name__
+        )
+        raise
+```
+
+### 4.7 异常处理
+
+```python
+# 自定义异常
+class DescriptionGenerationError(AppException):
+    """描述生成异常基类"""
+    pass
+
+class APIKeyMissingError(DescriptionGenerationError):
+    """API Key未配置"""
+    def __init__(self):
+        super().__init__(
+            code="API_KEY_MISSING",
+            message="AI description service is not configured",
+            status_code=503
+        )
+
+class APIKeyInvalidError(DescriptionGenerationError):
+    """API Key无效"""
+    def __init__(self):
+        super().__init__(
+            code="API_KEY_INVALID",
+            message="Invalid API key",
+            status_code=401
+        )
+
+class QuotaExceededError(DescriptionGenerationError):
+    """配额超限"""
+    def __init__(self):
+        super().__init__(
+            code="QUOTA_EXCEEDED",
+            message="API quota exceeded",
+            status_code=429
+        )
+
+class GenerationError(DescriptionGenerationError):
+    """生成失败"""
+    def __init__(self, detail: str):
+        super().__init__(
+            code="GENERATION_ERROR",
+            message=f"Failed to generate description: {detail}",
+            status_code=500
+        )
+```
+
+---
+
+## 5. 配置管理
+
+### 5.1 环境变量
+
+**后端 `.env`**
+```bash
+# 硅基流动 API 配置
+SILICONFLOW_API_KEY=sk-xxxxxxxxxxxxx
+SILICONFLOW_BASE_URL=https://api.siliconflow.cn/v1
+SILICONFLOW_MODEL=Qwen/Qwen2.5-7B-Instruct
+SILICONFLOW_TIMEOUT=30
+```
+
+### 5.2 配置类
+
+```python
+# core/config.py
+
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    # ... 现有配置 ...
+
+    # 硅基流动配置
+    SILICONFLOW_API_KEY: str = ""
+    SILICONFLOW_BASE_URL: str = "https://api.siliconflow.cn/v1"
+    SILICONFLOW_MODEL: str = "Qwen/Qwen2.5-7B-Instruct"
+    SILICONFLOW_TIMEOUT: int = 30
+
+    @property
+    def is_siliconflow_enabled(self) -> bool:
+        """检查硅基流动是否已配置"""
+        return bool(self.SILICONFLOW_API_KEY)
+
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+
+settings = Settings()
+```
+
+### 5.3 功能开关
+
+**后端健康检查端点**
+```python
+@router.get("/ai/health")
+async def ai_health():
+    """检查AI服务状态"""
+    return {
+        "description_service": settings.is_siliconflow_enabled,
+        "image_service": settings.is_flux_enabled,
+    }
+```
+
+**前端根据能力显示功能**
+```typescript
+useEffect(() => {
+  async function checkAICapability() {
+    try {
+      const health = await fetch('/api/v1/ai/health').then(r => r.json());
+      setDescriptionServiceEnabled(health.description_service);
+    } catch (error) {
+      setDescriptionServiceEnabled(false);
+    }
+  }
+  checkAICapability();
+}, []);
+
+// 条件渲染
+{descriptionServiceEnabled && (
+  <Radio.Button value="auto">
+    <RobotOutlined /> 智能生成
+  </Radio.Button>
+)}
+```
+
+---
+
+## 6. 成本控制
+
+### 6.1 限流策略
+
+```python
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
+
+@router.post("/generate-description")
+@limiter.limit("5/minute")  # 每分钟5次
+async def generate_description(...):
+    ...
+```
+
+### 6.2 请求优化
+
+1. **前端防抖**
+```typescript
+// 防止重复点击
+const handleGenerateDescription = useCallback(
+  debounce(async () => {
+    // ... 生成逻辑
+  }, 1000),
+  [selectedStyle, formData]
+);
+```
+
+2. **超时控制**
+- 前端超时：30秒
+- 后端超时：30秒
+- 硅基流动超时：25秒（留5秒buffer）
+
+3. **降级策略**
+```python
+async def generate_description_with_fallback(...):
+    try:
+        return await ai_description_service.generate_description(...)
+    except Exception as e:
+        logger.warning("AI generation failed, using template", error=str(e))
+        return generate_template_description(...)  # 使用模板
+```
+
+### 6.3 成本监控
+
+```python
+# 记录每次调用
+class DescriptionLog(Base):
+    __tablename__ = "ai_description_logs"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    style = Column(String)
+    context_type = Column(String)
+    tokens_used = Column(Integer)
+    cost = Column(Numeric(10, 6))  # 成本（美元）
+    success = Column(Boolean)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+# 统计查询
+async def get_daily_usage():
+    """获取每日使用统计"""
+    return db.query(
+        func.date(DescriptionLog.created_at).label('date'),
+        func.sum(DescriptionLog.tokens_used).label('total_tokens'),
+        func.sum(DescriptionLog.cost).label('total_cost'),
+        func.count(DescriptionLog.id).label('request_count')
+    ).group_by(func.date(DescriptionLog.created_at))
+```
+
+---
+
+## 7. 测试策略
+
+### 7.1 单元测试
+
+```python
+# tests/services/test_ai_description_service.py
+
+import pytest
+from src.services.ai_description_service import AIDescriptionService
+
+@pytest.fixture
+def service():
+    return AIDescriptionService()
+
+def test_build_banner_prompt(service):
+    """测试轮播图提示词构建"""
+    style_info = STYLE_DESCRIPTIONS['ghibli']
+    context_data = {'title': '春季运动季'}
+
+    prompt = service._build_banner_prompt(style_info, context_data)
+
+    assert '春季运动季' in prompt
+    assert '吉卜力' in prompt
+    assert '温馨' in prompt
+
+def test_build_course_prompt(service):
+    """测试课程提示词构建"""
+    style_info = STYLE_DESCRIPTIONS['pixar']
+    context_data = {
+        'name': '网球课',
+        'age_range': '7-12岁',
+        'location': '网球场'
+    }
+
+    prompt = service._build_course_prompt(style_info, context_data)
+
+    assert '网球课' in prompt
+    assert '7-12岁' in prompt
+    assert '网球场' in prompt
+    assert '皮克斯' in prompt
+
+@pytest.mark.asyncio
+async def test_generate_description(service, mocker):
+    """测试描述生成"""
+    # Mock API 调用
+    mock_response = mocker.Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        'choices': [{'message': {'content': '测试描述内容'}}],
+        'usage': {'total_tokens': 150}
+    }
+
+    mocker.patch('httpx.AsyncClient.post', return_value=mock_response)
+
+    description, tokens = await service.generate_description(
+        style='ghibli',
+        context_type='banner',
+        context_data={'title': '测试'}
+    )
+
+    assert description == '测试描述内容'
+    assert tokens == 150
+```
+
+### 7.2 集成测试
+
+```python
+# tests/api/test_ai_description.py
+
+import pytest
+from httpx import AsyncClient
+
+@pytest.mark.asyncio
+async def test_generate_description_api(client: AsyncClient):
+    """测试API端点"""
+    response = await client.post(
+        "/api/v1/ai/generate-description",
+        json={
+            "style": "ghibli",
+            "context_type": "banner",
+            "context_data": {"title": "春季运动"}
+        }
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert 'description' in data
+    assert 'tokens_used' in data
+    assert 'model' in data
+    assert len(data['description']) >= 100
+
+@pytest.mark.asyncio
+async def test_generate_description_missing_key(client: AsyncClient, mocker):
+    """测试API Key缺失"""
+    mocker.patch('src.core.config.settings.SILICONFLOW_API_KEY', '')
+
+    response = await client.post(
+        "/api/v1/ai/generate-description",
+        json={
+            "style": "ghibli",
+            "context_type": "banner",
+            "context_data": {"title": "测试"}
+        }
+    )
+
+    assert response.status_code == 503
+    data = response.json()
+    assert data['code'] == 'API_KEY_MISSING'
+```
+
+### 7.3 E2E测试
+
+```typescript
+// e2e/course-ai-description.spec.ts
+
+describe('课程AI描述生成', () => {
+  it('应该成功生成描述', async () => {
+    // 打开新增课程页面
+    await page.goto('/course/list');
+    await page.click('[data-testid="add-course"]');
+
+    // 填写基本信息
+    await page.fill('[name="name"]', '网球课');
+    await page.fill('[name="location"]', '网球场');
+
+    // 选择AI生成
+    await page.click('[data-value="ai"]');
+
+    // 选择智能生成
+    await page.click('[data-value="auto"]');
+
+    // 选择风格
+    await page.click('[data-style="pixar"]');
+
+    // 生成描述
+    await page.click('[data-testid="generate-description"]');
+
+    // 等待生成完成
+    await page.waitForSelector('[data-testid="description-generated"]');
+
+    // 验证描述已填充
+    const description = await page.inputValue('[name="description"]');
+    expect(description).toContain('网球');
+    expect(description.length).toBeGreaterThan(100);
+  });
+});
+```
+
+---
+
+## 8. 部署检查清单
+
+### 8.1 环境配置
+- [ ] `SILICONFLOW_API_KEY` 已设置
+- [ ] API密钥已验证可用
+- [ ] 配额充足（建议 >= 1000次/月）
+- [ ] 超时时间已配置
+
+### 8.2 功能验证
+- [ ] 前端能正确检测服务可用性
+- [ ] 5种风格都能正常生成
+- [ ] 轮播图描述生成正常
+- [ ] 课程描述生成正常
+- [ ] 错误处理正常（API不可用、超时等）
+
+### 8.3 性能验证
+- [ ] 生成描述响应时间 < 10秒
+- [ ] 限流机制工作正常
+- [ ] 降级方案已测试
+
+### 8.4 监控告警
+- [ ] API调用失败率监控
+- [ ] 响应时间监控
+- [ ] 每日使用量统计
+- [ ] 成本预警（可选）
+
+---
+
+## 9. 实现优先级
+
+### P0 - 核心功能（第一期）
+- ✅ 后端API端点 (`/api/v1/ai/generate-description`)
+- ✅ 5种预设风格配置
+- ✅ Prompt模板（轮播图、课程）
+- ✅ 前端UI集成（风格选择、生成按钮）
+- ✅ 基础错误处理
+- ✅ 环境变量配置
+
+### P1 - 体验优化（第二期）
+- ⭕ 描述编辑优化（高亮、字数统计）
+- ⭕ 信息预览区
+- ⭕ 限流保护
+- ⭕ 降级方案
+
+### P2 - 高级功能（第三期）
+- 🔲 历史记录（保存最近使用的风格和描述）
+- 🔲 多方案对比（同时生成2-3个描述）
+- 🔲 自定义风格（用户定义风格提示词）
+- 🔲 成本监控面板
+- 🔲 模板管理（管理员配置Prompt模板）
+
+---
+
+## 10. 预期效果
+
+### 10.1 效率提升
+- **当前**: 手动编写描述需要 2-3 分钟/个
+- **优化后**: AI生成描述 10 秒/个
+- **提升**: **90%+ 时间节省**
+
+### 10.2 质量提升
+- 描述更专业、更适合AI绘画
+- 统一的风格和描述规范
+- 减少人工错误
+
+### 10.3 易用性
+- 无需专业Prompt技能
+- 降低使用门槛
+- 提升用户体验
+
+### 10.4 成本估算
+- 千问模型：~¥0.001/次 (约150 tokens)
+- 预计使用：100次/月
+- 月成本：~¥0.1（忽略不计）
+
+---
+
+## 11. 参考资料
+
+### 11.1 API文档
+- [硅基流动API文档](https://docs.siliconflow.cn/)
+- [Qwen模型文档](https://qwen.readthedocs.io/)
+
+### 11.2 Prompt工程
+- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering)
+- [Stable Diffusion Prompt Guide](https://stable-diffusion-art.com/prompt-guide/)
+
+### 11.3 相关设计文档
+- `0003-ai-image.design` - AI图片生成功能设计
+
+---
+
+## 12. 更新日志
+
+| 版本 | 日期 | 作者 | 变更说明 |
+|------|------|------|----------|
+| 1.0 | 2026-01-31 | Claude | 初始版本，完整设计方案 |
+
+---
+
+## 附录A: 生成示例
+
+### 轮播图示例
+
+**输入**
+```json
+{
+  "style": "ghibli",
+  "context_type": "banner",
+  "context_data": {
+    "title": "春季运动季开启"
+  }
+}
+```
+
+**输出**
+```
+春季运动季开启，孩子们在绿意盎然的社区公园里欢快地奔跑、跳跃，教练带领着小朋友们做热身运动，樱花飘落，阳光洒在笑脸上，充满生机与活力。吉卜力工作室风格，水彩画质感，柔和的色彩过渡（樱花粉、草地绿、天空蓝），温暖治愈的氛围，充满童趣和想象力。
+```
+
+### 课程示例
+
+**输入**
+```json
+{
+  "style": "pixar",
+  "context_type": "course",
+  "context_data": {
+    "name": "体能+跳绳",
+    "age_range": "7-12岁",
+    "location": "碧海金阁小区运动场",
+    "min_students": 4,
+    "max_students": 10,
+    "total_weeks": 10,
+    "total_lessons": 20
+  }
+}
+```
+
+**输出**
+```
+体能+跳绳课程，碧海金阁小区运动场上，7-12岁的孩子们在专业教练指导下进行体能训练，跳绳翻飞、欢声笑语，小朋友们挥洒汗水、突破自我，4-10人小班教学让每个孩子都得到充分关注。皮克斯动画风格，3D渲染质感，圆润的角色设计，明亮温暖的配色（活力橙、运动蓝、阳光黄），活泼可爱的氛围，展现运动的快乐与成长。
+```
+
+---
+
+## 附录B: 错误码说明
+
+| 错误码 | HTTP状态码 | 说明 | 用户提示 |
+|-------|-----------|------|---------|
+| `API_KEY_MISSING` | 503 | API Key未配置 | 系统未配置AI描述生成功能，请联系管理员 |
+| `API_KEY_INVALID` | 401 | API Key无效 | AI服务认证失败，请联系管理员 |
+| `QUOTA_EXCEEDED` | 429 | 配额超限 | AI服务配额已用完，请稍后重试或手动输入 |
+| `TIMEOUT` | 504 | 请求超时 | 生成超时，请重试或手动输入 |
+| `INSUFFICIENT_DATA` | 400 | 必填数据缺失 | 请先填写必要的表单信息 |
+| `GENERATION_ERROR` | 500 | 生成失败 | 描述生成失败，请手动输入 |
+
+---
+
+**文档结束**

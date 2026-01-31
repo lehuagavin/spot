@@ -44,6 +44,12 @@ Page({
     // 表单校验
     errors: {},
     submitting: false,
+    
+    // 头像选择弹窗
+    showAvatarModal: false,
+    
+    // 防止重复选择头像
+    choosingAvatar: false,
   },
 
   /**
@@ -171,32 +177,173 @@ Page({
    * 选择照片
    */
   onChoosePhoto() {
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      sourceType: ['album', 'camera'],
-      success: async (res) => {
-        const tempFilePath = res.tempFiles[0].tempFilePath;
-        
-        try {
-          // 上传图片
-          wx.showLoading({ title: '上传中...' });
-          const uploadRes = await api.file.uploadImage(tempFilePath);
-          
-          this.setData({
-            'form.photo': uploadRes.url || tempFilePath,
-          });
-        } catch (err) {
-          console.error('上传失败:', err);
-          // 使用本地路径
-          this.setData({
-            'form.photo': tempFilePath,
-          });
-        } finally {
-          wx.hideLoading();
+    wx.showActionSheet({
+      itemList: ['用微信头像', '从相册选择', '拍照'],
+      success: (res) => {
+        switch (res.tapIndex) {
+          case 0:
+            this.useWechatAvatar();
+            break;
+          case 1:
+            this.chooseFromAlbum();
+            break;
+          case 2:
+            this.takePhoto();
+            break;
         }
       },
     });
+  },
+
+  /**
+   * 使用微信头像 - 显示选择弹窗
+   */
+  useWechatAvatar() {
+    // 首先尝试使用已保存的用户头像
+    const userInfo = app.globalData.userInfo;
+    if (userInfo && userInfo.avatar && !userInfo.avatar.includes('default') && !userInfo.avatar.includes('132')) {
+      this.setData({
+        'form.photo': app.getImageUrl(userInfo.avatar),
+      });
+      wx.showToast({
+        title: '已使用微信头像',
+        icon: 'success',
+      });
+      return;
+    }
+    
+    // 显示选择头像弹窗
+    this.setData({ showAvatarModal: true });
+  },
+
+  /**
+   * 关闭头像选择弹窗
+   */
+  onCloseAvatarModal() {
+    this.setData({ showAvatarModal: false });
+  },
+
+  /**
+   * 阻止事件冒泡
+   */
+  stopPropagation() {
+    // 空函数，用于阻止点击弹窗内容时关闭弹窗
+  },
+
+  /**
+   * 微信头像选择回调
+   */
+  onChooseWechatAvatar(e) {
+    // 防止重复调用
+    if (this.data.choosingAvatar) {
+      console.log('chooseAvatar 正在进行中，忽略重复调用');
+      return;
+    }
+    
+    const { avatarUrl } = e.detail;
+    console.log('获取到微信头像:', avatarUrl);
+    
+    // 先设置状态防止重复触发
+    this.setData({ 
+      choosingAvatar: true,
+      showAvatarModal: false,
+    });
+    
+    if (avatarUrl) {
+      // 上传头像
+      this.uploadPhoto(avatarUrl)
+        .then(() => {
+          console.log('头像上传完成');
+        })
+        .catch((err) => {
+          console.error('头像上传失败:', err);
+        })
+        .finally(() => {
+          // 延迟重置状态，避免快速重复触发
+          setTimeout(() => {
+            this.setData({ choosingAvatar: false });
+          }, 500);
+        });
+    } else {
+      console.log('未获取到头像 URL');
+      this.setData({ choosingAvatar: false });
+    }
+  },
+
+
+  /**
+   * 从相册选择
+   */
+  chooseFromAlbum() {
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album'],
+      success: async (res) => {
+        await this.uploadPhoto(res.tempFiles[0].tempFilePath);
+      },
+    });
+  },
+
+  /**
+   * 拍照
+   */
+  takePhoto() {
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['camera'],
+      success: async (res) => {
+        await this.uploadPhoto(res.tempFiles[0].tempFilePath);
+      },
+    });
+  },
+
+  /**
+   * 上传照片
+   */
+  async uploadPhoto(tempFilePath) {
+    console.log('开始上传照片:', tempFilePath);
+    try {
+      wx.showLoading({ title: '上传中...' });
+      const uploadRes = await api.file.uploadImage(tempFilePath);
+      console.log('上传响应:', uploadRes);
+      
+      // 使用 app.getImageUrl 处理返回的图片路径
+      const photoUrl = uploadRes.url ? app.getImageUrl(uploadRes.url) : tempFilePath;
+      console.log('处理后的图片 URL:', photoUrl);
+      
+      this.setData({
+        'form.photo': photoUrl,
+      });
+      console.log('设置 form.photo 完成:', this.data.form.photo);
+      
+      wx.hideLoading();
+      wx.showToast({
+        title: '上传成功',
+        icon: 'success',
+      });
+    } catch (err) {
+      console.error('上传失败:', err);
+      wx.hideLoading();
+      
+      // 如果是微信临时文件路径，直接使用
+      if (tempFilePath.startsWith('http://tmp') || tempFilePath.startsWith('wxfile://')) {
+        console.log('使用微信临时文件路径:', tempFilePath);
+        this.setData({
+          'form.photo': tempFilePath,
+        });
+        wx.showToast({
+          title: '使用本地图片',
+          icon: 'none',
+        });
+      } else {
+        wx.showToast({
+          title: '上传失败',
+          icon: 'none',
+        });
+      }
+    }
   },
 
   /**
@@ -205,6 +352,29 @@ Page({
   onDeletePhoto() {
     this.setData({
       'form.photo': '',
+    });
+  },
+
+  /**
+   * 预览照片
+   */
+  onPreviewPhoto() {
+    if (this.data.form.photo) {
+      wx.previewImage({
+        urls: [this.data.form.photo],
+        current: this.data.form.photo,
+      });
+    }
+  },
+
+  /**
+   * 照片加载错误
+   */
+  onPhotoError(e) {
+    console.error('照片加载失败:', this.data.form.photo, e);
+    wx.showToast({
+      title: '照片加载失败',
+      icon: 'none',
     });
   },
 
@@ -249,12 +419,24 @@ Page({
     this.setData({ submitting: true });
     
     try {
-      const { form, isEdit, studentId } = this.data;
+      const { form, isEdit, studentId, genders } = this.data;
+      
+      // 转换为后端期望的数据格式
+      const submitData = {
+        id_type: form.id_type === 'idcard' ? '身份证' : (form.id_type === 'passport' ? '护照' : '其他证件'),
+        id_name: form.name,  // 后端字段名是 id_name
+        id_number: form.id_number,
+        photo: form.photo || '',
+        birthday: form.birthday,
+        gender: genders[this.data.genderIndex]?.label || '男',  // 后端期望字符串 "男"/"女"
+      };
+      
+      console.log('提交学员数据:', submitData);
       
       if (isEdit) {
-        await api.student.update(studentId, form);
+        await api.student.update(studentId, submitData);
       } else {
-        await api.student.add(form);
+        await api.student.add(submitData);
       }
       
       wx.showToast({
@@ -268,16 +450,10 @@ Page({
       
     } catch (err) {
       console.error('提交失败:', err);
-      
-      // 模拟成功
       wx.showToast({
-        title: this.data.isEdit ? '保存成功' : '添加成功',
-        icon: 'success',
+        title: err.message || '提交失败',
+        icon: 'none',
       });
-      
-      setTimeout(() => {
-        wx.navigateBack();
-      }, 1500);
     } finally {
       this.setData({ submitting: false });
     }

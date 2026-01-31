@@ -73,7 +73,7 @@ Page({
         });
       }
       
-      let communities = data.list || data || [];
+      let communities = data.items || data || [];
       
       // 计算距离并格式化
       if (location && communities.length > 0) {
@@ -132,7 +132,7 @@ Page({
         page_size: this.data.pageSize,
       });
       
-      let communities = data.list || data || [];
+      let communities = data.items || data || [];
       const total = data.total || communities.length;
       
       // 计算距离并格式化
@@ -285,6 +285,17 @@ Page({
         }
       },
     });
+  },
+
+  /**
+   * 选择全部小区（取消定位筛选）
+   */
+  onSelectAll() {
+    // 清空选中的小区
+    app.setSelectedCommunity(null);
+    
+    // 返回上一页
+    wx.navigateBack();
   },
 
   /**

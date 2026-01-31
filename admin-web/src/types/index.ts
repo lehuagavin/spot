@@ -175,7 +175,11 @@ export const CourseStatusColor: Record<CourseStatus, string> = {
 export interface Course {
   id: string;
   name: string;
-  age_range: string;
+  // 年龄 - 分开字段
+  age_min: number;
+  age_max: number;
+  // 年龄 - 组合字段（计算属性）
+  age_range?: string;
   teacher_id: string;
   teacher_name?: string;
   teacher?: Teacher;
@@ -184,20 +188,26 @@ export interface Course {
   community?: Community;
   total_weeks: number;
   total_lessons: number;
-  schedule: string;
+  // 时间 - 分开字段
+  schedule_day: string;
+  schedule_start: string;
+  schedule_end: string;
+  // 时间 - 组合字段（计算属性）
+  schedule?: string;
   location: string;
   price: number;
   member_price: number;
   min_students: number;
   max_students: number;
-  current_students: number;
+  current_students?: number;
+  enrolled_count: number;
   deadline: string;
   start_date: string;
   status: CourseStatus;
   image: string | null;
   description: string | null;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
 }
 
 // 创建课程请求

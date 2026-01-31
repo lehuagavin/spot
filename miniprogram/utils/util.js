@@ -65,20 +65,24 @@ function formatRelativeTime(date) {
 
 /**
  * 格式化价格
- * @param {number} price 价格（分）
+ * @param {number|string} price 价格（分）
  * @param {boolean} showSymbol 是否显示符号
  * @returns {string}
  */
 function formatPrice(price, showSymbol = true) {
   if (price === undefined || price === null) return '';
   
-  const yuan = (price / 100).toFixed(2);
+  // 将字符串转换为数字
+  const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+  if (isNaN(numPrice)) return '';
+  
+  const yuan = (numPrice / 100).toFixed(2);
   return showSymbol ? `¥${yuan}` : yuan;
 }
 
 /**
  * 格式化价格为对象（用于分段显示）
- * @param {number} price 价格（元）
+ * @param {number|string} price 价格（元）
  * @returns {Object}
  */
 function formatPriceObject(price) {
@@ -86,7 +90,13 @@ function formatPriceObject(price) {
     return { symbol: '¥', integer: '0', decimal: '.00' };
   }
   
-  const parts = price.toFixed(2).split('.');
+  // 将字符串转换为数字（后端 Decimal 类型序列化后是字符串）
+  const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+  if (isNaN(numPrice)) {
+    return { symbol: '¥', integer: '0', decimal: '.00' };
+  }
+  
+  const parts = numPrice.toFixed(2).split('.');
   return {
     symbol: '¥',
     integer: parts[0],
@@ -141,16 +151,20 @@ function toRad(deg) {
 
 /**
  * 格式化距离
- * @param {number} distance 距离（千米）
+ * @param {number|string} distance 距离（千米）
  * @returns {string}
  */
 function formatDistance(distance) {
   if (distance === undefined || distance === null) return '';
   
-  if (distance < 1) {
-    return `${Math.round(distance * 1000)}m`;
+  // 将字符串转换为数字
+  const numDistance = typeof distance === 'string' ? parseFloat(distance) : distance;
+  if (isNaN(numDistance)) return '';
+  
+  if (numDistance < 1) {
+    return `${Math.round(numDistance * 1000)}m`;
   } else {
-    return `${distance.toFixed(1)}km`;
+    return `${numDistance.toFixed(1)}km`;
   }
 }
 
@@ -289,6 +303,16 @@ function getWeekDay(date) {
 }
 
 /**
+ * 根据数字格式化星期几
+ * @param {number} day 星期几 (0-6, 0为周日)
+ * @returns {string}
+ */
+function formatWeekDay(day) {
+  const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  return weekDays[day] || '';
+}
+
+/**
  * rpx 转 px
  * @param {number} rpx 
  * @returns {number}
@@ -327,6 +351,7 @@ module.exports = {
   getGenderFromIdCard,
   calculateAge,
   getWeekDay,
+  formatWeekDay,
   rpxToPx,
   pxToRpx,
 };
