@@ -22,6 +22,7 @@ router = APIRouter(prefix="/admin/courses", tags=["管理端-课程管理"])
 
 @router.get("", response_model=ResponseSchema[PaginatedResponseSchema[CourseResponse]])
 async def list_courses(
+    keyword: str = Query(None, description="搜索关键词"),
     community_id: str = Query(None, description="小区ID"),
     status: str = Query(None, description="状态"),
     page: int = Query(1, ge=1),
@@ -32,6 +33,7 @@ async def list_courses(
     """获取课程列表"""
     service = CourseService()
     query = CourseQuery(
+        keyword=keyword,
         community_id=community_id,
         status=status,
         page=page,
