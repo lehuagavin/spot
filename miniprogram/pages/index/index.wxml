@@ -1,28 +1,118 @@
-<!--首页-->
-<view class="container">
-  <view class="header">
-    <text class="title">义城上门教育</text>
-    <text class="subtitle">专业体育培训课程</text>
-  </view>
-
-  <view class="banner">
-    <swiper indicator-dots autoplay circular>
-      <swiper-item>
-        <view class="swiper-item">国家体育总局指定考核点</view>
-      </swiper-item>
-      <swiper-item>
-        <view class="swiper-item">专业场地，政府扶持</view>
-      </swiper-item>
-      <swiper-item>
-        <view class="swiper-item">10万家庭的共同选择</view>
+<!-- 首页 -->
+<view class="page-container">
+  <!-- 轮播图 -->
+  <view class="banner-section">
+    <swiper 
+      class="banner-swiper"
+      indicator-dots
+      indicator-color="rgba(255,255,255,0.4)"
+      indicator-active-color="#ffffff"
+      autoplay
+      circular
+    >
+      <swiper-item 
+        wx:for="{{banners}}" 
+        wx:key="id"
+        bindtap="onBannerTap"
+        data-item="{{item}}"
+      >
+        <view 
+          class="banner-item"
+          style="background: linear-gradient(135deg, {{item.color || '#667eea'}} 0%, {{item.color2 || '#764ba2'}} 100%);"
+        >
+          <image 
+            wx:if="{{item.image}}"
+            class="banner-image" 
+            src="{{item.image}}" 
+            mode="aspectFill"
+          />
+          <view class="banner-content" wx:else>
+            <text class="banner-title">{{item.title}}</text>
+          </view>
+        </view>
       </swiper-item>
     </swiper>
   </view>
-
-  <view class="section">
-    <text class="section-title">课程列表</text>
-    <view class="course-list">
-      <view class="empty">暂无课程</view>
+  
+  <!-- 定位区域 -->
+  <view class="location-section" bindtap="onLocationTap">
+    <view class="location-icon">📍</view>
+    <view class="location-info">
+      <text class="location-name truncate">
+        {{selectedCommunity.name || '选择小区'}}
+      </text>
+      <text class="location-hint">点击切换定位</text>
+    </view>
+    <view class="location-arrow">
+      <text class="arrow-icon">›</text>
+    </view>
+  </view>
+  
+  <!-- 筛选标签 -->
+  <view class="filter-section">
+    <scroll-view class="filter-scroll" scroll-x>
+      <view class="filter-tabs">
+        <view 
+          wx:for="{{filterTabs}}" 
+          wx:key="key"
+          class="filter-tab {{currentFilter === item.key ? 'active' : ''}}"
+          bindtap="onFilterChange"
+          data-key="{{item.key}}"
+        >
+          {{item.label}}
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+  
+  <!-- 课程列表 -->
+  <view class="course-section">
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{loading && courses.length === 0}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <!-- 课程列表 -->
+    <view class="course-list" wx:elif="{{courses.length > 0}}">
+      <course-card 
+        wx:for="{{courses}}" 
+        wx:key="id"
+        course="{{item}}"
+        bind:join="onCourseJoin"
+      />
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:else>
+      <view class="empty-icon">📚</view>
+      <text class="empty-text">暂无课程</text>
+      <text class="empty-hint">换个小区试试吧</text>
+    </view>
+    
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{loadingMore}}">
+      <view class="loading-spinner small"></view>
+      <text class="load-more-text">加载更多...</text>
+    </view>
+    
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && courses.length > 0}}">
+      <text class="no-more-text">- 没有更多了 -</text>
     </view>
   </view>
 </view>
+
+<!-- 隐私协议弹窗 -->
+<privacy-modal 
+  show="{{showPrivacy}}" 
+  bind:agree="onPrivacyAgree"
+/>
+
+<!-- 位置授权弹窗 -->
+<location-auth 
+  show="{{showLocationAuth}}"
+  bind:success="onLocationSuccess"
+  bind:skip="onLocationSkip"
+  bind:denied="onLocationDenied"
+/>

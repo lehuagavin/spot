@@ -1,0 +1,105 @@
+/**
+ * 课程卡片组件
+ */
+const util = require('../../utils/util');
+
+Component({
+  /**
+   * 组件属性
+   */
+  properties: {
+    course: {
+      type: Object,
+      value: {},
+    },
+  },
+
+  /**
+   * 组件数据
+   */
+  data: {},
+
+  /**
+   * 数据观察器
+   */
+  observers: {
+    'course': function(course) {
+      if (course && course.id) {
+        this.formatCourseData(course);
+      }
+    },
+  },
+
+  /**
+   * 组件方法
+   */
+  methods: {
+    /**
+     * 格式化课程数据
+     */
+    formatCourseData(course) {
+      // 格式化上课时间
+      const scheduleText = course.schedule || '';
+      
+      // 计算剩余名额
+      const remainingSlots = (course.max_students || 10) - (course.enrolled_count || 0);
+      
+      // 格式化价格
+      const priceObj = util.formatPriceObject(course.price || 0);
+      const memberPriceObj = util.formatPriceObject(course.member_price || 0);
+      
+      // 状态标签
+      let statusTag = '';
+      let statusClass = '';
+      switch (course.status) {
+        case 'enrolling':
+          statusTag = '报名中';
+          statusClass = 'tag-primary';
+          break;
+        case 'ongoing':
+          statusTag = '进行中';
+          statusClass = 'tag-success';
+          break;
+        case 'completed':
+          statusTag = '已结束';
+          statusClass = 'tag-secondary';
+          break;
+        case 'cancelled':
+          statusTag = '已取消';
+          statusClass = 'tag-secondary';
+          break;
+        default:
+          break;
+      }
+      
+      this.setData({
+        scheduleText,
+        remainingSlots,
+        priceObj,
+        memberPriceObj,
+        statusTag,
+        statusClass,
+      });
+    },
+
+    /**
+     * 点击卡片
+     */
+    onTap() {
+      const { course } = this.properties;
+      if (course && course.id) {
+        wx.navigateTo({
+          url: `/pages/course/detail/index?id=${course.id}`,
+        });
+      }
+    },
+
+    /**
+     * 点击拼班按钮
+     */
+    onJoin() {
+      const { course } = this.properties;
+      this.triggerEvent('join', { course });
+    },
+  },
+});

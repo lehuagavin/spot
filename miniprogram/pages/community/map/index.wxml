@@ -1,0 +1,88 @@
+<!-- 地图选择小区页面 -->
+<view class="page-container">
+  <!-- 搜索栏 -->
+  <view class="search-bar" bindtap="onOpenSearch">
+    <view class="search-icon">🔍</view>
+    <text class="search-placeholder">搜索小区</text>
+  </view>
+  
+  <!-- 地图 -->
+  <map 
+    id="communityMap"
+    class="map"
+    latitude="{{latitude}}"
+    longitude="{{longitude}}"
+    scale="{{scale}}"
+    markers="{{markers}}"
+    show-location
+    enable-zoom
+    enable-scroll
+    bindmarkertap="onMarkerTap"
+    bindtap="onMapTap"
+    bindregionchange="onRegionChange"
+  >
+    <!-- 定位按钮 -->
+    <cover-view class="location-btn" bindtap="onMoveToLocation">
+      <cover-view class="btn-icon">📍</cover-view>
+    </cover-view>
+    
+    <!-- 列表按钮 -->
+    <cover-view class="list-btn" bindtap="onViewList">
+      <cover-view class="btn-icon">📋</cover-view>
+      <cover-view class="btn-text">列表</cover-view>
+    </cover-view>
+  </map>
+  
+  <!-- 选中的小区信息 -->
+  <view class="community-panel {{selectedCommunity ? 'show' : ''}}">
+    <view class="panel-content" wx:if="{{selectedCommunity}}">
+      <view class="community-info">
+        <view class="community-name">{{selectedCommunity.name}}</view>
+        <view class="community-address">{{selectedCommunity.address}}</view>
+        <view class="community-distance" wx:if="{{selectedCommunity.distance !== undefined}}">
+          距您 {{selectedCommunity.distance < 1 ? (selectedCommunity.distance * 1000).toFixed(0) + 'm' : selectedCommunity.distance.toFixed(1) + 'km'}}
+        </view>
+      </view>
+      <button class="select-btn" bindtap="onSelectCommunity">选择该小区</button>
+    </view>
+  </view>
+</view>
+
+<!-- 搜索弹窗 -->
+<view class="search-modal {{showSearch ? 'show' : ''}}">
+  <view class="modal-header">
+    <view class="modal-search-bar">
+      <view class="search-icon">🔍</view>
+      <input 
+        class="search-input"
+        type="text"
+        placeholder="搜索小区名称"
+        placeholder-class="search-placeholder"
+        value="{{keyword}}"
+        bindinput="onSearchInput"
+        focus="{{showSearch}}"
+      />
+    </view>
+    <text class="cancel-btn" bindtap="onCloseSearch">取消</text>
+  </view>
+  
+  <view class="search-results">
+    <view 
+      class="result-item"
+      wx:for="{{searchResults}}"
+      wx:key="id"
+      bindtap="onSelectSearchResult"
+      data-item="{{item}}"
+    >
+      <view class="result-icon">📍</view>
+      <view class="result-content">
+        <view class="result-name">{{item.name}}</view>
+        <view class="result-address">{{item.address}}</view>
+      </view>
+    </view>
+    
+    <view class="empty-results" wx:if="{{keyword && searchResults.length === 0}}">
+      <text>未找到相关小区</text>
+    </view>
+  </view>
+</view>

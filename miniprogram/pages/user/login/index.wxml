@@ -1,0 +1,54 @@
+<!-- 登录页面 -->
+<view class="page-container">
+  <!-- 返回按钮 -->
+  <view class="back-btn" bindtap="onBack">
+    <text class="back-icon">‹</text>
+  </view>
+  
+  <!-- Logo 区域 -->
+  <view class="logo-section">
+    <view class="logo-circle">
+      <text class="logo-emoji">🏃</text>
+    </view>
+    <view class="brand-name">义城上门教育</view>
+    <view class="brand-sub">YICHENG HOME EDUCATION</view>
+  </view>
+  
+  <!-- 授权说明 -->
+  <view class="auth-section">
+    <view class="auth-title">申请使用以下信息</view>
+    <view class="auth-item">
+      <text class="auth-icon">👤</text>
+      <text class="auth-text">获取您的（头像、昵称、地区等）信息</text>
+    </view>
+  </view>
+  
+  <!-- 操作按钮 -->
+  <view class="action-section">
+    <button 
+      class="login-btn {{loading ? 'loading' : ''}}"
+      bindtap="onWechatLogin"
+      disabled="{{loading}}"
+    >
+      <view class="btn-content">
+        <text class="btn-icon" wx:if="{{!loading}}">💬</text>
+        <view class="loading-spinner" wx:else></view>
+        <text class="btn-text">{{loading ? '登录中...' : '微信快捷登录'}}</text>
+      </view>
+    </button>
+    
+    <button class="back-home-btn" bindtap="onBack">
+      返回首页
+    </button>
+  </view>
+  
+  <!-- 协议 -->
+  <view class="agreement-section">
+    <text class="agreement-text">
+      登录即表示同意
+      <text class="agreement-link">《用户协议》</text>
+      和
+      <text class="agreement-link">《隐私政策》</text>
+    </text>
+  </view>
+</view>

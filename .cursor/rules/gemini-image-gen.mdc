@@ -1,0 +1,52 @@
+---
+description: Gemini Image Generation - Generate AI images with various artistic styles using Google Gemini API.
+globs:
+alwaysApply: false
+---
+
+# Gemini Image Generation Skill
+
+This project includes a custom skill for generating AI images using Google Gemini API.
+
+## When to Use
+
+Use this skill when the user asks to:
+- Create or generate images
+- Generate artwork or illustrations
+- Create images in specific styles (Ghibli, Pixar, Cyberpunk, etc.)
+- Generate concept art or visual designs
+- Create variations of an image concept
+
+## How to Use
+
+Read the skill file at `.cursor/skills/gemini-image-gen/SKILL.md` for complete instructions.
+
+## Quick Reference
+
+### Single Image Generation
+```bash
+python scripts/generate_image.py "A magical forest" --style ghibli
+```
+
+### Batch Generation
+```bash
+python scripts/batch_generate.py "A cute robot" --count 4 --style pixar
+```
+
+## Available Styles
+
+| Style | Description |
+|-------|-------------|
+| ghibli | Studio Ghibli anime style |
+| pixar | Pixar 3D animation style |
+| cyberpunk | Neon-lit cyberpunk aesthetic |
+| chinese-painting | Traditional Chinese ink painting |
+| oil-painting | Classical oil painting |
+| watercolor | Soft watercolor style |
+| anime | Modern anime style |
+| fantasy | Epic fantasy art |
+
+## Requirements
+
+- `GEMINI_API_KEY` environment variable must be set
+- Dependencies: `pip install google-genai pillow`

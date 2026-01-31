@@ -1,0 +1,48 @@
+<!-- 课程卡片组件 -->
+<view class="course-card" bindtap="onTap">
+  <!-- 课程图片 -->
+  <view class="card-image">
+    <image 
+      class="image" 
+      src="{{course.image || '/assets/images/course-default.png'}}" 
+      mode="aspectFill"
+    />
+    <!-- 状态标签 -->
+    <view class="status-tag {{statusClass}}" wx:if="{{statusTag}}">
+      {{statusTag}}
+    </view>
+  </view>
+  
+  <!-- 课程信息 -->
+  <view class="card-content">
+    <!-- 标题行 -->
+    <view class="card-header">
+      <view class="age-tag">{{course.age_range || '7-12岁'}}</view>
+      <text class="course-name">{{course.name || '体能课程'}}</text>
+    </view>
+    
+    <!-- 小区信息 -->
+    <view class="location-row">
+      <text class="icon">📍</text>
+      <text class="location-text truncate">{{course.community_name || '未知小区'}}</text>
+    </view>
+    
+    <!-- 时间信息 -->
+    <view class="time-row">
+      <text class="icon">🕐</text>
+      <text class="time-text">{{course.schedule || '待定'}}</text>
+    </view>
+    
+    <!-- 底部信息 -->
+    <view class="card-footer">
+      <view class="enroll-info">
+        <text class="enroll-text">满{{course.min_students || 4}}人成班</text>
+        <text class="enroll-count">{{course.enrolled_count || 0}}/{{course.max_students || 10}}人</text>
+      </view>
+      
+      <button class="join-btn" catchtap="onJoin">
+        去拼班
+      </button>
+    </view>
+  </view>
+</view>

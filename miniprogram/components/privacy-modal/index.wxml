@@ -1,0 +1,22 @@
+<!-- 隐私协议弹窗 -->
+<view class="privacy-modal" wx:if="{{show}}" catchtap="preventTap">
+  <view class="overlay fade-in"></view>
+  <view class="modal-container slide-up">
+    <view class="modal-title">用户隐私保护提示</view>
+    
+    <view class="modal-content">
+      <text class="content-text">
+        在你使用义城上门教育服务之前，请仔细阅读
+      </text>
+      <text class="link" bindtap="onViewPrivacy">《义城上门教育小程序隐私保护指引》</text>
+      <text class="content-text">
+        。如你同意此隐私保护指引，请点击"同意"开始使用我们的服务。
+      </text>
+    </view>
+    
+    <view class="modal-actions">
+      <button class="btn btn-secondary" bindtap="onReject">拒绝</button>
+      <button class="btn btn-primary" bindtap="onAgree">同意</button>
+    </view>
+  </view>
+</view>

@@ -1,3 +1,10 @@
 {
-  "navigationBarTitleText": "首页"
+  "navigationBarTitleText": "义城上门教育",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "privacy-modal": "/components/privacy-modal/index",
+    "location-auth": "/components/location-auth/index",
+    "course-card": "/components/course-card/index"
+  }
 }

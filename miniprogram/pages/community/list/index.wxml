@@ -1,0 +1,108 @@
+<!-- 小区列表页面 -->
+<view class="page-container">
+  <!-- 搜索栏 -->
+  <view class="search-section">
+    <view class="search-bar">
+      <view class="search-icon">🔍</view>
+      <input 
+        class="search-input"
+        type="text"
+        placeholder="搜索小区名称"
+        placeholder-class="search-placeholder"
+        value="{{keyword}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+        confirm-type="search"
+      />
+      <view 
+        class="search-clear" 
+        wx:if="{{keyword}}"
+        bindtap="onSearchClear"
+      >✕</view>
+    </view>
+    
+    <!-- 地图入口 -->
+    <view class="map-btn" bindtap="onOpenMap">
+      <text class="map-icon">🗺️</text>
+      <text class="map-text">地图</text>
+    </view>
+  </view>
+  
+  <!-- 搜索历史 -->
+  <view class="history-section" wx:if="{{showHistory && searchHistory.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">搜索历史</text>
+      <text class="section-action" bindtap="onClearHistory">清空</text>
+    </view>
+    <view class="history-tags">
+      <view 
+        class="history-tag"
+        wx:for="{{searchHistory}}"
+        wx:key="*this"
+        bindtap="onHistoryTap"
+        data-keyword="{{item}}"
+      >{{item}}</view>
+    </view>
+  </view>
+  
+  <!-- 定位提示 -->
+  <view class="location-tip" wx:if="{{location}}" bindtap="onRelocate">
+    <view class="tip-icon">📍</view>
+    <text class="tip-text">当前定位：附近小区</text>
+    <text class="tip-action">重新定位</text>
+  </view>
+  
+  <!-- 小区列表 -->
+  <view class="community-section">
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{loading && communities.length === 0}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+    
+    <!-- 列表 -->
+    <view class="community-list" wx:elif="{{communities.length > 0}}">
+      <view 
+        class="community-item {{item.id === selectedId ? 'selected' : ''}}"
+        wx:for="{{communities}}"
+        wx:key="id"
+        bindtap="onSelectCommunity"
+        data-item="{{item}}"
+      >
+        <!-- 图片 -->
+        <view class="item-image">
+          <image 
+            wx:if="{{item.image}}"
+            src="{{item.image}}" 
+            mode="aspectFill"
+          />
+          <view class="image-placeholder" wx:else>🏘️</view>
+        </view>
+        
+        <!-- 信息 -->
+        <view class="item-content">
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-address truncate">{{item.address}}</view>
+        </view>
+        
+        <!-- 距离 -->
+        <view class="item-distance" wx:if="{{item.distance !== undefined}}">
+          <text class="distance-value">{{item.distance < 1 ? (item.distance * 1000) : item.distance}}</text>
+          <text class="distance-unit">{{item.distance < 1 ? 'm' : 'km'}}</text>
+        </view>
+        
+        <!-- 选中标记 -->
+        <view class="item-check" wx:if="{{item.id === selectedId}}">
+          <text class="check-icon">✓</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:else>
+      <view class="empty-icon">🏘️</view>
+      <text class="empty-text">未找到小区</text>
+      <text class="empty-hint">换个关键词试试</text>
+    </view>
+  </view>
+</view>
