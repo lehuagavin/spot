@@ -1,0 +1,20 @@
+<!--个人中心-->
+<view class="container">
+  <view class="user-info">
+    <image class="avatar" src="../../assets/default-avatar.png" mode="aspectFill"></image>
+    <text class="name">未登录</text>
+    <button class="login-btn">立即登录</button>
+  </view>
+
+  <view class="menu">
+    <view class="menu-item">
+      <text>我的订单</text>
+    </view>
+    <view class="menu-item">
+      <text>我的学员</text>
+    </view>
+    <view class="menu-item">
+      <text>关于我们</text>
+    </view>
+  </view>
+</view>

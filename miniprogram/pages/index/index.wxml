@@ -1,0 +1,28 @@
+<!--首页-->
+<view class="container">
+  <view class="header">
+    <text class="title">义城上门教育</text>
+    <text class="subtitle">专业体育培训课程</text>
+  </view>
+
+  <view class="banner">
+    <swiper indicator-dots autoplay circular>
+      <swiper-item>
+        <view class="swiper-item">国家体育总局指定考核点</view>
+      </swiper-item>
+      <swiper-item>
+        <view class="swiper-item">专业场地，政府扶持</view>
+      </swiper-item>
+      <swiper-item>
+        <view class="swiper-item">10万家庭的共同选择</view>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <view class="section">
+    <text class="section-title">课程列表</text>
+    <view class="course-list">
+      <view class="empty">暂无课程</view>
+    </view>
+  </view>
+</view>

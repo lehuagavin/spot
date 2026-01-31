@@ -1,0 +1,12 @@
+<!--拼班记录-->
+<view class="container">
+  <view class="tabs">
+    <view class="tab active">全部</view>
+    <view class="tab">拼班中</view>
+    <view class="tab">已完成</view>
+  </view>
+
+  <view class="order-list">
+    <view class="empty">暂无记录</view>
+  </view>
+</view>

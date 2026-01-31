@@ -1,0 +1,6 @@
+<!--课程详情-->
+<view class="container">
+  <view class="course-info">
+    <text class="title">课程详情</text>
+  </view>
+</view>
