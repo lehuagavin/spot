@@ -48,7 +48,7 @@ export default function TeacherList() {
     setLoading(true);
     try {
       const res = await getTeachers(params);
-      setData(res.list);
+      setData(res.items);
       setTotal(res.total);
     } catch (error) {
       message.error('获取教练列表失败');

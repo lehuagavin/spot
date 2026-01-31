@@ -46,7 +46,7 @@ export default function MemberCards() {
     setLoading(true);
     try {
       const res = await getMemberCards(params);
-      setData(res.list);
+      setData(res.items);
       setTotal(res.total);
     } catch (error) {
       message.error('获取权益卡列表失败');

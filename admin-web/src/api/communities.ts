@@ -40,5 +40,5 @@ export async function getAllCommunities(): Promise<Community[]> {
   const res: PageResponse<Community> = await request.get('/api/v1/admin/communities', { 
     params: { page: 1, page_size: 100, status: 1 } 
   });
-  return res.list;
+  return res.items;
 }

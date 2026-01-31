@@ -36,7 +36,7 @@ export default function Dashboard() {
         getRecentOrders(5),
       ]);
       setStats(statsData);
-      setRecentOrders(ordersData.list);
+      setRecentOrders(ordersData.items);
     } catch (error) {
       console.error('获取仪表盘数据失败:', error);
       // 使用模拟数据

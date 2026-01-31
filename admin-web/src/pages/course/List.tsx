@@ -84,7 +84,7 @@ export default function CourseList() {
     setLoading(true);
     try {
       const res = await getCourses(params);
-      setData(res.list);
+      setData(res.items);
       setTotal(res.total);
     } catch (error) {
       message.error('获取课程列表失败');

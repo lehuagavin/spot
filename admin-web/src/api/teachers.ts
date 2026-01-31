@@ -40,5 +40,5 @@ export async function getAllTeachers(): Promise<Teacher[]> {
   const res: PageResponse<Teacher> = await request.get('/api/v1/admin/teachers', { 
     params: { page: 1, page_size: 100, status: 1 } 
   });
-  return res.list;
+  return res.items;
 }

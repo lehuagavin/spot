@@ -58,7 +58,7 @@ export default function UserDetail() {
     setOrdersLoading(true);
     try {
       const data = await getUserOrders(id!);
-      setOrders(data.list);
+      setOrders(data.items);
     } catch (error) {
       console.error('获取订单列表失败:', error);
     } finally {

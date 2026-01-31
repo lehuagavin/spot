@@ -50,7 +50,7 @@ export default function Banners() {
     setLoading(true);
     try {
       const res = await getBanners(params);
-      setData(res.list);
+      setData(res.items);
       setTotal(res.total);
     } catch (error) {
       message.error('获取轮播图列表失败');

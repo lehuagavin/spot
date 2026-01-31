@@ -38,7 +38,7 @@ export default function OrderList() {
     setLoading(true);
     try {
       const res = await getOrders(params);
-      setData(res.list);
+      setData(res.items);
       setTotal(res.total);
     } catch (error) {
       message.error('获取订单列表失败');

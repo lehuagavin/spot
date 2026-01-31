@@ -46,22 +46,31 @@ App({
   },
 
   /**
-   * 获取系统信息
+   * 获取系统信息（使用新 API）
    */
   getSystemInfo() {
     try {
-      const systemInfo = wx.getSystemInfoSync();
-      this.globalData.systemInfo = systemInfo;
+      // 使用新 API 替代已弃用的 wx.getSystemInfoSync
+      const deviceInfo = wx.getDeviceInfo();
+      const windowInfo = wx.getWindowInfo();
+      const appBaseInfo = wx.getAppBaseInfo();
+      
+      // 合并为兼容的 systemInfo 对象
+      this.globalData.systemInfo = {
+        ...deviceInfo,
+        ...windowInfo,
+        ...appBaseInfo,
+      };
       
       // 判断是否是 iOS
-      this.globalData.isIOS = systemInfo.platform === 'ios';
+      this.globalData.isIOS = deviceInfo.platform === 'ios';
       
       // 获取状态栏高度
-      this.globalData.statusBarHeight = systemInfo.statusBarHeight;
+      this.globalData.statusBarHeight = windowInfo.statusBarHeight;
       
       // 计算导航栏高度（状态栏 + 导航栏内容区）
       const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
-      const navBarHeight = (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height;
+      const navBarHeight = (menuButtonInfo.top - windowInfo.statusBarHeight) * 2 + menuButtonInfo.height;
       this.globalData.navBarHeight = navBarHeight;
       this.globalData.menuButtonInfo = menuButtonInfo;
       

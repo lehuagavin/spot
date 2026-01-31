@@ -28,7 +28,7 @@ export default function MemberRecords() {
     setLoading(true);
     try {
       const res = await getMemberRecords(params);
-      setData(res.list);
+      setData(res.items);
       setTotal(res.total);
     } catch (error) {
       message.error('获取购买记录失败');

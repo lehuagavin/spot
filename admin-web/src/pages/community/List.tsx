@@ -49,7 +49,7 @@ export default function CommunityList() {
     setLoading(true);
     try {
       const res = await getCommunities(params);
-      setData(res.list);
+      setData(res.items);
       setTotal(res.total);
     } catch (error) {
       message.error('获取小区列表失败');

@@ -10,7 +10,7 @@ export interface PageParams {
 
 // 分页响应
 export interface PageResponse<T> {
-  list: T[];
+  items: T[];
   total: number;
   page: number;
   page_size: number;

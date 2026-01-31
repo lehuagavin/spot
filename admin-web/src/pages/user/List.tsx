@@ -35,7 +35,7 @@ export default function UserList() {
     setLoading(true);
     try {
       const res = await getUsers(params);
-      setData(res.list);
+      setData(res.items);
       setTotal(res.total);
     } catch (error) {
       message.error('获取用户列表失败');
