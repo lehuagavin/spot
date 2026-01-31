@@ -208,8 +208,6 @@ class CourseService:
                 "user_id": cs.student.user_id,
                 "id_type": cs.student.id_type,
                 "id_name": cs.student.id_name,
-                "id_number": cs.student.id_number,
-                "id_number_masked": cs.student.id_number_masked,
                 "photo": cs.student.photo,
                 "birthday": cs.student.birthday,
                 "gender": cs.student.gender,

@@ -67,8 +67,6 @@ export interface Student {
   user_id: string;
   id_type: string;
   id_name: string;
-  id_number: string;
-  id_number_masked: string;
   photo: string | null;
   birthday: string;
   gender: string;
