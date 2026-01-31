@@ -2,12 +2,11 @@
  * 会员购买记录页面
  */
 import { useEffect, useState } from 'react';
-import { Table, Tag, message, Avatar } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Table, Tag, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { getMemberRecords } from '../../api/members';
-import { getImageUrl } from '../../api/upload';
 import type { UserMember, PageParams } from '../../types';
+import DefaultAvatar from '../../components/DefaultAvatar';
 import { MemberCardTypeText } from '../../types';
 import dayjs from 'dayjs';
 
@@ -51,11 +50,12 @@ export default function MemberRecords() {
       key: 'user',
       render: (_, record) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar
-            src={getImageUrl(record.user?.avatar)}
-            icon={<UserOutlined />}
+          <DefaultAvatar
+            src={record.user?.avatar}
+            name={record.user?.nickname}
+            type="member"
             size={36}
-            style={{ backgroundColor: 'var(--color-primary)', marginRight: 10 }}
+            style={{ marginRight: 10 }}
           />
           <div>
             <div style={{ fontWeight: 500 }}>{record.user?.nickname || '未设置昵称'}</div>

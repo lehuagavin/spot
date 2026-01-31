@@ -2,13 +2,13 @@
  * 用户列表页面
  */
 import { useEffect, useState } from 'react';
-import { Table, Button, Input, Tag, Switch, message, Avatar, Select } from 'antd';
-import { SearchOutlined, EyeOutlined, UserOutlined } from '@ant-design/icons';
+import { Table, Button, Input, Tag, Switch, message, Select } from 'antd';
+import { SearchOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 import { getUsers, updateUserStatus } from '../../api/users';
-import { getImageUrl } from '../../api/upload';
 import type { User, PageParams } from '../../types';
+import DefaultAvatar from '../../components/DefaultAvatar';
 import EmptyState from '../../components/EmptyState';
 import dayjs from 'dayjs';
 
@@ -77,11 +77,12 @@ export default function UserList() {
       key: 'user',
       render: (_, record) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar
-            src={getImageUrl(record.avatar)}
-            icon={<UserOutlined />}
+          <DefaultAvatar
+            src={record.avatar}
+            name={record.nickname}
+            type="user"
             size={40}
-            style={{ backgroundColor: 'var(--color-primary)', marginRight: 12 }}
+            style={{ marginRight: 12 }}
           />
           <div>
             <div style={{ fontWeight: 500 }}>{record.nickname || '未设置昵称'}</div>
