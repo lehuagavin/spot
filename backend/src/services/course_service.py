@@ -196,6 +196,7 @@ class CourseService:
         stmt = (
             select(CourseStudent)
             .where(CourseStudent.course_id == course_id)
+            .options(selectinload(CourseStudent.student))
             .order_by(CourseStudent.created_at.desc())
         )
         result = await db.execute(stmt)
@@ -203,11 +204,18 @@ class CourseService:
 
         return [
             {
-                "id": cs.id,
-                "student_id": cs.student_id,
-                "order_id": cs.order_id,
-                "status": cs.status,
-                "created_at": cs.created_at,
+                "id": cs.student.id,
+                "user_id": cs.student.user_id,
+                "id_type": cs.student.id_type,
+                "id_name": cs.student.id_name,
+                "id_number": cs.student.id_number,
+                "id_number_masked": cs.student.id_number_masked,
+                "photo": cs.student.photo,
+                "birthday": cs.student.birthday,
+                "gender": cs.student.gender,
+                "member_type": cs.student.member_type,
+                "created_at": cs.student.created_at,
+                "updated_at": cs.student.updated_at,
             }
             for cs in course_students
         ]

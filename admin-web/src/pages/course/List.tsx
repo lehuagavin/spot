@@ -450,8 +450,10 @@ export default function CourseList() {
       key: 'price',
       render: (_, record) => (
         <div>
-          <div>¥{record.price}</div>
-          <div style={{ color: 'var(--color-text-secondary)', fontSize: 12 }}>
+          <div style={{ color: 'var(--color-text-secondary)', fontSize: 12, textDecoration: 'line-through' }}>
+            原价: ¥{record.price}
+          </div>
+          <div style={{ color: 'var(--color-primary)', fontWeight: 500 }}>
             会员价: ¥{record.member_price}
           </div>
         </div>
@@ -462,7 +464,7 @@ export default function CourseList() {
       key: 'students',
       render: (_, record) => (
         <span>
-          {record.current_students}/{record.max_students}
+          {record.enrolled_count ?? record.current_students ?? 0}/{record.max_students}
         </span>
       ),
     },
@@ -470,9 +472,12 @@ export default function CourseList() {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (status: CourseStatus) => (
-        <Tag color={CourseStatusColor[status]}>{CourseStatusText[status]}</Tag>
-      ),
+      render: (status: CourseStatus) => {
+        if (!status || !CourseStatusText[status]) {
+          return <Tag color="default">未知状态</Tag>;
+        }
+        return <Tag color={CourseStatusColor[status]}>{CourseStatusText[status]}</Tag>;
+      },
     },
     {
       title: '报名截止',
@@ -509,12 +514,42 @@ export default function CourseList() {
 
   return (
     <div className="fade-in">
-      {/* 页面标题 */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 600, marginBottom: 4 }}>
-          课程管理
-        </h1>
-        <p style={{ color: 'var(--color-text-secondary)' }}>管理拼班课程信息</p>
+      {/* 页面标题与装饰区域 */}
+      <div
+        style={{
+          marginBottom: 24,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.08) 0%, rgba(233, 30, 99, 0.08) 100%)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px 32px',
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontSize: 'var(--font-size-2xl)',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+              marginBottom: 4,
+            }}
+          >
+            课程管理
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)' }}>
+            管理拼班课程信息
+          </p>
+        </div>
+        <img
+          src="/images/course-learning.png"
+          alt="Course"
+          style={{
+            height: 100,
+            objectFit: 'contain',
+            opacity: 0.9,
+          }}
+        />
       </div>
 
       {/* 工具栏 */}
@@ -1063,7 +1098,7 @@ export default function CourseList() {
       >
         <Descriptions column={1} style={{ marginBottom: 24 }}>
           <Descriptions.Item label="报名人数">
-            {currentCourse?.current_students}/{currentCourse?.max_students}
+            {currentCourse?.enrolled_count ?? 0}/{currentCourse?.max_students}
           </Descriptions.Item>
           <Descriptions.Item label="上课时间">{currentCourse?.schedule}</Descriptions.Item>
           <Descriptions.Item label="上课地点">{currentCourse?.location}</Descriptions.Item>
