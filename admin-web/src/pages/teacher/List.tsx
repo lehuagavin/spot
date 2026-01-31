@@ -12,9 +12,8 @@ import {
   Form,
   message,
   Popconfirm,
-  Avatar,
 } from 'antd';
-import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import {
   getTeachers,
@@ -22,9 +21,9 @@ import {
   updateTeacher,
   deleteTeacher,
 } from '../../api/teachers';
-import { getImageUrl } from '../../api/upload';
 import type { Teacher, TeacherCreateRequest, PageParams } from '../../types';
 import ImageUpload from '../../components/ImageUpload';
+import DefaultAvatar from '../../components/DefaultAvatar';
 import EmptyState from '../../components/EmptyState';
 import dayjs from 'dayjs';
 
@@ -120,12 +119,12 @@ export default function TeacherList() {
       dataIndex: 'avatar',
       key: 'avatar',
       width: 80,
-      render: (avatar: string) => (
-        <Avatar
-          src={getImageUrl(avatar)}
+      render: (avatar: string, record: Teacher) => (
+        <DefaultAvatar
+          src={avatar}
+          name={record.name}
+          type="teacher"
           size={48}
-          icon={<UserOutlined />}
-          style={{ backgroundColor: 'var(--color-primary)' }}
         />
       ),
     },
