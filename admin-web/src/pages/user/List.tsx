@@ -78,8 +78,8 @@ export default function UserList() {
       render: (_, record) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <DefaultAvatar
-            src={record.avatar}
-            name={record.nickname}
+            src={record.avatar ?? undefined}
+            name={record.nickname ?? undefined}
             type="user"
             size={40}
             style={{ marginRight: 12 }}

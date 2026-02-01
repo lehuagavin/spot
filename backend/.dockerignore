@@ -1,0 +1,42 @@
+# Ignore version control
+.git
+.gitignore
+
+# Ignore Python cache and virtual environment
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv/
+ENV/
+
+# Ignore development files
+.env
+.env.local
+*.log
+logs/
+
+
+
+# Ignore database files
+*.db
+*.sqlite3
+
+# Ignore IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore test files
+tests/
+test_*.py
+*_test.py
+
+# Ignore documentation
+docs/
+*.md
+!README.md

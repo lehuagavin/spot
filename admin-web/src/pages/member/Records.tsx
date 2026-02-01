@@ -51,8 +51,8 @@ export default function MemberRecords() {
       render: (_, record) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <DefaultAvatar
-            src={record.user?.avatar}
-            name={record.user?.nickname}
+            src={record.user?.avatar ?? undefined}
+            name={record.user?.nickname ?? undefined}
             type="member"
             size={36}
             style={{ marginRight: 10 }}

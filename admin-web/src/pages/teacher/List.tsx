@@ -119,9 +119,9 @@ export default function TeacherList() {
       dataIndex: 'avatar',
       key: 'avatar',
       width: 80,
-      render: (avatar: string, record: Teacher) => (
+      render: (avatar: string | null, record: Teacher) => (
         <DefaultAvatar
-          src={avatar}
+          src={avatar ?? undefined}
           name={record.name}
           type="teacher"
           size={48}

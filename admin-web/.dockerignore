@@ -1,0 +1,40 @@
+# Ignore version control
+.git
+.gitignore
+
+# Ignore dependencies
+node_modules/
+
+# Ignore development files
+.env
+.env.local
+.env.development
+*.log
+
+# Ignore build output (REMOVED - we now use pre-built dist)
+# dist/  # ← IMPORTANT: dist is now included for pre-built deployment
+build/
+
+# Ignore IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+tests/
+
+# Ignore documentation
+docs/
+*.md
+!README.md
+
+# Ignore cache
+.cache/
+.parcel-cache/
+.eslintcache

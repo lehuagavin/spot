@@ -52,7 +52,7 @@ export default function Dashboard() {
         today_revenue: 480,
         course_status_distribution: [
           { status: 'enrolling' as const, count: 5 },
-          { status: 'in_progress' as const, count: 4 },
+          { status: 'ongoing' as const, count: 4 },
           { status: 'completed' as const, count: 3 },
         ],
       });

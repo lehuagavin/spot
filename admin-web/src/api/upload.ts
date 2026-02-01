@@ -19,7 +19,7 @@ export function uploadImage(file: File): Promise<UploadResponse> {
 export function getImageUrl(path: string | null | undefined): string {
   if (!path) return '';
   if (path.startsWith('http')) return path;
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
   return `${baseUrl}${path}`;
 }
 

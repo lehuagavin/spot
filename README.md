@@ -12,12 +12,70 @@
 
 ## 环境要求
 
+### 本地开发
 - Python 3.12+
 - Node.js 18+
 - MySQL 8.0+
 - 微信开发者工具（小程序开发）
 
+### Docker 部署（推荐）
+- Docker 20.10+
+- Docker Compose 2.0+
+- Make（可选，用于管理命令）
+
 ## 快速启动
+
+### 🐳 Docker 部署
+
+#### 高配置服务器（4核4GB+）或本地开发
+
+```bash
+# 一键部署所有服务
+make deploy
+```
+
+#### 低配置服务器（2核2GB，如阿里云）
+
+2GB 内存无法构建前端，需要本地构建：
+
+```bash
+# 1. 本地构建前端（自动创建版本归档）
+make build-web
+
+# 2. 上传构建产物到服务器
+rsync -avz builds/web/ user@server:/path/to/spot/builds/web/
+
+# 3. 服务器部署
+ssh user@server
+cd /path/to/spot
+make deploy SERVICE=web
+```
+
+**版本管理特性**：
+- ✅ 每次构建自动创建带时间戳的版本（如：`20260201-113045`）
+- ✅ 支持部署指定版本：`BUILD_VERSION=xxx make deploy SERVICE=web`
+- ✅ 一键回滚：`make rollback-build VERSION=xxx`
+- ✅ 查看所有版本：`make list-builds`
+
+详见：[低配置服务器部署指南](LOW-MEMORY-DEPLOY.md)
+
+**数据库会自动初始化**：
+- MySQL 容器首次启动时会自动执行 `sqls/init.sql`
+- 包含完整的数据库结构和测试数据
+- 无需手动导入数据
+
+部署成功后访问：
+- **管理后台**: http://localhost:3000
+- **后端 API**: http://localhost:8000
+- **API 文档**: http://localhost:8000/docs
+
+详细文档：
+- [Docker 快速开始](DOCKER-QUICK-START.md)
+- [Docker 完整文档](DOCKER.md)
+- [数据库初始化说明](DATABASE-INIT.md)
+- [部署验证清单](DEPLOYMENT-CHECKLIST.md)
+
+### 💻 方式二：本地开发
 
 ### 1. 数据库初始化
 
@@ -95,7 +153,42 @@ spot/
 - [开发计划](specs/0003-plan.md)
 - [阶段一总结](docs/phase-01-summary.md)
 
+### Docker 部署文档
+
+- [Docker 快速开始](DOCKER-QUICK-START.md) - 快速参考卡片
+- [Docker 完整文档](DOCKER.md) - 详细的部署说明
+- [Docker 使用示例](DOCKER-EXAMPLES.md) - 实际使用案例
+- [部署验证清单](DEPLOYMENT-CHECKLIST.md) - 部署验证步骤
+- [部署功能总结](DEPLOYMENT-SUMMARY.md) - 技术实现说明
+- [数据库初始化说明](DATABASE-INIT.md) - 数据库自动加载
+- [TypeScript 类型修复](TYPESCRIPT-FIX.md) - 类型错误修复记录
+- [Docker 构建修复](DOCKER-BUILD-FIX.md) - 网络问题修复记录
+
 ## 常用命令
+
+### Docker 部署
+
+```bash
+# 查看所有可用命令
+make help
+
+# 查看服务状态
+make status
+
+# 查看日志
+make logs
+make logs SERVICE=backend  # 只查看后端日志
+
+# 重启服务
+make restart
+make restart SERVICE=web   # 只重启前端
+
+# 停止服务
+make stop
+
+# 重建并部署
+make deploy
+```
 
 ### 后端
 

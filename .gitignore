@@ -94,6 +94,13 @@ dist/
 dist-ssr/
 build/
 
+# Build archives are committed to Git for version management
+# builds/web/* is now tracked
+
+# Ignore other dist directories
+backend/dist/
+miniprogram/dist/
+
 # Logs
 logs/
 *.log
@@ -156,9 +163,9 @@ dumps/
 # 上传文件与静态资源
 # =========================================================================
 
-# 后端上传目录（保留目录结构但忽略实际文件）
-backend/uploads/*
-!backend/uploads/.gitkeep
+# # 后端上传目录（保留目录结构但忽略实际文件）
+# backend/uploads/*
+# !backend/uploads/.gitkeep
 
 # =========================================================================
 # 日志文件
@@ -287,6 +294,16 @@ fixtures/tmp/
 
 # 文档草稿
 docs/drafts/
+
+# =========================================================================
+# Docker
+# =========================================================================
+
+# Docker environment file (use .env.docker as template)
+.env
+
+# Docker volumes
+mysql_data/
 
 # =========================================================================
 # 其他

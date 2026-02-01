@@ -62,7 +62,7 @@ export default function ImageUpload({ value, onChange, maxSize = 5 }: ImageUploa
       name="file"
       listType="picture-card"
       showUploadList={false}
-      action={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1/upload/image`}
+      action={`${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'}/api/v1/upload/image`}
       headers={{
         Authorization: `Bearer ${localStorage.getItem('auth-storage') ? JSON.parse(localStorage.getItem('auth-storage') || '{}')?.state?.token : ''}`,
       }}

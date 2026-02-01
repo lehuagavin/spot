@@ -1,0 +1,94 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: spot-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-spot_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-spot}
+      MYSQL_USER: ${MYSQL_USER:-spot}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-spot_password}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sqls:/docker-entrypoint-initdb.d:ro
+    networks:
+      - spot-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-spot_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      network: host
+    container_name: spot-backend
+    restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 114.114.114.114
+    environment:
+      APP_NAME: spot
+      APP_ENV: production
+      DEBUG: "false"
+      DATABASE_URL: mysql+asyncmy://${MYSQL_USER:-spot}:${MYSQL_PASSWORD:-spot_password}@mysql:3306/${MYSQL_DATABASE:-spot}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-in-production}
+      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:3000"]}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      WECHAT_APP_ID: ${WECHAT_APP_ID:-}
+      WECHAT_APP_SECRET: ${WECHAT_APP_SECRET:-}
+      WECHAT_MCH_ID: ${WECHAT_MCH_ID:-}
+      WECHAT_API_KEY: ${WECHAT_API_KEY:-}
+      VOLCANO_API_KEY: ${VOLCANO_API_KEY:-}
+      VOLCANO_BASE_URL: ${VOLCANO_BASE_URL:-https://ark.cn-beijing.volces.com/api/v3}
+      VOLCANO_MODEL_ID: ${VOLCANO_MODEL_ID:-doubao-seedream-4-5-251128}
+      SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY:-}
+      SILICONFLOW_BASE_URL: ${SILICONFLOW_BASE_URL:-https://api.siliconflow.cn/v1}
+      SILICONFLOW_MODEL: ${SILICONFLOW_MODEL:-Qwen/Qwen2.5-7B-Instruct}
+      SILICONFLOW_TIMEOUT: ${SILICONFLOW_TIMEOUT:-30}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/logs:/app/logs
+    networks:
+      - spot-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web:
+    build:
+      context: ./admin-web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    container_name: spot-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:80"
+    networks:
+      - spot-network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  spot-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

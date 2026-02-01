@@ -1,0 +1,1 @@
+import{s as r}from"./index-vJliTLcA.js";function t(e){return r.get("/api/v1/admin/member/cards")}function n(e){return r.post("/api/v1/admin/member/cards",e)}function s(e,a){return r.put(`/api/v1/admin/member/cards/${e}`,a)}function d(e){return r.get("/api/v1/admin/member/records",{params:e})}export{d as a,n as c,t as g,s as u};
