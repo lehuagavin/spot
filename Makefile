@@ -1,4 +1,4 @@
-.PHONY: help deploy build status logs stop clean restart build-web list-builds clean-builds rollback-build
+.PHONY: help deploy build status logs stop clean restart build-web list-builds clean-builds rollback-build generate-ssl check-ssl
 
 # Default target
 .DEFAULT_GOAL := help

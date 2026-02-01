@@ -7,11 +7,41 @@ COPY dist /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY <<EOF /etc/nginx/conf.d/default.conf
+# HTTP server - redirect to HTTPS
 server {
     listen 80;
     server_name _;
+
+    # Health check endpoint (allow HTTP for Docker healthcheck)
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+
+    # Redirect all other HTTP requests to HTTPS
+    location / {
+        return 301 https://\$host\$request_uri;
+    }
+}
+
+# HTTPS server
+server {
+    listen 443 ssl http2;
+    server_name _;
     root /usr/share/nginx/html;
     index index.html;
+
+    # SSL configuration
+    ssl_certificate /ssl/cert.pem;
+    ssl_certificate_key /ssl/cert.key;
+
+    # SSL security settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
 
     # Enable gzip
     gzip on;
@@ -23,6 +53,7 @@ server {
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
     # API reverse proxy to backend
     location /api {
@@ -62,18 +93,11 @@ server {
     location / {
         try_files \$uri \$uri/ /index.html;
     }
-
-    # Health check endpoint
-    location /health {
-        access_log off;
-        return 200 "healthy\n";
-        add_header Content-Type text/plain;
-    }
 }
 EOF
 
-# Expose port
-EXPOSE 80
+# Expose ports
+EXPOSE 80 443
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
