@@ -11,13 +11,11 @@ Page({
   data: {
     // 启动流程
     showPrivacy: false,
-    showLocationAuth: false,
     
     // 轮播图
     banners: [],
     
-    // 位置
-    location: null,
+    // 小区
     selectedCommunity: null,
     
     // 筛选（去掉报名中）
@@ -77,7 +75,7 @@ Page({
     if (app.needShowPrivacy()) {
       this.setData({ showPrivacy: true });
     } else {
-      this.checkLocationAndLoad();
+      this.initAndLoad();
     }
   },
 
@@ -86,50 +84,15 @@ Page({
    */
   onPrivacyAgree() {
     this.setData({ showPrivacy: false });
-    // 直接加载数据，不强制位置授权
-    this.checkLocationAndLoad();
+    this.initAndLoad();
   },
 
   /**
-   * 位置授权成功
+   * 初始化并加载数据
    */
-  onLocationSuccess(e) {
-    const { location } = e.detail;
-    this.setData({ 
-      showLocationAuth: false,
-      location,
-    });
-    this.loadInitialData();
-  },
-
-  /**
-   * 跳过位置授权
-   */
-  onLocationSkip() {
-    this.setData({ showLocationAuth: false });
-    this.loadInitialData();
-  },
-
-  /**
-   * 位置授权被拒绝
-   */
-  onLocationDenied() {
-    // 保持弹窗显示，让用户可以去设置
-  },
-
-  /**
-   * 检查位置并加载数据
-   */
-  async checkLocationAndLoad() {
-    const location = app.globalData.location;
+  initAndLoad() {
     const selectedCommunity = app.globalData.selectedCommunity;
-    
-    // 不管是否有位置信息，都加载数据
-    // 未定位时显示所有课程，定位后只显示对应小区的课程
-    this.setData({ 
-      location,
-      selectedCommunity,
-    });
+    this.setData({ selectedCommunity });
     this.loadInitialData();
   },
 

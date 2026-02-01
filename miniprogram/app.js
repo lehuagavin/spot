@@ -29,7 +29,6 @@ App({
     this.globalData.userInfo = storage.getUserInfo();
     this.globalData.selectedCommunity = storage.getSelectedCommunity();
     this.globalData.privacyAgreed = storage.getPrivacyAgreed();
-    this.globalData.location = storage.getLocation();
   },
 
   /**
@@ -92,80 +91,6 @@ App({
   agreePrivacy() {
     this.globalData.privacyAgreed = true;
     storage.setPrivacyAgreed(true);
-  },
-
-  /**
-   * 获取位置信息
-   */
-  getLocation() {
-    return new Promise((resolve, reject) => {
-      // 如果已有位置信息，直接返回
-      if (this.globalData.location) {
-        resolve(this.globalData.location);
-        return;
-      }
-      
-      // 请求位置授权
-      wx.getLocation({
-        type: 'gcj02',
-        success: (res) => {
-          const location = {
-            latitude: res.latitude,
-            longitude: res.longitude,
-          };
-          this.globalData.location = location;
-          storage.setLocation(location);
-          resolve(location);
-        },
-        fail: (err) => {
-          console.error('获取位置失败:', err);
-          reject(err);
-        },
-      });
-    });
-  },
-
-  /**
-   * 检查位置授权
-   */
-  checkLocationAuth() {
-    return new Promise((resolve) => {
-      wx.getSetting({
-        success: (res) => {
-          if (res.authSetting['scope.userLocation'] === undefined) {
-            // 未请求过授权
-            resolve('notAsked');
-          } else if (res.authSetting['scope.userLocation']) {
-            // 已授权
-            resolve('authorized');
-          } else {
-            // 已拒绝
-            resolve('denied');
-          }
-        },
-        fail: () => {
-          resolve('error');
-        },
-      });
-    });
-  },
-
-  /**
-   * 打开位置授权设置
-   */
-  openLocationSetting() {
-    return new Promise((resolve, reject) => {
-      wx.openSetting({
-        success: (res) => {
-          if (res.authSetting['scope.userLocation']) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        },
-        fail: reject,
-      });
-    });
   },
 
   /**
@@ -256,8 +181,7 @@ App({
     token: null,
     userInfo: null,
     
-    // 位置相关
-    location: null,
+    // 小区相关
     selectedCommunity: null,
     
     // 隐私协议

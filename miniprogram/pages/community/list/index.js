@@ -3,7 +3,6 @@
  */
 const app = getApp();
 const api = require('../../../services/api');
-const util = require('../../../utils/util');
 const storage = require('../../../utils/storage');
 
 Page({
@@ -26,75 +25,37 @@ Page({
     
     // 当前选中
     selectedId: '',
-    
-    // 位置
-    location: null,
   },
 
   /**
    * 页面加载
    */
   onLoad() {
-    // 获取当前位置
     this.setData({
-      location: app.globalData.location,
       selectedId: app.globalData.selectedCommunity?.id || '',
       searchHistory: storage.getSearchHistory(),
     });
     
-    // 加载附近小区
-    this.loadNearbyCommunities();
+    // 加载小区列表
+    this.loadCommunities();
   },
 
   /**
-   * 加载附近小区
+   * 加载小区列表
    */
-  async loadNearbyCommunities() {
+  async loadCommunities() {
     if (this.data.loading) return;
     
     this.setData({ loading: true });
     
     try {
-      const { location } = this.data;
-      let data;
+      // 获取所有小区
+      const data = await api.community.getList({
+        page: 1,
+        page_size: 50,
+      });
       
-      if (location) {
-        // 有位置信息，获取附近小区
-        data = await api.community.getNearby({
-          latitude: location.latitude,
-          longitude: location.longitude,
-          radius: 10, // 10公里范围
-        });
-      } else {
-        // 没有位置信息，获取所有小区
-        data = await api.community.getList({
-          page: 1,
-          page_size: 50,
-        });
-      }
-      
-      let communities = data.items || data || [];
-      
-      // 计算距离并格式化
-      if (location && communities.length > 0) {
-        communities = communities.map(item => {
-          const distance = util.calculateDistance(
-            location.latitude,
-            location.longitude,
-            item.latitude,
-            item.longitude
-          );
-          return {
-            ...item,
-            distance,
-            distanceValue: distance < 1 ? Math.round(distance * 1000) : distance.toFixed(1),
-            distanceUnit: distance < 1 ? 'm' : 'km',
-          };
-        });
-        
-        // 按距离排序
-        communities.sort((a, b) => a.distance - b.distance);
-      }
+      const communities = data.items || data || [];
       
       this.setData({
         communities,
@@ -132,27 +93,8 @@ Page({
         page_size: this.data.pageSize,
       });
       
-      let communities = data.items || data || [];
+      const communities = data.items || data || [];
       const total = data.total || communities.length;
-      
-      // 计算距离并格式化
-      const { location } = this.data;
-      if (location && communities.length > 0) {
-        communities = communities.map(item => {
-          const distance = util.calculateDistance(
-            location.latitude,
-            location.longitude,
-            item.latitude,
-            item.longitude
-          );
-          return {
-            ...item,
-            distance,
-            distanceValue: distance < 1 ? Math.round(distance * 1000) : distance.toFixed(1),
-            distanceUnit: distance < 1 ? 'm' : 'km',
-          };
-        });
-      }
       
       this.setData({
         communities,
@@ -247,7 +189,7 @@ Page({
     if (keyword) {
       this.searchCommunities(keyword);
     } else {
-      this.loadNearbyCommunities();
+      this.loadCommunities();
     }
   },
 
@@ -259,7 +201,7 @@ Page({
       keyword: '',
       showHistory: true,
     });
-    this.loadNearbyCommunities();
+    this.loadCommunities();
   },
 
   /**
@@ -317,39 +259,6 @@ Page({
   onOpenMap() {
     wx.navigateTo({
       url: '/pages/community/map/index',
-    });
-  },
-
-  /**
-   * 重新定位
-   */
-  onRelocate() {
-    wx.showLoading({ title: '定位中...' });
-    
-    wx.getLocation({
-      type: 'gcj02',
-      success: (res) => {
-        const location = {
-          latitude: res.latitude,
-          longitude: res.longitude,
-        };
-        
-        app.globalData.location = location;
-        storage.setLocation(location);
-        
-        this.setData({ location });
-        this.loadNearbyCommunities();
-      },
-      fail: (err) => {
-        console.error('定位失败:', err);
-        wx.showToast({
-          title: '定位失败',
-          icon: 'none',
-        });
-      },
-      complete: () => {
-        wx.hideLoading();
-      },
     });
   },
 });

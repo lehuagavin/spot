@@ -107,11 +107,3 @@
   show="{{showPrivacy}}" 
   bind:agree="onPrivacyAgree"
 />
-
-<!-- 位置授权弹窗 -->
-<location-auth 
-  show="{{showLocationAuth}}"
-  bind:success="onLocationSuccess"
-  bind:skip="onLocationSkip"
-  bind:denied="onLocationDenied"
-/>

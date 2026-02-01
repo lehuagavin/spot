@@ -45,13 +45,6 @@
     </view>
   </view>
   
-  <!-- 定位提示 -->
-  <view class="location-tip" wx:if="{{location}}" bindtap="onRelocate">
-    <view class="tip-icon">📍</view>
-    <text class="tip-text">当前定位：附近小区</text>
-    <text class="tip-action">重新定位</text>
-  </view>
-  
   <!-- 小区列表 -->
   <view class="community-section">
     <!-- 加载中 -->

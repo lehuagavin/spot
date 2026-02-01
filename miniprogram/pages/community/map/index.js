@@ -33,17 +33,8 @@ Page({
    * 页面加载
    */
   onLoad() {
-    // 获取当前位置
-    const location = app.globalData.location;
-    if (location) {
-      this.setData({
-        latitude: location.latitude,
-        longitude: location.longitude,
-      });
-    }
-    
-    // 加载附近小区
-    this.loadNearbyCommunities();
+    // 加载小区列表
+    this.loadCommunities();
   },
 
   /**
@@ -55,18 +46,15 @@ Page({
   },
 
   /**
-   * 加载附近小区
+   * 加载小区列表
    */
-  async loadNearbyCommunities() {
+  async loadCommunities() {
     this.setData({ loading: true });
     
     try {
-      const { latitude, longitude } = this.data;
-      
-      const data = await api.community.getNearby({
-        latitude,
-        longitude,
-        radius: 10,
+      const data = await api.community.getList({
+        page: 1,
+        page_size: 50,
       });
       
       let communities = data.items || data || [];
@@ -75,21 +63,6 @@ Page({
       if (communities.length === 0) {
         communities = this.getMockCommunities();
       }
-      
-      // 计算距离并格式化
-      communities = communities.map(item => {
-        const distance = util.calculateDistance(
-          latitude,
-          longitude,
-          item.latitude,
-          item.longitude
-        );
-        return {
-          ...item,
-          distance,
-          distanceText: util.formatDistance(distance),
-        };
-      });
       
       // 生成标记点
       const markers = communities.map((item, index) => ({
@@ -110,6 +83,14 @@ Page({
           display: 'BYCLICK',
         },
       }));
+      
+      // 如果有小区数据，将地图中心移到第一个小区
+      if (communities.length > 0 && communities[0].latitude && communities[0].longitude) {
+        this.setData({
+          latitude: communities[0].latitude,
+          longitude: communities[0].longitude,
+        });
+      }
       
       this.setData({
         communities,

@@ -6,7 +6,6 @@
 const KEYS = {
   TOKEN: 'token',
   USER_INFO: 'userInfo',
-  LOCATION: 'location',
   SELECTED_COMMUNITY: 'selectedCommunity',
   PRIVACY_AGREED: 'privacyAgreed',
   SEARCH_HISTORY: 'searchHistory',
@@ -109,20 +108,6 @@ function removeUserInfo() {
 }
 
 /**
- * 保存位置信息
- */
-function setLocation(location) {
-  set(KEYS.LOCATION, location);
-}
-
-/**
- * 获取位置信息
- */
-function getLocation() {
-  return get(KEYS.LOCATION, null);
-}
-
-/**
  * 保存选中的小区
  */
 function setSelectedCommunity(community) {
@@ -206,8 +191,6 @@ module.exports = {
   setUserInfo,
   getUserInfo,
   removeUserInfo,
-  setLocation,
-  getLocation,
   setSelectedCommunity,
   getSelectedCommunity,
   setPrivacyAgreed,
