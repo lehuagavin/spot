@@ -247,9 +247,9 @@ App({
    */
   globalData: {
     // 服务器基础地址（不含 /api/v1）
-    serverBase: 'http://localhost:8000',
+    serverBase: 'https://www.lervdgf.cn',
     // API 基础地址
-    apiBase: 'http://localhost:8000/api/v1',
+    apiBase: 'https://www.lervdgf.cn/api/v1',
     
     // 登录状态
     isLoggedIn: false,

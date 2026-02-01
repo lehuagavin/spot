@@ -1,0 +1,1 @@
+import{s as t}from"./index-DvoX4KWS.js";function n(e){return e?e.startsWith("http")?e:`${e}`:""}function a(e){return t.post("/api/v1/ai/generate-image",e,{timeout:12e4})}function s(e){return t.post("/api/v1/ai/generate-description",e,{timeout:3e4})}export{s as a,a as b,n as g};
